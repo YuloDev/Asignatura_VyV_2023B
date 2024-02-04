@@ -1,0 +1,46 @@
+# Entorno virtual
+venv/
+pipenv/
+
+# Archivos de configuración
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Archivos de configuración de PyCharm
+.idea/
+
+# Archivo de configuración de VSCode
+.vscode/
+
+# Archivos de registro
+*.log
+
+# Archivos generados en tiempo de ejecución
+db.sqlite3
+/media/
+/static/
+
+# Archivos de configuración específicos de usuario
+*.pyproj
+*.pycproj
+*.suo
+*.user
+*.suo
+*.user
+*.suo
+*.user
+
+# Archivos de caché y compilación
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.log
+
+# Directorio de entorno de desarrollo
+.env
+.envrc
