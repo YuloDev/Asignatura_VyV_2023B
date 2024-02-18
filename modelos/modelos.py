@@ -58,6 +58,6 @@ class Venta:
 
 class TipoDeMetrica(Enum):
     NUMERO_DE_VENTAS = "Número de ventas"
-    NUEVOS_INGRESOS = "Nuevos ingresos"
+    INGRESOS = "Nuevos ingresos"
     COSTOS = "Costos"
     BENEFICIO_POR_VENTA = "Beneficio por venta"

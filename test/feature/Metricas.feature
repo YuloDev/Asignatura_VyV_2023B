@@ -3,18 +3,18 @@
 
 Característica: Obtención de métricas de ventas mensualizadas por vendedor
   Como vendedor
-  Quiero evaluar mi rendimiento mensual mediante las métricas: el número de ventas, nuevos ingresos, costos, beneficio por venta
+  Quiero evaluar mi rendimiento mensual mediante las métricas: el número de ventas, ingresos, costos, beneficio por venta
   Para determinar posibles soluciones al presentarse un bajo rendimiento.
 
   Esquema del escenario: Vendedor evalúa su rendimiento
-    Dado que un vendedor tiene <cantidad> productos vendidos
-    Y el vendedor tiene una meta para cada métrica en el mes de diciembre
-    Cuando se despliegue el Dashboard de Métricas de diciembre
-    Entonces se mostrará el número de ventas, nuevos ingresos, costos, beneficio por venta de diciembre
-    Y se indicará la diferencia, como porcentaje, en la que los valores reales de las métricas <comparación> las metas
-    Y se indicará la diferencia, como porcentaje, en la que los valores reales de las métricas de diciembre <comparación> las valores reales de las métricas de noviembre
+    Dado que un vendedor tiene 4 productos vendidos en diciembre
+    Y el vendedor estableció las metas: número de ventas, ingresos, costos y beneficio por venta para diciembre
+    Cuando se despliegue el Dashboard de Métricas en diciembre
+    Entonces se mostrará el número de ventas, ingresos, costos, beneficio por venta de diciembre
+    Y se indicará que las métricas de diciembre <comparacion_por_meta> las metas de diciembre mediante un porcentaje
+    Y se indicará que las métricas de diciembre <comparacion_por_mes> las métricas de noviembre mediante un porcentaje
     Y se recomendará <recomendacion>
     Ejemplos:
-      | cantidad | comparacion | recomendacion                    |
-      | 2        |             | ajustar precios de los productos |
-      | 4        |             | promocionar productos            |
+      | comparacion_por_meta | comparacion_por_mes | recomendacion                    |
+      | son infreriores      | superan             | ajustar precios de los productos |
+      | superan              | superan             | promocionar productos            |
