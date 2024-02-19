@@ -36,8 +36,22 @@ def step_impl(context, cantidad_estrellas, causas):
 
 @step("la valoración total de calificaciones del (?P<item_de_calificacion>.+) aumentará")
 def step_impl(context, item_de_calificacion):
-    raise NotImplementedError(
-        u'STEP: Entonces la valoración total de calificaciones del <item_de_calificacion> aumentará')
+    calificacion_anterior_producto = 0
+    calificacion_anterior_servicio = 0
+    if item_de_calificacion.lower() == context.producto.nombre.lower():
+        calificacion_anterior_producto = context.producto.calificaciones[
+                                             context.producto.calificaciones_recibidas[-1].cantidad_estrellas] + 1
+        context.producto.calificaciones[context.producto.calificaciones_recibidas[-1].cantidad_estrellas] += 1
+    elif item_de_calificacion.lower() == "servicio":
+        calificacion_anterior_servicio = context.servicio.calificaciones[
+                                             context.servicio.calificaciones_recibidas[-1].cantidad_estrellas] + 1
+        context.servicio.calificaciones[context.servicio.calificaciones_recibidas[-1].cantidad_estrellas] += 1
+    assert (
+            context.servicio.calificaciones[
+                context.servicio.calificaciones_recibidas[-1].cantidad_estrellas] == calificacion_anterior_servicio
+            and context.producto.calificaciones[
+                context.producto.calificaciones_recibidas[-1].cantidad_estrellas] == calificacion_anterior_producto
+    ), "La valoración total de calificaciones no aumentó"
 
 
 @step(
