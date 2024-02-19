@@ -55,12 +55,6 @@ def step_impl(context, item_de_calificacion):
 
 
 @step(
-    "el vendedor podrá visualizar el porcentaje de calificaciones de cada cantidad de estrellas junto con los motivos correspondientes al (?P<item_de_calificacion>.+)\.")
-def step_impl(context, item_de_calificacion):
-    raise NotImplementedError(
-        u'STEP: Y el vendedor podrá visualizar el porcentaje de calificaciones de cada cantidad de estrellas junto con los motivos correspondientes al <item_de_calificacion>.')
-
-@step(
     "el vendedor podrá visualizar el porcentaje de calificaciones de cada cantidad de estrellas junto con los motivos correspondientes al (?P<item_de_calificacion>.+).")
 def step_impl(context, item_de_calificacion):
     opcion = item_de_calificacion.lower()
