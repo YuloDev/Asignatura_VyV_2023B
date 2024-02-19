@@ -59,3 +59,20 @@ def step_impl(context, item_de_calificacion):
 def step_impl(context, item_de_calificacion):
     raise NotImplementedError(
         u'STEP: Y el vendedor podrá visualizar el porcentaje de calificaciones de cada cantidad de estrellas junto con los motivos correspondientes al <item_de_calificacion>.')
+
+@step(
+    "el vendedor podrá visualizar el porcentaje de calificaciones de cada cantidad de estrellas junto con los motivos correspondientes al (?P<item_de_calificacion>.+).")
+def step_impl(context, item_de_calificacion):
+    opcion = item_de_calificacion.lower()
+    se_presento = False
+    calificacion = Calificacion(3, -1)
+    if context.producto.nombre.lower() == opcion:
+        se_presento = calificacion.mostrar_resultados_calificaciones(context.producto, 1)
+    elif "servicio" == opcion:
+        se_presento = calificacion.mostrar_resultados_calificaciones(context.servicio, 0)
+    elif "productos" == opcion:
+        se_presento = calificacion.mostrar_resultados_calificaciones(context.calificacion, -1)
+    else:
+        se_presento = False
+
+    assert se_presento == True, "No se encontró el item de calificación"
