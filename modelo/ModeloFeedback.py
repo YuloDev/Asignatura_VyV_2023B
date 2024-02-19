@@ -23,6 +23,21 @@ class Cliente:
         else:
             print(f"No se encontró un pedido con identificador {identificador_pedido}")
 
+    def calificar_servicio(self, identificador_pedido, cantidad_estrellas, causas):
+        pedido = self.encontrar_pedido_por_identificador(identificador_pedido)
+        servicio = pedido.servicio
+        if pedido:
+            #calificacion = Calificacion(cantidad_estrellas, 0)
+            #calificacion.agregar_causas(causas)
+            #servicio.calificaciones_recibidas.append(calificacion)
+        else:
+            print(f"No se encontró un pedido con identificador {identificador_pedido}")
+    def encontrar_pedido_por_identificador(self, identificador_pedido):
+        for pedido in self.pedidos:
+            if pedido.identificador == identificador_pedido:
+                return pedido
+        return None
+
 
 class Producto:
     def __init__(self, identificador, nombre, descripcion):
@@ -30,10 +45,21 @@ class Producto:
         self.nombre = nombre
         self.descripcion = descripcion
 
+    def obtener_nombre_por_identificador(self, identificador):
+        if identificador == self.identificador:
+            return self.nombre
+
 
 
 class Servicio:
     def __init__(self):
+        pass
+
+    def agregar_motivo_calificacion(self, motivo_calificacion):
+        self.motivos_calificacion.append(motivo_calificacion)
+
+    def obtener_motivos_calificacion_servicio(self):
+        return self.motivos_calificacion
 
 
 class Pedido:

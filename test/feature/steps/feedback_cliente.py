@@ -18,10 +18,20 @@ def step_impl(context):
 
 
 @step(
-    "el Cliente envíe una Calificación de (?P<cantidad_estrellas>.+) estrellas del Producto y del Servicio, y mencione las (?P<causas>.+) de su Calificación\.")
+    "el Cliente envíe una Calificación de (?P<cantidad_estrellas>.+) estrellas del Producto y del Servicio, y mencione las (?P<causas>.+) de su Calificación.")
 def step_impl(context, cantidad_estrellas, causas):
-    raise NotImplementedError(
-        u'STEP: Cuando el Cliente envíe una Calificación de <cantidad_estrellas> estrellas del Producto y del Servicio, y mencione las <causas> de su Calificación.')
+    context.cliente.calificar_producto(1, 1, int(cantidad_estrellas), causas)
+    context.cliente.calificar_servicio(1, int(cantidad_estrellas), causas)
+    calificacion_producto = context.producto.calificaciones_recibidas[-1].cantidad_estrellas
+    calificacion_servicio = context.servicio.calificaciones_recibidas[-1].cantidad_estrellas
+    motivos_calificacion_producto = context.producto.calificaciones_recibidas[-1].obtener_causas(1)
+    motivos_calificacion_servicio = context.servicio.calificaciones_recibidas[-1].obtener_causas(0)
+    assert (
+            1 <= calificacion_producto <= 5
+            and 1 <= calificacion_servicio <= 5
+            and motivos_calificacion_producto is not None and len(motivos_calificacion_producto) > 0
+            and motivos_calificacion_servicio is not None and len(motivos_calificacion_servicio) > 0
+    ), "La calificación del producto o del servicio no es válida o los motivos no han sido proporcionados"
 
 
 @step("la valoración total de calificaciones del (?P<item_de_calificacion>.+) aumentará")
