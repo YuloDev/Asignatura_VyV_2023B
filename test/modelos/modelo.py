@@ -1,16 +1,20 @@
 from enum import Enum
+from datetime import datetime
 
 # Definicion de la clase Vendedor
 class Vendedor:
     # Constructor
-    def __init__(self, nombre_vendedor):
+    def __init__(self, nombre_vendedor, lista_pedidos=None):
         self.nombre_vendedor = nombre_vendedor
-        self.pedidos = []  # Inicializa la lista de pedidos del vendedor
+        self.lista_pedidos = []  # Inicializa la lista de pedidos del vendedor
 
 #Este metodo pueden cambiar a su criterio
     def agregar_pedido(self, pedido):
         # Método para agregar un pedido a la lista de pedidos del vendedor
-        self.pedidos.append(pedido)
+        self.lista_pedidos.append(pedido)
+
+    def contar_pedidos(self):
+        return len(self.lista_pedidos)
 
     # Este metodo pueden cambiar a su criterio
     def visualizar_resumen(self):
@@ -44,17 +48,47 @@ resumenes = [
     ResumenSeguimiento("ListoDespacho", 2, 1, 2, 5)
 ]
 
-
 # Definicion de la clase Pedido
 class Pedido:
-    # Constructor
-    def __init__(self, nombre_pedido, tiempo_pedidoPC, tiempo_pedidoR, tiempo_pedidoAT, estadoAnulado):
-        self.nombre_pedido = nombre_pedido
-        self.estado_pedido = None  # Inicializa el atributo estado_pedido como None
-        self.tiempo_pedidoPC = tiempo_pedidoPC
-        self.tiempo_pedidoR = tiempo_pedidoR
-        self.tiempo_pedidoAT = tiempo_pedidoAT
-        self.estadoAnulado = None
+    def __init__(self, numero_pedido, etapa_pedido, pedido_activo, fecha_creacion_pedido,
+                 fecha_maxima_etapa_precompra=None, fecha_real_etapa_precompra=None, estado_pedido_precompra=None,
+                 fecha_maxima_etapa_reserva=None, fecha_real_etapa_reserva=None, estado_pedido_reserva=None,
+                 fecha_maxima_etapa_listo_para_entregar=None, fecha_real_etapa_listo_para_entregar=None,
+                 estado_pedido_listo_para_entregar=None):
+        self.numero_pedido = numero_pedido
+        self.etapa_pedido = etapa_pedido
+        self.pedido_activo = pedido_activo
+        self.fecha_creacion_pedido = fecha_creacion_pedido
+        self.fecha_maxima_etapa_precompra = fecha_maxima_etapa_precompra
+        self.fecha_real_etapa_precompra = fecha_real_etapa_precompra
+        self.estado_pedido_precompra = estado_pedido_precompra
+        self.fecha_maxima_etapa_reserva = fecha_maxima_etapa_reserva
+        self.fecha_real_etapa_reserva = fecha_real_etapa_reserva
+        self.estado_pedido_reserva = estado_pedido_reserva
+        self.fecha_maxima_etapa_listo_para_entregar = fecha_maxima_etapa_listo_para_entregar
+        self.fecha_real_etapa_listo_para_entregar = fecha_real_etapa_listo_para_entregar
+        self.estado_pedido_listo_para_entregar = estado_pedido_listo_para_entregar
+
+    @classmethod
+    def from_row(cls, row):
+        numero_pedido = row["numero_pedido"]
+        etapa_pedido = row["etapa_pedido"]
+        pedido_activo = row["pedido_activo"] == "true"
+        fecha_creacion_pedido = datetime.strptime(row["fecha_creacion_pedido"], "%Y-%m-%d")
+        fecha_maxima_etapa_precompra = datetime.strptime(row["fecha_maxima_etapa_precompra"], "%Y-%m-%d") if row["fecha_maxima_etapa_precompra"] else None
+        fecha_real_etapa_precompra = datetime.strptime(row["fecha_real_etapa_precompra"], "%Y-%m-%d") if row["fecha_real_etapa_precompra"] else None
+        estado_pedido_precompra = row["estado_pedido_precompra"]
+        fecha_maxima_etapa_reserva = datetime.strptime(row["fecha_maxima_etapa_reserva"], "%Y-%m-%d") if row["fecha_maxima_etapa_reserva"] else None
+        fecha_real_etapa_reserva = datetime.strptime(row["fecha_real_etapa_reserva"], "%Y-%m-%d") if row["fecha_real_etapa_reserva"] else None
+        estado_pedido_reserva = row["estado_pedido_reserva"]
+        fecha_maxima_etapa_listo_para_entregar = datetime.strptime(row["fecha_maxima_etapa_listo_para_entregar"], "%Y-%m-%d") if row["fecha_maxima_etapa_listo_para_entregar"] else None
+        fecha_real_etapa_listo_para_entregar = datetime.strptime(row["fecha_real_etapa_listo_para_entregar"], "%Y-%m-%d") if row["fecha_real_etapa_listo_para_entregar"] else None
+        estado_pedido_listo_para_entregar = row["estado_pedido_listo_para_entregar"]
+
+        return cls(numero_pedido, etapa_pedido, pedido_activo, fecha_creacion_pedido, fecha_maxima_etapa_precompra,
+                   fecha_real_etapa_precompra, estado_pedido_precompra, fecha_maxima_etapa_reserva,
+                   fecha_real_etapa_reserva, estado_pedido_reserva, fecha_maxima_etapa_listo_para_entregar,
+                   fecha_real_etapa_listo_para_entregar, estado_pedido_listo_para_entregar)
 
     # Este metodo pueden cambiar a su criterio, nosotros medio le adelatamos la logica pensandole algo asi, pero pueden cambiarle dependiendo lo que necesiten
     # Método para cambiar el estado de un pedido
