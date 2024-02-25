@@ -105,9 +105,9 @@ class Dashboard:
             mes_anterior = 12
             anio -= 1
         for venta in lista_de_ventas:
-            if (venta.anio == anio) and (venta.mes == mes):
+            if (venta.fecha.year == anio) and (venta.fecha.month == mes):
                 numero_de_ventas_actuales += 1
-            if (venta.anio == anio) and (venta.mes == mes_anterior):
+            if (venta.fecha.year == anio) and (venta.fecha.month == mes_anterior):
                 numero_de_ventas_mes_anterior += 1
         self.metricas_actuales[TipoDeMetrica.NUMERO_DE_VENTAS] = numero_de_ventas_actuales
         self.metricas_mes_anterior[TipoDeMetrica.NUMERO_DE_VENTAS] = numero_de_ventas_mes_anterior
@@ -117,6 +117,8 @@ class Dashboard:
             ((numero_de_ventas_actuales / numero_de_ventas_mes_anterior) - 1) * 100)
         self.bandera_metrica = True
 
+    def obtener_ventas(self):
+        return self.vendedor.obtener_ventas()
     def se_realizaron_metricas(self):
         return self.bandera_metrica
 

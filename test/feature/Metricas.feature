@@ -7,7 +7,7 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
   Para determinar posibles soluciones al presentarse un bajo rendimiento.
 
   Esquema del escenario: Vendedor evalúa su rendimiento con el número de ventas
-    Dado que un vendedor tiene 6 ventas:
+    Dado que un vendedor tiene 6 ventas
       | fecha      | producto               | costo | precio | cantidad |
       | 2023-12-01 | Teclado                | 10.0  | 15.0   | 1        |
       | 2023-12-02 | Cable USB              | 10.0  | 15.0   | 1        |
@@ -27,7 +27,7 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
       | 4           | 6      | superan              | superan             | promocionar productos            |
 
   Esquema del escenario: Vendedor evalúa su rendimiento con los ingresos
-    Dado que un vendedor tiene 6 ventas:
+    Dado que un vendedor tiene 6 ventas
       | fecha      | producto               | costo | precio | cantidad |
       | 2023-12-01 | Teclado                | 10    | 15     | 2        |
       | 2023-12-02 | Cable USB              | 10    | 15     | 2        |
@@ -47,7 +47,7 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
       | 50            | 60       | superan              | superan             | promocionar productos            |
 
   Esquema del escenario: Vendedor evalúa su rendimiento con los costos
-    Dado que un vendedor tiene 6 ventas:
+    Dado que un vendedor tiene 6 ventas
       | fecha      | producto               | costo | precio | cantidad |
       | 2023-12-01 | Teclado                | 10    | 15     | 2        |
       | 2023-12-02 | Cable USB              | 10    | 15     | 2        |
@@ -67,7 +67,7 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
       | 30          | 40     | superan              | superan             | promocionar productos            |
 
   Esquema del escenario: Vendedor evalúa su rendimiento con los beneficios por venta
-    Dado que un vendedor tiene 6 ventas:
+    Dado que un vendedor tiene 6 ventas
       | fecha      | producto               | costo | precio | cantidad |
       | 2023-12-01 | Teclado                | 10    | 15     | 2        |
       | 2023-12-02 | Cable USB              | 10    | 15     | 2        |
