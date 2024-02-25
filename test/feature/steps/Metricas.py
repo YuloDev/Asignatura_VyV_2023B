@@ -1,56 +1,120 @@
-from datetime import date
 from behave import *
 from modelos.modelos import *
 
 use_step_matcher("re")
 
 
-@step("que un vendedor tiene 4 productos vendidos en diciembre")
-def step_impl(context):
-    context.producto = Producto(10, 6)
+@step("que un vendedor tiene (?P<cantidad>.+) ventas:")
+def step_impl(context, cantidad):
+    print("Primer step")
     context.vendedor = Vendedor("nombre")
-    context.vendedor.vender([context.producto], date(2024, 12, 1))
-    context.vendedor.vender([context.producto], date(2024, 12, 1))
-    context.vendedor.vender([context.producto], date(2024, 12, 1))
-    context.vendedor.vender([context.producto], date(2024, 12, 1))
-    assert (context.vendedor.numero_ventas == 4)
+    for row in context.table:
+        print(row)
+        fecha = row["fecha"].split("-")
+        context.vendedor.vender([Producto(row["producto"], float(row["precio"]), float(row["costo"]))], int(fecha[0]), int(fecha[1]),
+                                int(fecha[2]))
+    assert (len(context.vendedor.obtener_ventas()) == int(cantidad)), f"Los valores no son iguales"
 
 
-@step("el vendedor estableció las metas: número de ventas, ingresos, costos y beneficio por venta para diciembre")
-def step_impl(context):
-    context.vendedor.establecer_meta(Metrica(TipoDeMetrica.NUMERO_DE_VENTAS, 8, date(2024, 12, 1)))
-    assert (context.vendedor.tiene_metas(12) == True)
+@step("el vendedor estableció (?P<meta_ventas>.+) ventas como la meta de número de ventas para diciembre")
+def step_impl(context, meta_ventas):
+    context.vendedor.establecer_meta(Meta(TipoDeMetrica.NUMERO_DE_VENTAS, int(meta_ventas), 2023, 12))
+    assert (context.vendedor.obtener_meta(TipoDeMetrica.NUMERO_DE_VENTAS, 2023, 12) == int(meta_ventas))
 
 
 @step("se despliegue el Dashboard de Métricas en diciembre")
 def step_impl(context):
-    context.dashboard = context.vendedor.obtener_dashboard(date(2024, 12, 1))
-    assert (context.dashboard is not None)
+    context.dashboard = Dashboard(context.vendedor)
+    context.dashborad.generar_metricas(2023, 12)
+    assert (context.dashboard.se_realizaron_metricas() == True)
 
 
-@step("se mostrará el número de ventas, ingresos, costos, beneficio por venta de diciembre")
-def step_impl(context):
-    assert ((context.dashboard.obtener_numero_venta() == 4) and
-            (context.dashboard.obtener_ingresos() == 40) and
-            (context.dashboard.obtener_costos() == 24) and
-            (context.dashboard.obtener_beneficio_por_venta() == 4))
-
-
-@step("se mostrará la diferencia entre las metas y los valores reales de las métricas como porcentaje")
-def step_impl(context):
-    assert ((context.dashboard.obtener_diferecia_entre_meta_y_numero_venta() == 50) and
-            (context.dashboard.obtener_diferecia_entre_meta_e_ingresos() == 66) and
-            (context.dashboard.obtener_diferecia_entre_meta_y_costos() == 60) and
-            (context.dashboard.obtener_diferecia_entre_meta_y_beneficio_por_venta() == 80))
+@step("se mostrarán (?P<ventas>.+) ventas")
+def step_impl(context, ventas):
+    assert (context.dashboard.obtener_ventas() == int(ventas))
 
 
 @step(
-    "se mostrará la diferencia entre las valores reales de las métricas de noviembre y los valores reales de las métricas de diciembre como porcentaje")
-def step_impl(context):
+    "se indicará, mediante porcentaje, que las ventas de diciembre (?P<comparacion_por_meta>.+) a la meta de ventas de diciembre")
+def step_impl(context, comparacion_por_meta):
+    assert (context.dashboard.obtener_comparacion_por_meta(TipoDeMetrica.NUMERO_DE_VENTAS) == TipoDeComparacion(
+        comparacion_por_meta))
+
+
+@step(
+    "se indicará, mediante porcentaje, que las ventas de diciembre (?P<comparacion_por_mes>.+) a las ventas de noviembre")
+def step_impl(context, comparacion_por_mes):
+    assert (context.dashboard.obtener_comparacion_por_mes_anterior(TipoDeMetrica.NUMERO_DE_VENTAS) == TipoDeComparacion(
+        comparacion_por_mes))
+
+
+@step("se recomendará (?P<recomendacion>.+)")
+def step_impl(context, recomendacion):
+    assert (context.dashboard.obtener_recomendación(TipoDeMetrica.NUMERO_DE_VENTAS) == TipoDeRecomendacion(
+        recomendacion))
+
+
+@step("el vendedor estableció (?P<meta_ingresos>.+) dolares como la meta de ingresos para diciembre")
+def step_impl(context, meta_ingresos):
+    pass
+
+
+@step("se mostrarán (?P<ingresos>.+) dolares de ingresos")
+def step_impl(context, ingresos):
     pass
 
 
 @step(
-    "si el valor real de las cuatro métricas son (?P<comparacion>.+) por al menos (?P<porcentaje>.+)% al valor de las metas se recomendará (?P<recomendacion>.+)")
-def step_impl(context, comparacion, porcentaje, recomendacion):
+    "se indicará, mediante porcentaje, que los ingresos de diciembre (?P<comparacion_por_meta>.+) a la meta de ingresos de diciembre")
+def step_impl(context, comparacion_por_meta):
+    pass
+
+
+@step(
+    "se indicará, mediante porcentaje, que los ingresos de diciembre (?P<comparacion_por_mes>.+) a los ingresos de noviembre")
+def step_impl(context, comparacion_por_mes):
+    pass
+
+
+@step("el vendedor estableció (?P<meta_costos>.+) dolares como la meta de costos para diciembre")
+def step_impl(context, meta_costos):
+    pass
+
+
+@step("se mostrarán (?P<costos>.+) dolares de costos")
+def step_impl(context, costos):
+    pass
+
+
+@step(
+    "se indicará, mediante porcentaje, que los costos de diciembre (?P<comparacion_por_meta>.+) a la meta de costos de diciembre")
+def step_impl(context, comparacion_por_meta):
+    pass
+
+
+@step(
+    "se indicará, mediante porcentaje, que los costos de diciembre (?P<comparacion_por_mes>.+) a los costos de noviembre")
+def step_impl(context, comparacion_por_mes):
+    pass
+
+
+@step("el vendedor estableció (?P<meta_beneficio>.+) dolares como la meta de beneficio por venta para diciembre")
+def step_impl(context, meta_beneficio):
+    pass
+
+
+@step("se mostrarán (?P<beneficio>.+) dolares de beneficio por venta")
+def step_impl(context, beneficio):
+    pass
+
+
+@step(
+    "se indicará, mediante porcentaje, que los beneficio por venta de diciembre (?P<comparacion_por_meta>.+) a la meta de los beneficios por venta de diciembre")
+def step_impl(context, comparacion_por_meta):
+    pass
+
+
+@step(
+    "se indicará, mediante porcentaje, que los beneficio por venta de diciembre (?P<comparacion_por_mes>.+) a los beneficios por venta de noviembre")
+def step_impl(context, comparacion_por_mes):
     pass
