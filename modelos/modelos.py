@@ -1,3 +1,4 @@
+from datetime import date
 from enum import Enum
 
 
@@ -21,18 +22,22 @@ class Vendedor:
         self.nombre = nombre
         self.metas = []
         self.venta = []
-        self.numero_ventas = 0
-        self.metricas = []
 
-    def vender(self, lista_producto, fecha):
-        self.numero_ventas += 1
-        self.venta.append(Venta(lista_producto, fecha))
+    def vender(self, lista_producto, anio, mes, dia):
+        self.venta.append(Venta(lista_producto, date(anio, mes, dia)))
 
-    def obtener_dashboard(self, fecha):
-        """
-        Todo
-        """
-        pass
+    def obtener_ventas(self):
+        return self.venta
+
+    def establecer_meta(self, meta):
+        self.metas.append(meta)
+
+    def obtener_meta(self, tipo_de_metrica, anio, mes):
+        for meta in self.metas:
+            if tipo_de_metrica == meta.tipo_de_metrica and meta.anio == anio and meta.mes == mes:
+                return meta.valor
+            else:
+                return -1
 
 
 class Venta:
