@@ -19,18 +19,15 @@ def step_impl(context):
 
     print(f"El vendedor {context.vendedor.nombre_vendedor} tiene {context.vendedor.contar_pedidos()} pedidos.")
 
-    primer_pedido = context.vendedor.lista_pedidos[0]
+    # Verificar que el vendedor tenga al menos un pedido
+    assert context.vendedor.contar_pedidos() > 0, "El vendedor no tiene ningún pedido"
 
-    # Ahora puedes acceder a los atributos del primer pedido
-    numero_pedido = primer_pedido.numero_pedido
-    etapa_pedido = primer_pedido.etapa_pedido
-    pedido_activo = primer_pedido.pedido_activo
-    # Y así sucesivamente...
+    # Obtener el último pedido del vendedor
+    ultimo_pedido = context.vendedor.lista_pedidos[-1]
 
-    print("Información del primer pedido:")
-    print(f"Número de pedido: {numero_pedido}")
-    print(f"Etapa del pedido: {etapa_pedido}")
-    print(f"¿Pedido activo?: {pedido_activo}")
+    # Comparar el número de pedido del último pedido con la suma total de pedidos
+    suma_total_pedidos = context.vendedor.contar_pedidos()
+    assert ultimo_pedido.numero_pedido == str(suma_total_pedidos).zfill(2), "El número total de pedidos del vendedor no coincide"
 
 @step("el numero de pedidos totales y el tiempo estimado para cada etapa en dias es el siguiente")
 def step_impl(context):
