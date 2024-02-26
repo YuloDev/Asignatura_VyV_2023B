@@ -127,20 +127,20 @@ class Dashboard:
     def _agregar_recomendacion(self, tipo_de_metrica, porcentaje_comparacion_meta):
         recomendaciones_por_metrica = {
             TipoDeMetrica.NUMERO_DE_VENTAS: {
-                'superior': Recomendacion.SUPERIOR_A_META_DE_VENTAS,
-                'inferior': Recomendacion.INFERIOR_A_META_DE_VENTAS
+                'superior': Recomendacion.MANTENER_PROMOCION_DE_PRODUCTOS,
+                'inferior': Recomendacion.OFERTA_DE_PRODUCTOS
             },
             TipoDeMetrica.INGRESOS: {
-                'superior': Recomendacion.SUPERIOR_A_META_DE_INGRESOS,
-                'inferior': Recomendacion.INFERIOR_A_META_DE_INGRESOS
+                'superior': Recomendacion.PROMOCION_PRODUCTOS_ESTRELLA,
+                'inferior': Recomendacion.COMBO_DE_PRODUCTO
             },
             TipoDeMetrica.COSTOS: {
-                'superior': Recomendacion.SUPERIOR_A_META_DE_COSTOS,
-                'inferior': Recomendacion.INFERIOR_A_META_DE_COSTOS
+                'superior': Recomendacion.OPTIMIZAR_PROCESOS,
+                'inferior': Recomendacion.NEGOCIAR_DESCUENTO
             },
             TipoDeMetrica.BENEFICIO_POR_VENTA: {
-                'superior': Recomendacion.SUPERIOR_A_META_DE_BENEFICIO_POR_VENTA,
-                'inferior': Recomendacion.INFERIOR_A_META_DE_BENEFICIO_POR_VENTA
+                'superior': Recomendacion.MANTENER_PRECIO_SOBRE_COSTO,
+                'inferior': Recomendacion.AJUSTAR_PRECIO_SOBRE_COSTO
             }
         }
         recomendacion_al_superar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['superior']
@@ -180,16 +180,17 @@ class TipoDeMetrica(Enum):
 
 
 class Recomendacion(Enum):
-    INFERIOR_A_META_DE_VENTAS = "ajustar precios de los productos"
-    SUPERIOR_A_META_DE_VENTAS = "promocionar productos"
-    INFERIOR_A_META_DE_INGRESOS = "promocionar más productos"
-    SUPERIOR_A_META_DE_INGRESOS = "mantener la promoción productos estrella"
-    INFERIOR_A_META_DE_COSTOS = "mantener costos de los productos"
-    SUPERIOR_A_META_DE_COSTOS = "reducir costos de los productos"
-    INFERIOR_A_META_DE_BENEFICIO_POR_VENTA = "ajustar precios sobre los costos de los productos"
-    SUPERIOR_A_META_DE_BENEFICIO_POR_VENTA = "promocionar productos estrella"
+    OFERTA_DE_PRODUCTOS = "Crear oferta en los productos para generar más ventas."
+    MANTENER_PROMOCION_DE_PRODUCTOS = "Aumentar tu meta para el siguiente mes."
+    COMBO_DE_PRODUCTO = "Crear combos o conjunto de productos similares."
+    PROMOCION_PRODUCTOS_ESTRELLA = "Promocionar productos estrella."
+    NEGOCIAR_DESCUENTO = "Negociar descuentos con proveedores o buscar alternativas más económicas."
+    OPTIMIZAR_PROCESOS = "Optimizar procesos internos para reducir costos operativos. "
+    AJUSTAR_PRECIO_SOBRE_COSTO = "Ajustar los precios de los productos con respecto a sus costos."
+    MANTENER_PRECIO_SOBRE_COSTO = "Mantener los precios de los productos con respecto a sus costos."
 
 
 class TipoDeComparacion(Enum):
     INFERIOR = "son inferiores"
     SUPERIOR = "superan"
+    IGUAL = "igual"
