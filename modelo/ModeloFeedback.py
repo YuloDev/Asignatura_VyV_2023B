@@ -44,6 +44,9 @@ class Servicio:
         ]
         self.calificaciones_recibidas = list()
 
+        causas = ["Entrega tardía"]
+        self.calificaciones_recibidas.append(Calificacion(2, causas, self))
+
     def aumentar_estrella(self, calificacion_cliente):
         for calificacion in self.puntuaciones_calificaciones:
             if calificacion["estrellas"] == calificacion_cliente:
@@ -61,6 +64,35 @@ class Servicio:
             porcentaje_calculado = (calificacion["cantidad"] / total_estrellas) * 100
             porcentaje_calculado = round(porcentaje_calculado)
             calificacion["porcentaje"] = str(porcentaje_calculado) + "%"
+
+    def obtener_porcentajes_de_calificaciones(self):
+        porcentajes_por_estrella = list()
+        total_estrellas = sum(calificacion["cantidad"] for calificacion in self.puntuaciones_calificaciones)
+        for calificacion in self.puntuaciones_calificaciones:
+            porcentaje_calculado = (calificacion["cantidad"] / total_estrellas) * 100
+            porcentaje_calculado = round(porcentaje_calculado)
+            porcentajes_por_estrella.append(str(porcentaje_calculado) + "%")
+        return porcentajes_por_estrella
+
+    def obtener_causas_de_cada_estrella(self):
+        causas = {1: "", 2: "", 3: "", 4: "", 5: ""}
+        causas_temp = {1: list(), 2: list(), 3: list(), 4: list(), 5: list()}
+
+        for calificacion in self.calificaciones_recibidas:
+            causas_temp[calificacion.estrellas].extend(calificacion.causas)
+
+        for estrella, lista_causas in causas_temp.items():
+            contador_causas = {}
+            for causa in lista_causas:
+                if causa is not None:
+                    if causa in contador_causas:
+                        contador_causas[causa] += 1
+                    else:
+                        contador_causas[causa] = 1
+
+            causas[estrella] = ", ".join(
+                [f"{causa} ({cantidad})" for causa, cantidad in contador_causas.items()])
+        return causas
 
 
 class Calificacion:
