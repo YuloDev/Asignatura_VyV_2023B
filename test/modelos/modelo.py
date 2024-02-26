@@ -127,9 +127,9 @@ class Etapa:
 
 
 class EtapaEncuentra(Enum):
-    PreCompra = "PreCompra"
-    Reserva = "Reserva"
-    ListoDespacho = "ListoDespacho"
+    precompra = "PreCompra"
+    reserva = "Reserva"
+    listo_para_entregar = "ListoDespacho"
 
 
 class EstadoPedido(Enum):
