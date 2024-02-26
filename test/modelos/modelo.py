@@ -9,7 +9,7 @@ class Vendedor:
         self.lista_pedidos = []  # Inicializa la lista de pedidos del vendedor
         self.resumenes = []  # Inicializa la lista de resúmenes del vendedor
 
-#Este metodo pueden cambiar a su criterio
+    # Este metodo pueden cambiar a su criterio
     def agregar_pedido(self, pedido):
         # Método para agregar un pedido a la lista de pedidos del vendedor
         self.lista_pedidos.append(pedido)
@@ -21,16 +21,15 @@ class Vendedor:
     def visualizar_resumen(self):
         pass
 
-    def actualizar_resumen_precompra(self):
+    def obtener_resumen_etapa(self, nombre_etapa):
         # Limpiamos los resúmenes existentes
         self.resumenes = []
-        etapa = EtapaEncuentra.precompra
-        resumen_etapa = ResumenSeguimiento(etapa.value, 0, 0, 0, 0)
-        resultados = resumen_etapa.obtener_detalles_precompra(self.lista_pedidos)
+        resumen_etapa = ResumenSeguimiento(nombre_etapa, 0, 0, 0, 0)
+        resultados = resumen_etapa.obtener_detalles_resumen(self.lista_pedidos, nombre_etapa)
         # Almacenamos los resultados devueltos en la variable 'resultados'
         resumen_etapa.num_pedidos_total, resumen_etapa.num_pedido_cancelados, resumen_etapa.num_pedidos_atrasados, resumen_etapa.num_pedidos_a_tiempo = resultados
         # Imprimimos solo el resumen
-        print(f"Resumen para la etapa {etapa}:")
+        print(f"Resumen para la etapa {nombre_etapa}:")
         print(f"Pedidos en esta etapa: {resumen_etapa.num_pedidos_total}")
         print(f"Total cancelados: {resumen_etapa.num_pedido_cancelados}")
         print(f"Total atrasados: {resumen_etapa.num_pedidos_atrasados}")
@@ -40,54 +39,16 @@ class Vendedor:
               "cancelados,", resumen_etapa.num_pedidos_atrasados, "atrasados,", resumen_etapa.num_pedidos_a_tiempo,
               "a tiempo\n")
         self.resumenes.append(resumen_etapa)
+        return resumen_etapa
 
 
-    def actualizar_resumen_reserva(self):
-        # Limpiamos los resúmenes existentes
-        self.resumenes = []
-        etapa = EtapaEncuentra.reserva
-        resumen_etapa = ResumenSeguimiento(etapa.value, 0, 0, 0, 0)
-        resultados = resumen_etapa.obtener_detalles_reserva(self.lista_pedidos)
-        # Almacenamos los resultados devueltos en la variable 'resultados'
-        resumen_etapa.num_pedidos_total, resumen_etapa.num_pedido_cancelados, resumen_etapa.num_pedidos_atrasados, resumen_etapa.num_pedidos_a_tiempo = resultados
-        # Imprimimos solo el resumen
-        print(f"Resumen para la etapa {etapa}:")
-        print(f"Pedidos en esta etapa: {resumen_etapa.num_pedidos_total}")
-        print(f"Total cancelados: {resumen_etapa.num_pedido_cancelados}")
-        print(f"Total atrasados: {resumen_etapa.num_pedidos_atrasados}")
-        print(f"Total a tiempo: {resumen_etapa.num_pedidos_a_tiempo}")
-        print("Resumen actualizado:", resumen_etapa.num_pedidos_total, "total,",
-              resumen_etapa.num_pedido_cancelados,
-              "cancelados,", resumen_etapa.num_pedidos_atrasados, "atrasados,", resumen_etapa.num_pedidos_a_tiempo,
-              "a tiempo\n")
-        self.resumenes.append(resumen_etapa)
-
-    def actualizar_resumen_listo_para_entrega(self):
-        # Limpiamos los resúmenes existentes
-        self.resumenes = []
-        etapa = EtapaEncuentra.listo_para_entregar
-        resumen_etapa = ResumenSeguimiento(etapa.value, 0, 0, 0, 0)
-        resultados = resumen_etapa.obtener_detalles_listo_para_entrega(self.lista_pedidos)
-        # Almacenamos los resultados devueltos en la variable 'resultados'
-        resumen_etapa.num_pedidos_total, resumen_etapa.num_pedido_cancelados, resumen_etapa.num_pedidos_atrasados, resumen_etapa.num_pedidos_a_tiempo = resultados
-        # Imprimimos solo el resumen
-        print(f"Resumen para la etapa {etapa}:")
-        print(f"Pedidos en esta etapa: {resumen_etapa.num_pedidos_total}")
-        print(f"Total cancelados: {resumen_etapa.num_pedido_cancelados}")
-        print(f"Total atrasados: {resumen_etapa.num_pedidos_atrasados}")
-        print(f"Total a tiempo: {resumen_etapa.num_pedidos_a_tiempo}")
-        print("Resumen actualizado:", resumen_etapa.num_pedidos_total, "total,",
-              resumen_etapa.num_pedido_cancelados,
-              "cancelados,", resumen_etapa.num_pedidos_atrasados, "atrasados,", resumen_etapa.num_pedidos_a_tiempo,
-              "a tiempo\n")
-        self.resumenes.append(resumen_etapa)
-
-#Definicion de la Clase Etapa
+# Definicion de la Clase Etapa
 class Etapa:
     def __init__(self, nombre_etapa, tiempo_etapa):
         self.nombre_etapa = nombre_etapa
         self.tiempo_etapa = tiempo_etapa
         self.pedidos = []
+
 
 # Creacion de la Clase TiempoEtapa
 class TiempoEtapa:
@@ -109,7 +70,8 @@ class TiempoEtapa:
         info_etapa = {"total_pedidos": total_pedidos, "tiempo_etapa": self.obtener_tiempo_etapa(nombre_etapa)}
 
         # Imprimir información para verificar
-        print(f"Etapa: {nombre_etapa}, Total Pedidos: {total_pedidos}, Tiempo Estimado: {self.obtener_tiempo_etapa(nombre_etapa)} días")
+        print(
+            f"Etapa: {nombre_etapa}, Total Pedidos: {total_pedidos}, Tiempo Estimado: {self.obtener_tiempo_etapa(nombre_etapa)} días")
 
         # Devolver el diccionario con la información de la etapa
         return info_etapa
@@ -132,6 +94,7 @@ class TiempoEtapa:
                 return etapa.tiempo_etapa
         return 0  # Valor por defecto si no se encuentra la etapa
 
+
 # Definicion de la clase ResumenSeguimiento
 class ResumenSeguimiento:
     def __init__(self, nombre_etapa, tiempo_etapa, num_pedido_cancelados, num_pedidos_atrasados, num_pedidos_a_tiempo):
@@ -152,48 +115,34 @@ class ResumenSeguimiento:
         self.total_pedidos = self.num_pedidos_atrasados + self.num_pedidos_a_tiempo + self.num_pedido_cancelados
         return self.total_pedidos
 
-    def obtener_detalles_precompra(self, pedidos):
+    def obtener_detalles_resumen(self, pedidos, etapa):
         # Filtrar los pedidos por la etapa actual
-        pedidos_etapa = [pedido for pedido in pedidos if pedido.etapa_pedido == self.nombre_etapa.lower()]
-
+        pedidos_etapa = [pedido for pedido in pedidos if pedido.etapa_pedido == etapa.lower()]
+        
         # Inicializamos las variables
         total_pedidos = len(pedidos_etapa)
         pedidos_cancelados = sum(1 for pedido in pedidos_etapa if pedido.pedido_activo == False)
-        pedidos_atrasados = sum(1 for pedido in pedidos_etapa if pedido.estado_pedido_precompra == EstadoPedido.Atrasado.value.lower())
-        pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if pedido.estado_pedido_precompra == EstadoPedido.A_tiempo.value.lower().replace(" ", "_"))
-
-        # Almacenamos los resultados en el atributo 'resultados'
-        self.resultados = (total_pedidos, pedidos_cancelados, pedidos_atrasados, pedidos_a_tiempo)
-
-        # Devolvemos los resultados
-        return self.resultados
-
-
-    def obtener_detalles_reserva(self, pedidos):
-        # Filtrar los pedidos por la etapa actual
-        pedidos_etapa = [pedido for pedido in pedidos if pedido.etapa_pedido == self.nombre_etapa.lower()]
-
-        # Inicializamos las variables
-        total_pedidos = len(pedidos_etapa)
-        pedidos_cancelados = sum(1 for pedido in pedidos_etapa if pedido.pedido_activo == False)
-        pedidos_atrasados = sum(1 for pedido in pedidos_etapa if pedido.estado_pedido_reserva == EstadoPedido.Atrasado.value.lower())
-        pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if pedido.estado_pedido_reserva == EstadoPedido.A_tiempo.value.lower().replace(" ", "_"))
-
-        # Almacenamos los resultados en el atributo 'resultados'
-        self.resultados = (total_pedidos, pedidos_cancelados, pedidos_atrasados, pedidos_a_tiempo)
-
-        # Devolvemos los resultados
-        return self.resultados
-
-    def obtener_detalles_listo_para_entrega(self, pedidos):
-        # Filtrar los pedidos por la etapa actual
-        pedidos_etapa = [pedido for pedido in pedidos if pedido.etapa_pedido == self.nombre_etapa.lower()]
-
-        # Inicializamos las variables
-        total_pedidos = len(pedidos_etapa)
-        pedidos_cancelados = sum(1 for pedido in pedidos_etapa if pedido.pedido_activo == False)
-        pedidos_atrasados = sum(1 for pedido in pedidos_etapa if pedido.estado_pedido_listo_para_entregar == EstadoPedido.Atrasado.value.lower())
-        pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if pedido.estado_pedido_listo_para_entregar == EstadoPedido.A_tiempo.value.lower().replace(" ", "_"))
+        if etapa == EtapaEncuentra.precompra.value:
+            pedidos_atrasados = sum(
+                1 for pedido in pedidos_etapa if pedido.estado_pedido_precompra == EstadoPedido.Atrasado.value.lower())
+            pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if
+                                   pedido.estado_pedido_precompra == EstadoPedido.A_tiempo.value.lower().replace(" ",
+                                                                                                                 "_"))
+        elif etapa == EtapaEncuentra.reserva.value:
+            pedidos_atrasados = sum(
+                1 for pedido in pedidos_etapa if pedido.estado_pedido_reserva == EstadoPedido.Atrasado.value.lower())
+            pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if
+                                   pedido.estado_pedido_reserva== EstadoPedido.A_tiempo.value.lower().replace(" ",
+                                                                                                                 "_"))
+        elif etapa == EtapaEncuentra.listo_para_entregar.value:
+            pedidos_atrasados = sum(
+                1 for pedido in pedidos_etapa if pedido.estado_pedido_listo_para_entregar == EstadoPedido.Atrasado.value.lower())
+            pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if
+                                   pedido.estado_pedido_listo_para_entregar == EstadoPedido.A_tiempo.value.lower().replace(" ",
+                                                                                                                 "_"))
+        else:
+            pedidos_atrasados = 0
+            pedidos_a_tiempo = 0
 
         # Almacenamos los resultados en el atributo 'resultados'
         self.resultados = (total_pedidos, pedidos_cancelados, pedidos_atrasados, pedidos_a_tiempo)
@@ -208,6 +157,7 @@ resumenes = [
     ResumenSeguimiento("Reserva", 4, 0, 1, 11),
     ResumenSeguimiento("ListoDespacho", 2, 1, 2, 5)
 ]
+
 
 # Definicion de la clase Pedido
 class Pedido:
@@ -236,14 +186,22 @@ class Pedido:
         etapa_pedido = row["etapa_pedido"]
         pedido_activo = row["pedido_activo"] == "true"
         fecha_creacion_pedido = datetime.strptime(row["fecha_creacion_pedido"], "%Y-%m-%d")
-        fecha_maxima_etapa_precompra = datetime.strptime(row["fecha_maxima_etapa_precompra"], "%Y-%m-%d") if row["fecha_maxima_etapa_precompra"] else None
-        fecha_real_etapa_precompra = datetime.strptime(row["fecha_real_etapa_precompra"], "%Y-%m-%d") if row["fecha_real_etapa_precompra"] else None
+        fecha_maxima_etapa_precompra = datetime.strptime(row["fecha_maxima_etapa_precompra"], "%Y-%m-%d") if row[
+            "fecha_maxima_etapa_precompra"] else None
+        fecha_real_etapa_precompra = datetime.strptime(row["fecha_real_etapa_precompra"], "%Y-%m-%d") if row[
+            "fecha_real_etapa_precompra"] else None
         estado_pedido_precompra = row["estado_pedido_precompra"]
-        fecha_maxima_etapa_reserva = datetime.strptime(row["fecha_maxima_etapa_reserva"], "%Y-%m-%d") if row["fecha_maxima_etapa_reserva"] else None
-        fecha_real_etapa_reserva = datetime.strptime(row["fecha_real_etapa_reserva"], "%Y-%m-%d") if row["fecha_real_etapa_reserva"] else None
+        fecha_maxima_etapa_reserva = datetime.strptime(row["fecha_maxima_etapa_reserva"], "%Y-%m-%d") if row[
+            "fecha_maxima_etapa_reserva"] else None
+        fecha_real_etapa_reserva = datetime.strptime(row["fecha_real_etapa_reserva"], "%Y-%m-%d") if row[
+            "fecha_real_etapa_reserva"] else None
         estado_pedido_reserva = row["estado_pedido_reserva"]
-        fecha_maxima_etapa_listo_para_entregar = datetime.strptime(row["fecha_maxima_etapa_listo_para_entregar"], "%Y-%m-%d") if row["fecha_maxima_etapa_listo_para_entregar"] else None
-        fecha_real_etapa_listo_para_entregar = datetime.strptime(row["fecha_real_etapa_listo_para_entregar"], "%Y-%m-%d") if row["fecha_real_etapa_listo_para_entregar"] else None
+        fecha_maxima_etapa_listo_para_entregar = datetime.strptime(row["fecha_maxima_etapa_listo_para_entregar"],
+                                                                   "%Y-%m-%d") if row[
+            "fecha_maxima_etapa_listo_para_entregar"] else None
+        fecha_real_etapa_listo_para_entregar = datetime.strptime(row["fecha_real_etapa_listo_para_entregar"],
+                                                                 "%Y-%m-%d") if row[
+            "fecha_real_etapa_listo_para_entregar"] else None
         estado_pedido_listo_para_entregar = row["estado_pedido_listo_para_entregar"]
 
         return cls(numero_pedido, etapa_pedido, pedido_activo, fecha_creacion_pedido, fecha_maxima_etapa_precompra,

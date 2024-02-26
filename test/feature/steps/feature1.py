@@ -27,7 +27,9 @@ def step_impl(context):
 
     # Comparar el número de pedido del último pedido con la suma total de pedidos
     suma_total_pedidos = context.vendedor.contar_pedidos()
-    assert ultimo_pedido.numero_pedido == str(suma_total_pedidos).zfill(2), "El número total de pedidos del vendedor no coincide"
+    assert ultimo_pedido.numero_pedido == str(suma_total_pedidos).zfill(
+        2), "El número total de pedidos del vendedor no coincide"
+
 
 @step("el numero de pedidos totales y el tiempo estimado para cada etapa en dias es el siguiente")
 def step_impl(context):
@@ -54,29 +56,23 @@ def step_impl(context):
 
 @step("accede al resumen del seguimiento interno en la etapa de precompra")
 def step_impl(context):
-    # Llamamos al método para actualizar el resumen del vendedor
-    context.vendedor.actualizar_resumen_precompra()
-    context.resumen_PreCompra = next(
-        (resumen for resumen in context.vendedor.resumenes if resumen.nombre_etapa == "PreCompra"), None)
+    # Llamamos al método para obtener el resumen del vendedor
+    context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("PreCompra")
     assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
 
 
 @step("accede al resumen del seguimiento interno en la etapa de reserva")
 def step_impl(context):
-    # Llamamos al método para actualizar el resumen del vendedor
-    context.vendedor.actualizar_resumen_reserva()
-    context.resumen_Reserva = next(
-        (resumen for resumen in context.vendedor.resumenes if resumen.nombre_etapa == "Reserva"), None)
-    assert (context.resumen_Reserva is not None), "El resumen no se ha generado"
+    # Llamamos al método para obtener el resumen del vendedor
+    context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("Reserva")
+    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
 
 
 @step("accede al resumen del seguimiento interno en la etapa de listo_para_entregar")
 def step_impl(context):
-    # Llamamos al método para actualizar el resumen del vendedor
-    context.vendedor.actualizar_resumen_listo_para_entrega()
-    context.resumen_listo_para_entrega = next(
-        (resumen for resumen in context.vendedor.resumenes if resumen.nombre_etapa == "listo_para_entregar"), None)
-    assert (context.resumen_listo_para_entrega is not None), "El resumen no se ha generado"
+    # Llamamos al método para obtener el resumen del vendedor
+    context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("listo_para_entregar")
+    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
 
 
 @step(
