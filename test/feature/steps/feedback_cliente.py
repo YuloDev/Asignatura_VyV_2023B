@@ -89,3 +89,55 @@ def step_impl(context):
         lista_causas_obtenidas.append(context.pedido.servicio.obtener_causas_de_cada_estrella()[i])
         print(lista_causas_obtenidas[i - 1] + " == " + lista_causas_esperadas[i - 1])
         assert lista_causas_obtenidas[i - 1] == lista_causas_esperadas[i - 1], "No se tienen las causas correcta"
+
+
+@step("que el Cliente ha realizado el pago y el proceso de envío de la compra ha finalizado")
+def step_impl(context):
+    context.producto = Producto(1, "Martillo", "De madera")
+    arreglo_productos_pedidos = [context.producto]
+    context.pedido = Pedido(1, "Entregado", 6, "direccion", arreglo_productos_pedidos)
+    context.cliente = Cliente("1752458974", "Juan", "Herrera", "juan.herrera@hotmail.com",
+                              "0984759642", context.pedido)
+    assert ((context.pedido.estado == "Entregado"
+             or context.pedido.estado == "Entregado con retraso")
+            and context.pedido.pagado), "No se entrego el pedido correctamente"
+
+
+@step("se tiene un Producto con las siguientes valoraciones totales")
+def step_impl(context):
+    lista_porcentajes_por_estrella = list()
+
+    for row in context.table:
+        total_de_calificaciones = int(row["total_de_calificaciones"])
+        cantidad_de_estrellas = int(row["cantidad_de_estrellas"])
+        porcentaje_de_calificaciones = row["porcentaje_de_calificaciones"]
+
+        lista_porcentajes_por_estrella.append(porcentaje_de_calificaciones)
+
+        assert context.producto.calificaciones[
+                   cantidad_de_estrellas] == total_de_calificaciones, "No se tiene el total de calificaciones correcto"
+
+    for i in context.producto.calificaciones:
+        porcentajes_calculados = context.producto.obtener_porcentajes_de_calificaciones()
+        assert porcentajes_calculados[i - 1] == lista_porcentajes_por_estrella[
+            i - 1], "No se tiene el porcentaje de calificaciones correcto"
+
+
+@step("el Cliente envíe una Calificación de tres sobre cinco estrellas del Producto")
+def step_impl(context):
+    pass
+
+
+@step("seleccione algunas de las siguientes causas de su Calificación para el Producto")
+def step_impl(context):
+    pass
+
+
+@step("la valoración total de calificaciones de 3 estrellas del Producto aumentará en 1")
+def step_impl(context):
+    pass
+
+
+@step("el vendedor podrá visualizar el siguiente reporte")
+def step_impl(context):
+    pass

@@ -7,6 +7,18 @@ class Producto:
     def feedback_producto_esta_dado(self):
         return True
 
+    def obtener_porcentajes_de_calificaciones(self):
+        porcentajes_por_estrella = list()
+        calificaciones_totales = 0
+        for i in self.calificaciones:
+            calificaciones_totales += self.calificaciones[i]
+
+        for i in range(1, 6, 1):
+            if i in self.calificaciones:
+                porcentaje_calculado = (self.calificaciones[i] / calificaciones_totales) * 100
+                porcentaje_calculado = round(porcentaje_calculado)
+                porcentajes_por_estrella.append(str(porcentaje_calculado) + "%")
+        return porcentajes_por_estrella
 
 class Pedido:
     def __init__(self, id, estado, cantidad, direccion, productos):
