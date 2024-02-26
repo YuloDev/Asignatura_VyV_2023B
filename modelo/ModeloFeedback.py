@@ -69,6 +69,7 @@ class Cliente:
         self.telefono = telefono
         self.pedido = pedido
 
+    #TODO: Dar la responsabilidad a Producto de modificar sis atributos
     def calificar_producto(self, calificacion):
         calificacion.producto.calificaciones[calificacion.estrellas] += 1
         calificacion.producto.calificaciones_recibidas.append(calificacion)

@@ -14,6 +14,7 @@ Característica: Recolección de feedback de compras de los clientes (servicio/p
       | 0                       | 4                     | 0%                           |
       | 2                       | 5                     | 50%                          |
     Cuando el Cliente envíe una Calificación de tres sobre cinco estrellas del Producto
+    #TODO: Seleccionar n causas
     Y seleccione algunas de las siguientes causas de su Calificación para el Producto
       | causas                          |
       | Buenos acabados                 |
@@ -32,6 +33,7 @@ Característica: Recolección de feedback de compras de los clientes (servicio/p
       | 3                     | 40%                          | Mal funcionamiento (2)                               |
       | 4                     | 0%                           |                                                      |
       | 5                     | 40%                          | Buenos acabados (2), Buena calidad de materiales (2) |
+
 
   Escenario: Obtener feedback de las calificaciones de los clientes sobre el servicio
     Dado que el Cliente ha dado su feedback sobre el producto
