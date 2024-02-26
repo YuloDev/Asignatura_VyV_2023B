@@ -4,12 +4,27 @@ Característica: Recolección de feedback de compras de los clientes (servicio/p
   quiero que mis clientes puedan calificar el producto y el servicio después del proceso de compra de un producto
   para aprender de los resultados y mejorar la satisfacción de mis clientes.
 
-  Esquema del escenario: Obtener feedback de calificaciones de los clientes
-    Dado que el Cliente ha realizado el pago y el proceso de envío de la compra ha finalizado
-    Cuando el Cliente envíe una Calificación de <cantidad_estrellas> estrellas del Producto y del Servicio, y mencione las <causas> de su Calificación.
-    Entonces la valoración total de calificaciones del <item_de_calificacion> aumentará
-    Y el vendedor podrá visualizar el porcentaje de calificaciones de cada cantidad de estrellas junto con los motivos correspondientes al <item_de_calificacion>.
-    Ejemplos:
-      | item_de_calificacion | causas | cantidad_estrellas |
-      | Martillo | Buena calidad, Concuerda con la descripción | 5 |
-      | Servicio | Paquete dañado, Entrega Tardía | 2 |
+  Escenario: Obtener feedback de las calificaciones de los clientes sobre el servicio
+    Dado que el Cliente ha dado su feedback sobre el producto
+    Y se tiene un Servicio con las siguientes valoraciones totales
+      | total_de_calificaciones | cantidad_de_estrellas | porcentaje_de_calificaciones |
+      | 10                      | 1                     | 30%                          |
+      | 6                       | 2                     | 18%                          |
+      | 2                       | 3                     | 6%                           |
+      | 5                       | 4                     | 15%                          |
+      | 10                      | 5                     | 30%                          |
+    Cuando el Cliente envíe una Calificación de tres sobre cinco estrellas del Servicio
+    Y seleccione algunas de las siguientes causas de su Calificación para el Servicio
+      | causas           |
+      | Paquete dañado   |
+      | Entrega tardía   |
+      | Entrega a tiempo |
+      | Entrega rápida   |
+    Entonces la valoración total de calificaciones de 3 estrellas del Servicio aumentará en 1 de la siguiente manera
+    Y el vendedor podrá visualizar el siguiente reporte con todas las causas en orden descendente
+      | cantidad_de_estrellas | porcentaje_de_calificaciones | causas             |
+      | 1                     | 29%                          |                    |
+      | 2                     | 18%                          | Entrega tardía (1) |
+      | 3                     | 9%                           | Paquete dañado (1) |
+      | 4                     | 15%                          |                    |
+      | 5                     | 29%                          |                    |

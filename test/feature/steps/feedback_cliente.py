@@ -4,69 +4,44 @@ from modelo.ModeloFeedback import *
 use_step_matcher("re")
 
 
-@step("que el Cliente ha realizado el pago y el proceso de envío de la compra ha finalizado")
+# SERVICIO
+@step("que el Cliente ha dado su feedback sobre el producto")
 def step_impl(context):
     context.producto = Producto(1, "Martillo", "De madera")
     arreglo_productos_pedidos = [context.producto]
+    context.pedido = Pedido(1, "Entregado", 6, "direccion", arreglo_productos_pedidos)
 
-    context.servicio = Servicio()
-    context.pedido = Pedido(1, "Entregado", 6, "direccion", arreglo_productos_pedidos, context.servicio)
-    context.cliente = Cliente("identificador", "nombres", "apellidos", "correoElectronico", "numeroTelefonico",
+    assert context.producto.feedback_producto_esta_dado()
+
+
+@step("se tiene un Servicio con las siguientes valoraciones totales")
+def step_impl(context):
+    calificaciones_totalizadas = 0
+    lista_porcentajes_por_estrella = list()
+
+    for i in context.pedido.servicio.puntuaciones_calificaciones:
+        calificaciones_totalizadas += i["cantidad"]
+
+    for row in context.table:
+        total_de_calificaciones = int(row["total_de_calificaciones"])
+        cantidad_de_estrellas = int(row["cantidad_de_estrellas"])
+        porcentaje_de_calificaciones = row["porcentaje_de_calificaciones"]
+        lista_porcentajes_por_estrella.append(porcentaje_de_calificaciones)
+
+        assert context.pedido.servicio.puntuaciones_calificaciones[cantidad_de_estrellas - 1][
+                   "cantidad"] == total_de_calificaciones, "No se tiene el total de calificaciones correcto"
+
+    context.pedido.servicio.calcular_porcentajes()
+    for i in context.pedido.servicio.puntuaciones_calificaciones:
+        assert i["porcentaje"] == lista_porcentajes_por_estrella[int(i["estrellas"]) - 1], ("No se tiene el porcentaje "
+                                                                                            "de calificaciones correcto")
+
+
+@step("el Cliente envíe una Calificación de tres sobre cinco estrellas del Servicio")
+def step_impl(context):
+    context.cliente = Cliente("1752458974", "Juan", "Herrera", "juan.herrera@hotmail.com", "0984759642",
                               context.pedido)
-    assert context.pedido.estado == "Entregado" and context.pedido.pagado, "No se entrego el pedido correctamente"
+    context.cliente.calificar_servicio(context.pedido, 3, ["Paquete dañado"], context.producto)
 
-
-
-@step(
-    "el Cliente envíe una Calificación de (?P<cantidad_estrellas>.+) estrellas del Producto y del Servicio, y mencione las (?P<causas>.+) de su Calificación.")
-def step_impl(context, cantidad_estrellas, causas):
-    context.cliente.calificar_producto(1, 1, int(cantidad_estrellas), causas)
-    context.cliente.calificar_servicio(1, int(cantidad_estrellas), causas)
-    calificacion_producto = context.producto.calificaciones_recibidas[-1].cantidad_estrellas
-    calificacion_servicio = context.servicio.calificaciones_recibidas[-1].cantidad_estrellas
-    motivos_calificacion_producto = context.producto.calificaciones_recibidas[-1].obtener_causas(1)
-    motivos_calificacion_servicio = context.servicio.calificaciones_recibidas[-1].obtener_causas(0)
-    assert (
-            1 <= calificacion_producto <= 5
-            and 1 <= calificacion_servicio <= 5
-            and motivos_calificacion_producto is not None and len(motivos_calificacion_producto) > 0
-            and motivos_calificacion_servicio is not None and len(motivos_calificacion_servicio) > 0
-    ), "La calificación del producto o del servicio no es válida o los motivos no han sido proporcionados"
-
-
-@step("la valoración total de calificaciones del (?P<item_de_calificacion>.+) aumentará")
-def step_impl(context, item_de_calificacion):
-    calificacion_anterior_producto = 0
-    calificacion_anterior_servicio = 0
-    if item_de_calificacion.lower() == context.producto.nombre.lower():
-        calificacion_anterior_producto = context.producto.calificaciones[
-                                             context.producto.calificaciones_recibidas[-1].cantidad_estrellas] + 1
-        context.producto.calificaciones[context.producto.calificaciones_recibidas[-1].cantidad_estrellas] += 1
-    elif item_de_calificacion.lower() == "servicio":
-        calificacion_anterior_servicio = context.servicio.calificaciones[
-                                             context.servicio.calificaciones_recibidas[-1].cantidad_estrellas] + 1
-        context.servicio.calificaciones[context.servicio.calificaciones_recibidas[-1].cantidad_estrellas] += 1
-    assert (
-            context.servicio.calificaciones[
-                context.servicio.calificaciones_recibidas[-1].cantidad_estrellas] == calificacion_anterior_servicio
-            and context.producto.calificaciones[
-                context.producto.calificaciones_recibidas[-1].cantidad_estrellas] == calificacion_anterior_producto
-    ), "La valoración total de calificaciones no aumentó"
-
-
-@step(
-    "el vendedor podrá visualizar el porcentaje de calificaciones de cada cantidad de estrellas junto con los motivos correspondientes al (?P<item_de_calificacion>.+).")
-def step_impl(context, item_de_calificacion):
-    opcion = item_de_calificacion.lower()
-    se_presento = False
-    calificacion = Calificacion(3, -1)
-    if context.producto.nombre.lower() == opcion:
-        se_presento = calificacion.mostrar_resultados_calificaciones(context.producto, 1)
-    elif "servicio" == opcion:
-        se_presento = calificacion.mostrar_resultados_calificaciones(context.servicio, 0)
-    elif "productos" == opcion:
-        se_presento = calificacion.mostrar_resultados_calificaciones(context.calificacion, -1)
-    else:
-        se_presento = False
-
-    assert se_presento == True, "No se encontró el item de calificación"
+    assert context.pedido.servicio.puntuaciones_calificaciones[2]["cantidad"] == 3, "No se ha calificado correctamente el producto"
+    return True
