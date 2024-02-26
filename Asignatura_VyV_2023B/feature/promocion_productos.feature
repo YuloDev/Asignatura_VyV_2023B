@@ -7,11 +7,12 @@ Característica: Promoción de productos
 
 
   Escenario: El producto supera el récord de ventas de su categoría
-    Dado que existe un vendedor y su producto
+    Dado que existe un vendedor y su producto y una categoría con un record de ventas inicial
     Cuando ese producto supere el récord de ventas de su categoría
-    Entonces se informa al vendedor y muestra el producto en  la lista de productos más vendidos.
+    Entonces El producto se muestra el producto en al inicio de lista de productos de esa categoría.
 
   Escenario: El vendedor paga para promocionar los productos
+    Dado que existe un vendedor y su producto
     Cuando el vendedor realice un pago para promocionar su producto
-    Entonces se destaca ese producto
+    Entonces el producto se muestra al inicio de la lista de productos promocionados de esa categoría
 
