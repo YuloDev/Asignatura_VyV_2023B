@@ -75,10 +75,44 @@ def step_impl(context):
 
 @step("accede al resumen del seguimiento interno en la etapa de precompra")
 def step_impl(context):
-    pass
+    # Llamamos al método para actualizar el resumen del vendedor
+    context.vendedor.actualizar_resumen_precompra()
+    context.resumen_PreCompra = next(
+        (resumen for resumen in context.vendedor.resumenes if resumen.nombre_etapa == "PreCompra"), None)
+    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
+
+
+@step("accede al resumen del seguimiento interno en la etapa de reserva")
+def step_impl(context):
+    # Llamamos al método para actualizar el resumen del vendedor
+    context.vendedor.actualizar_resumen_reserva()
+    context.resumen_Reserva = next(
+        (resumen for resumen in context.vendedor.resumenes if resumen.nombre_etapa == "Reserva"), None)
+    assert (context.resumen_Reserva is not None), "El resumen no se ha generado"
+
+
+@step("accede al resumen del seguimiento interno en la etapa de listo_para_entregar")
+def step_impl(context):
+    # Llamamos al método para actualizar el resumen del vendedor
+    context.vendedor.actualizar_resumen_listo_para_entrega()
+    context.resumen_listo_para_entrega = next(
+        (resumen for resumen in context.vendedor.resumenes if resumen.nombre_etapa == "listo_para_entregar"), None)
+    assert (context.resumen_listo_para_entrega is not None), "El resumen no se ha generado"
 
 
 @step(
     "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de precompra")
+def step_impl(context):
+    pass
+
+
+@step(
+    "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de reserva")
+def step_impl(context):
+    pass
+
+
+@step(
+    "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de listo_para_entregar")
 def step_impl(context):
     pass
