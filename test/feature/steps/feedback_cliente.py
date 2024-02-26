@@ -151,9 +151,27 @@ def step_impl(context):
 
 @step("la valoración total de calificaciones de 3 estrellas del Producto aumentará en 1")
 def step_impl(context):
-    pass
+    assert context.producto.calificaciones[3] == 2, "No se ha aumentado la calificación correctamente"
 
 
 @step("el vendedor podrá visualizar el siguiente reporte")
 def step_impl(context):
-    pass
+    lista_porcentajes_por_estrella = list()
+    lista_causas_esperadas = list()
+    lista_causas_obtenidas = list()
+
+    lista_porcentajes_por_estrella = context.producto.obtener_porcentajes_de_calificaciones()
+
+    for row in context.table:
+        cantidad_de_estrellas = int(row["cantidad_de_estrellas"])
+        porcentaje_de_calificaciones = row["porcentaje_de_calificaciones"]
+        causas = row["causas"]
+        lista_causas_esperadas.append(causas)
+        assert lista_porcentajes_por_estrella[
+                   cantidad_de_estrellas - 1] == porcentaje_de_calificaciones, ("No se tiene el porcentaje de "
+                                                                                "calificaciones correcto")
+
+    for i in range(1, 6, 1):
+        lista_causas_obtenidas.append(context.producto.obtener_causas_de_cada_estrella()[i])
+        print(lista_causas_obtenidas[i - 1] + " == " + lista_causas_esperadas[i - 1])
+        assert lista_causas_obtenidas[i - 1] == lista_causas_esperadas[i - 1], "No se tienen las causas correcta"

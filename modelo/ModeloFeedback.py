@@ -3,6 +3,16 @@ class Producto:
         self.id_producto = id
         self.nombre_producto = nombre
         self.descripcion = descripcion
+        self.calificaciones = {1: 0, 2: 1, 3: 1, 4: 0, 5: 2}
+        self.calificaciones_recibidas = list()
+        causas = ["Mala calidad de materiales"]
+        self.calificaciones_recibidas.append(Calificacion(2, causas, self))
+        causas = ["Mal funcionamiento"]
+        self.calificaciones_recibidas.append(Calificacion(3, causas, self))
+        causas = ["Buenos acabados", "Buena calidad de materiales"]
+        self.calificaciones_recibidas.append(Calificacion(5, causas, self))
+        causas = ["Buenos acabados", "Buena calidad de materiales"]
+        self.calificaciones_recibidas.append(Calificacion(5, causas, self))
 
     def feedback_producto_esta_dado(self):
         return True
@@ -58,6 +68,10 @@ class Cliente:
         self.correo = correo
         self.telefono = telefono
         self.pedido = pedido
+
+    def calificar_producto(self, calificacion):
+        calificacion.producto.calificaciones[calificacion.estrellas] += 1
+        calificacion.producto.calificaciones_recibidas.append(calificacion)
 
     def calificar_servicio(self, pedido, estrellas, causas, producto):
         calificacion = Calificacion(estrellas, causas, producto)
