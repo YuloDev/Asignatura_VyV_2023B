@@ -21,6 +21,30 @@ class Vendedor:
         pass
 
 
+    def generar_resumen_precompra(self):
+
+        # Obtener la etapa actual del primer pedido en la lista
+        if self.lista_pedidos:
+            etapa_actual = self.lista_pedidos[0].etapa_pedido.lower()
+
+        # Crear una instancia de ResumenSeguimiento para la etapa de precompra
+        resumen_precompra = ResumenSeguimiento("precompra", 2, 0, 0, 0)
+
+        # Generar el resumen con la lista de pedidos actual
+        resumen_precompra = resumen_precompra.generar_resumen(self.lista_pedidos)
+
+        # Imprimir la etiqueta de la etapa (Para validad los datos)
+        print(f"Resumen para la etapa: {etapa_actual}")
+
+        # Imprimir los valores para visualización (Para validar los datos)
+        print(f"Número de pedidos a tiempo: {resumen_precompra.num_pedidos_a_tiempo}")
+        print(f"Número de pedidos atrasado: {resumen_precompra.num_pedidos_atrasados}")
+        print(f"Número de pedidos cancelados : {resumen_precompra.num_pedido_cancelados}")
+
+        return resumen_precompra
+
+
+
 # Definicion de la clase ResumenSeguimiento
 class ResumenSeguimiento:
     def __init__(self, nombre_etapa, tiempo_etapa, num_pedido_cancelados, num_pedidos_atrasados, num_pedidos_a_tiempo):
@@ -33,6 +57,19 @@ class ResumenSeguimiento:
 
         self.num_pedidos_total = None  # Inicializamos la variable total_pedidos como None
 
+    def generar_resumen(self, lista_pedidos):
+        # Obtener la lista de pedidos en la etapa actual
+        pedidos_etapa = [pedido for pedido in lista_pedidos if pedido.etapa_pedido.lower() == self.nombre_etapa.lower()]
+
+        # Contar el número de pedidos a tiempo, atrasados y cancelados
+        num_pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if pedido.estado_pedido_precompra == "a_tiempo")
+        num_pedidos_atrasados = sum(1 for pedido in pedidos_etapa if pedido.estado_pedido_precompra == "atrasado")
+        num_pedido_cancelados = sum(1 for pedido in pedidos_etapa if pedido.estado_pedido_precompra == "cancelado")
+
+        # Crear y devolver una instancia de ResumenSeguimiento con los datos calculados
+        return ResumenSeguimiento(self.nombre_etapa, self.tiempo_etapa, num_pedido_cancelados, num_pedidos_atrasados,
+                                  num_pedidos_a_tiempo)
+
     # Este metodo pueden cambiar a su criterio
     def visualizar_graficas(self):
         pass
@@ -41,12 +78,6 @@ class ResumenSeguimiento:
         self.total_pedidos = self.num_pedidos_atrasados + self.num_pedidos_a_tiempo + self.num_pedido_cancelados
         return self.total_pedidos
 
-# Arreglo de instancias de ResumenSeguimiento con diferentes datos
-resumenes = [
-    ResumenSeguimiento("PreCompra", 2, 2, 3, 13),
-    ResumenSeguimiento("Reserva", 4, 0, 1, 11),
-    ResumenSeguimiento("ListoDespacho", 2, 1, 2, 5)
-]
 
 # Definicion de la clase Pedido
 class Pedido:

@@ -81,4 +81,22 @@ def step_impl(context):
 @step(
     "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de precompra")
 def step_impl(context):
-    pass
+    # Genera el resumen de precompra
+    resumen_precompra = context.vendedor.generar_resumen_precompra()
+
+    # Verifica el número de pedidos a tiempo, atrasados y cancelados en la etapa de precompra
+    for row in context.table:
+        # Obtiene el estado de pedido y el número esperado de la data table
+        estado_pedido = row["estado_pedido"]
+        numero_pedidos_esperados = int(row["numero_pedidos"])
+
+        # Compara con assert los valores obtenidos del resumen con los valores esperados de la data table
+        if estado_pedido == "a_tiempo":
+            assert resumen_precompra.num_pedidos_a_tiempo == numero_pedidos_esperados, \
+                f"El número de pedidos a tiempo no coincide para la etapa de precompra"
+        elif estado_pedido == "atrasado":
+            assert resumen_precompra.num_pedidos_atrasados == numero_pedidos_esperados, \
+                f"El número de pedidos atrasados no coincide para la etapa de precompra"
+        elif estado_pedido == "cancelado":
+            assert resumen_precompra.num_pedido_cancelados == numero_pedidos_esperados, \
+                f"El número de pedidos cancelados no coincide para la etapa de precompra"
