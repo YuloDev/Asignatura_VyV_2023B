@@ -43,8 +43,8 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
     Y se recomendará <recomendacion>
     Ejemplos:
       | meta_ingresos | ingresos | comparacion_por_meta | comparacion_por_mes | recomendacion                    |
-      | 70            | 60       | son inferiores       | superan             | ajustar precios de los productos |
-      | 50            | 60       | superan              | superan             | promocionar productos            |
+      | 70            | 60       | son inferiores       | superan             | promocionar más productos        |
+      | 50            | 60       | superan              | superan             | mantener la promoción productos estrella      |
 
   Esquema del escenario: Vendedor evalúa su rendimiento con los costos
     Dado que un vendedor tiene 6 ventas
@@ -63,8 +63,8 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
     Y se recomendará <recomendacion>
     Ejemplos:
       | meta_costos | costos | comparacion_por_meta | comparacion_por_mes | recomendacion                    |
-      | 50          | 40     | son inferiores       | superan             | ajustar precios de los productos |
-      | 30          | 40     | superan              | superan             | promocionar productos            |
+      | 50          | 40     | son inferiores       | superan             | mantener costos de los productos  |
+      | 30          | 40     | superan              | superan             | reducir costos de los productos   |
 
   Esquema del escenario: Vendedor evalúa su rendimiento con los beneficios por venta
     Dado que un vendedor tiene 6 ventas
@@ -83,5 +83,5 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
     Y se recomendará <recomendacion>
     Ejemplos:
       | meta_beneficio | beneficio | comparacion_por_meta | comparacion_por_mes | recomendacion                    |
-      | 25             | 20        | son inferiores       | superan             | ajustar precios de los productos |
-      | 15             | 20        | superan              | superan             | promocionar productos            |
+      | 25             | 20        | son inferiores       | superan             | ajustar precios sobre los costos de los productos |
+      | 15             | 20        | superan              | superan             | promocionar productos estrella         |
