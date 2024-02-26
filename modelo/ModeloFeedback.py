@@ -20,6 +20,26 @@ class Producto:
                 porcentajes_por_estrella.append(str(porcentaje_calculado) + "%")
         return porcentajes_por_estrella
 
+    def obtener_causas_de_cada_estrella(self):
+        causas = {1: "", 2: "", 3: "", 4: "", 5: ""}
+        causas_temp = {1: list(), 2: list(), 3: list(), 4: list(), 5: list()}
+
+        for calificacion in self.calificaciones_recibidas:
+            causas_temp[calificacion.estrellas].extend(calificacion.causas)
+
+        for estrella, lista_causas in causas_temp.items():
+            contador_causas = {}
+            for causa in lista_causas:
+                if causa is not None:
+                    if causa in contador_causas:
+                        contador_causas[causa] += 1
+                    else:
+                        contador_causas[causa] = 1
+
+            causas[estrella] = ", ".join(
+                [f"{causa} ({cantidad})" for causa, cantidad in contador_causas.items()])
+        return causas
+
 class Pedido:
     def __init__(self, id, estado, cantidad, direccion, productos):
         self.id_pedido = id

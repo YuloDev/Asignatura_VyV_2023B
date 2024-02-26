@@ -125,12 +125,28 @@ def step_impl(context):
 
 @step("el Cliente envíe una Calificación de tres sobre cinco estrellas del Producto")
 def step_impl(context):
-    pass
+    causas = ["Mal funcionamiento"]
+    context.calificacion = Calificacion(3, causas, context.producto)
+    context.cliente.calificar_producto(context.calificacion)
+    assert context.producto.calificaciones[3] == 2, "No se ha calificado correctamente el producto"
 
 
 @step("seleccione algunas de las siguientes causas de su Calificación para el Producto")
 def step_impl(context):
-    pass
+    causas = list()
+    causa_seleccionada = ""
+
+    for row in context.table:
+        causas.append(row["causas"])
+
+    for causa in causas:
+        if causa == "Mal funcionamiento":
+            causa_seleccionada = causa
+
+    if context.producto.calificaciones_recibidas[-1] is None:
+        for causa_buscada in context.producto.calificaciones_recibidas[-1].causas:
+            if causa_buscada == causa_seleccionada:
+                assert True, "No se ha seleccionado la causa correctamente"
 
 
 @step("la valoración total de calificaciones de 3 estrellas del Producto aumentará en 1")
