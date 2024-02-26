@@ -1,6 +1,5 @@
 from behave import *
 from marketplace.models import *
-from marketplace.models import  *
 use_step_matcher("re")
 
 
@@ -8,10 +7,11 @@ use_step_matcher("re")
 
 
 
-@step("que existe un vendedor y su producto")
+@step("que existe un vendedor y su producto y una categoría con un record de ventas inicial")
 def step_impl(context):
     context.vendedor = Vendedor(nombre="Rafael", apellido="Piedra")
     context.producto = Producto(nombre="Herramienta")
+    context.categoria = Categoria(record=100)
     context.vendedor.agregar_producto(context.producto)
 
     assert context.producto in context.vendedor.obtener_productos()
@@ -19,13 +19,12 @@ def step_impl(context):
 
 @step("ese producto supere el récord de ventas de su categoría")
 def step_impl(context):
-    context.categoria = Categoria(record=100)
     context.producto.asignar_categoria(context.categoria)
 
     assert context.producto.ha_superado_record() == True
 
 
-@step("se informa al vendedor y muestra el producto en  la lista de productos más vendidos\.")
+@step("El producto se muestra en el inicio de la lista de productos de esa categoría.")
 def step_impl(context):
     context.categoria = Categoria(record=100)
     context.producto.asignar_categoria(context.categoria)
@@ -37,8 +36,11 @@ def step_impl(context):
 
     assert context.producto in context.clasificador.listar_productos_mas_vendidos()
 
+@step("que existe un vendedor y su producto")
+def step_impl(context):
+    raise NotImplementedError(u'STEP: Dado que existe un vendedor y su producto')
 
-@step("el vendedor realice un pago para promocionar su producto")
+@step("el producto se muestra al inicio de la lista de productos promocionados de esa categoría")
 def step_impl(context):
     context.vendedor = Vendedor(nombre="Rafael", apellido="Piedra")
     context.producto_promocionado = Producto(nombre="Herramienta2")
@@ -58,4 +60,5 @@ def step_impl(context):
     context.clasificador.agregar_vendedor(context.vendedor)
     context.clasificador.buscar_productos_promocionados()
     assert context.producto_promocionado in context.clasificador.listar_productos_destacados()
+
 
