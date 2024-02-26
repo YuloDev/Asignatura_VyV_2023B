@@ -82,6 +82,55 @@ class Vendedor:
               "a tiempo\n")
         self.resumenes.append(resumen_etapa)
 
+#Definicion de la Clase Etapa
+class Etapa:
+    def __init__(self, nombre_etapa, tiempo_etapa):
+        self.nombre_etapa = nombre_etapa
+        self.tiempo_etapa = tiempo_etapa
+        self.pedidos = []
+
+# Creacion de la Clase TiempoEtapa
+class TiempoEtapa:
+    def __init__(self):
+        self.etapas = [
+            Etapa(nombre_etapa="precompra", tiempo_etapa=2),
+            Etapa(nombre_etapa="reserva", tiempo_etapa=4),
+            Etapa(nombre_etapa="listo_para_entregar", tiempo_etapa=2),
+        ]
+
+    def calcular_info_etapa(self, lista_pedidos, nombre_etapa):
+        # Filtrar los pedidos por la etapa actual
+        pedidos_etapa = [pedido for pedido in lista_pedidos if pedido.etapa_pedido == nombre_etapa]
+
+        # Obtener el número total de pedidos
+        total_pedidos = len(pedidos_etapa)
+
+        # Almacenar la información en un diccionario
+        info_etapa = {"total_pedidos": total_pedidos, "tiempo_etapa": self.obtener_tiempo_etapa(nombre_etapa)}
+
+        # Imprimir información para verificar
+        print(f"Etapa: {nombre_etapa}, Total Pedidos: {total_pedidos}, Tiempo Estimado: {self.obtener_tiempo_etapa(nombre_etapa)} días")
+
+        # Devolver el diccionario con la información de la etapa
+        return info_etapa
+
+    def calcular_info_etapas(self, lista_pedidos):
+        info_etapas = {}
+
+        for etapa in self.etapas:
+            # Convierte el nombre de la etapa a minúsculas
+            etapa_nombre = etapa.nombre_etapa.lower()
+            info_etapas[etapa_nombre] = self.calcular_info_etapa(lista_pedidos, etapa_nombre)
+
+        # Devolver el diccionario con la información de todas las etapas
+        return info_etapas
+
+    def obtener_tiempo_etapa(self, nombre_etapa):
+        # Obtener el tiempo estimado de una etapa por su nombre
+        for etapa in self.etapas:
+            if etapa.nombre_etapa.lower() == nombre_etapa:
+                return etapa.tiempo_etapa
+        return 0  # Valor por defecto si no se encuentra la etapa
 
 # Definicion de la clase ResumenSeguimiento
 class ResumenSeguimiento:
