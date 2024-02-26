@@ -8,6 +8,11 @@ class Producto:
         self.precio = precio
         self.costo = costo
 
+    def obtener_precio(self):
+        return self.precio
+
+    def obtener_costo(self):
+        return self.costo
 
 class Meta:
     def __init__(self, tipo_de_metrica, valor, anio, mes):
@@ -16,80 +21,67 @@ class Meta:
         self.anio = anio
         self.mes = mes
 
+    def obtener_tipo_de_metrica(self):
+        return self.tipo_de_metrica
+
+    def obtener_valor(self):
+        return self.valor
+
+    def obtener_anio(self):
+        return self.anio
+
+    def obtener_mes(self):
+        return self.mes
+
 
 class Vendedor:
     def __init__(self, nombre):
         self.nombre = nombre
         self.metas = []
-        self.venta = []
+        self.ventas = []
 
-    def vender(self, lista_producto, anio, mes, dia):
-        self.venta.append(Venta(lista_producto, date(anio, mes, dia)))
+    def vender(self, lista_de_productos, anio, mes, dia):
+        self.ventas.append(Venta(lista_de_productos, date(anio, mes, dia)))
 
     def obtener_ventas(self):
-        return self.venta
+        return self.ventas
 
     def establecer_meta(self, meta):
         self.metas.append(meta)
 
     def obtener_meta(self, tipo_de_metrica, anio, mes):
         for meta in self.metas:
-            if tipo_de_metrica == meta.tipo_de_metrica and meta.anio == anio and meta.mes == mes:
-                return meta.valor
-            else:
-                return -1
+            if tipo_de_metrica == meta.obtener_tipo_de_metrica() and meta.obtener_anio() == anio and meta.obtener_mes() == mes:
+                return meta.obtener_valor()
+        return -1
 
 
 class Venta:
-    def __init__(self, lista_producto, fecha):
-        self.lista_productos = lista_producto
-        self.ingreso_total = 0
-        self.calcular_ingreso_total()
-        self.costo_total = 0
-        self.calcular_costo_total()
-        self.beneficio_total = 0
-        self.calcular_beneficio_total()
+    def __init__(self, lista_de_productos, fecha):
+        self.lista_de_productos = lista_de_productos
+        self.ingreso_total = sum(producto.obtener_precio() for producto in lista_de_productos)
+        self.costo_total = sum(producto.obtener_costo() for producto in lista_de_productos)
+        self.beneficio_total = self.ingreso_total - self.costo_total
         self.fecha = fecha
 
-    def calcular_ingreso_total(self):
-        for producto in self.lista_productos:
-            self.ingreso_total += producto.precio
+    def obtener_ingreso_total(self):
+        return self.ingreso_total
 
-    def calcular_costo_total(self):
-        for producto in self.lista_productos:
-            self.costo_total += producto.costo
+    def obtener_costo_total(self):
+        return self.costo_total
 
-    def calcular_beneficio_total(self):
-        self.beneficio_total = self.ingreso_total - self.costo_total
+    def obtener_beneficio_total(self):
+        return self.beneficio_total
 
 
 class Dashboard:
     def __init__(self, vendedor):
         self.vendedor = vendedor
-        self.metricas_actuales = {
-            TipoDeMetrica.NUMERO_DE_VENTAS: 0,
-            TipoDeMetrica.INGRESOS: 0,
-            TipoDeMetrica.COSTOS: 0,
-            TipoDeMetrica.BENEFICIO_POR_VENTA: 0
-        }
-        self.metricas_mes_anterior = {
-            TipoDeMetrica.NUMERO_DE_VENTAS: 0,
-            TipoDeMetrica.INGRESOS: 0,
-            TipoDeMetrica.COSTOS: 0,
-            TipoDeMetrica.BENEFICIO_POR_VENTA: 0
-        }
-        self.porcentajes_comparacion_meta = {
-            TipoDeMetrica.NUMERO_DE_VENTAS: 0,
-            TipoDeMetrica.INGRESOS: 0,
-            TipoDeMetrica.COSTOS: 0,
-            TipoDeMetrica.BENEFICIO_POR_VENTA: 0
-        }
-        self.porcentajes_comparacion_mes_anterior = {
-            TipoDeMetrica.NUMERO_DE_VENTAS: 0,
-            TipoDeMetrica.INGRESOS: 0,
-            TipoDeMetrica.COSTOS: 0,
-            TipoDeMetrica.BENEFICIO_POR_VENTA: 0
-        }
+        self.metricas_actuales = {metrica: 0 for metrica in TipoDeMetrica}
+        self.metricas_mes_anterior = {metrica: 0 for metrica in TipoDeMetrica}
+        self.porcentajes_comparacion_meta = {metrica: 0 for metrica in TipoDeMetrica}
+        self.porcentajes_comparacion_mes_anterior = {metrica: 0 for metrica in TipoDeMetrica}
+        self.recomendaciones = []
         self.bandera_metrica = False
         self.anio = 0
         self.mes = 0
@@ -98,27 +90,69 @@ class Dashboard:
         self.anio = anio
         self.mes = mes
         lista_de_ventas = self.vendedor.obtener_ventas()
-        numero_de_ventas_actuales = 0
-        numero_de_ventas_mes_anterior = 0
-        mes_anterior = mes - 1
-        if mes_anterior == 0:
-            mes_anterior = 12
-            anio -= 1
-        for venta in lista_de_ventas:
-            if (venta.fecha.year == anio) and (venta.fecha.month == mes):
-                numero_de_ventas_actuales += 1
-            if (venta.fecha.year == anio) and (venta.fecha.month == mes_anterior):
-                numero_de_ventas_mes_anterior += 1
-        self.metricas_actuales[TipoDeMetrica.NUMERO_DE_VENTAS] = numero_de_ventas_actuales
-        self.metricas_mes_anterior[TipoDeMetrica.NUMERO_DE_VENTAS] = numero_de_ventas_mes_anterior
-        meta_ventas = self.vendedor.obtener_meta(TipoDeMetrica.NUMERO_DE_VENTAS, self.anio, self.mes)
-        self.porcentajes_comparacion_meta[TipoDeMetrica.NUMERO_DE_VENTAS] = int((numero_de_ventas_actuales / meta_ventas - 1) * 100)
-        self.porcentajes_comparacion_mes_anterior[TipoDeMetrica.NUMERO_DE_VENTAS] = int(
-            ((numero_de_ventas_actuales / numero_de_ventas_mes_anterior) - 1) * 100)
+
+        metricas_actuales = self._calcular_metricas(lista_de_ventas, mes)
+        metricas_mes_anterior = self._calcular_metricas(lista_de_ventas, mes - 1 if mes > 1 else 12)
+
+        self._actualizar_metricas_y_recomendaciones(metricas_actuales, metricas_mes_anterior)
         self.bandera_metrica = True
 
-    def obtener_ventas(self):
-        return self.vendedor.obtener_ventas()
+    def _calcular_metricas(self, lista_de_ventas, mes):
+        metricas = {metrica: 0 for metrica in TipoDeMetrica}
+        for venta in lista_de_ventas:
+            if venta.fecha.year == self.anio and venta.fecha.month == mes:
+                metricas[TipoDeMetrica.NUMERO_DE_VENTAS] += 1
+                metricas[TipoDeMetrica.INGRESOS] += venta.obtener_ingreso_total()
+                metricas[TipoDeMetrica.COSTOS] += venta.obtener_costo_total()
+                metricas[TipoDeMetrica.BENEFICIO_POR_VENTA] = (
+                    metricas[TipoDeMetrica.BENEFICIO_POR_VENTA] * (metricas[TipoDeMetrica.NUMERO_DE_VENTAS] - 1) +
+                    venta.obtener_beneficio_total()) / metricas[TipoDeMetrica.NUMERO_DE_VENTAS]
+        return metricas
+
+    def _actualizar_metricas_y_recomendaciones(self, metricas_actuales, metricas_mes_anterior):
+        for metrica in TipoDeMetrica:
+            self.metricas_actuales[metrica] = metricas_actuales[metrica]
+            self.metricas_mes_anterior[metrica] = metricas_mes_anterior[metrica]
+
+            meta = self.vendedor.obtener_meta(metrica, self.anio, self.mes)
+            porcentaje_comparacion_meta = int((metricas_actuales[metrica] / meta - 1) * 100)
+            porcentaje_comparacion_mes_anterior = int(
+                (metricas_actuales[metrica] / metricas_mes_anterior[metrica] - 1) * 100)
+
+            self.porcentajes_comparacion_meta[metrica] = porcentaje_comparacion_meta
+            self.porcentajes_comparacion_mes_anterior[metrica] = porcentaje_comparacion_mes_anterior
+
+            self._agregar_recomendacion(metrica, porcentaje_comparacion_meta)
+
+    def _agregar_recomendacion(self, tipo_de_metrica, porcentaje_comparacion_meta):
+        recomendaciones_por_metrica = {
+            TipoDeMetrica.NUMERO_DE_VENTAS: {
+                'superior': Recomendacion.SUPERIOR_A_META_DE_VENTAS,
+                'inferior': Recomendacion.INFERIOR_A_META_DE_VENTAS
+            },
+            TipoDeMetrica.INGRESOS: {
+                'superior': Recomendacion.SUPERIOR_A_META_DE_INGRESOS,
+                'inferior': Recomendacion.INFERIOR_A_META_DE_INGRESOS
+            },
+            TipoDeMetrica.COSTOS: {
+                'superior': Recomendacion.SUPERIOR_A_META_DE_COSTOS,
+                'inferior': Recomendacion.INFERIOR_A_META_DE_COSTOS
+            },
+            TipoDeMetrica.BENEFICIO_POR_VENTA: {
+                'superior': Recomendacion.SUPERIOR_A_META_DE_BENEFICIO_POR_VENTA,
+                'inferior': Recomendacion.INFERIOR_A_META_DE_BENEFICIO_POR_VENTA
+            }
+        }
+        recomendacion_al_superar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['superior']
+        recomendacion_al_no_superar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['inferior']
+        if porcentaje_comparacion_meta >= 0:
+            self.recomendaciones.append(recomendacion_al_superar_la_meta)
+        else:
+            self.recomendaciones.append(recomendacion_al_no_superar_la_meta)
+
+    def obtener_metrica(self, tipo_de_metrica):
+        return self.metricas_actuales[tipo_de_metrica]
+
     def se_realizaron_metricas(self):
         return self.bandera_metrica
 
@@ -128,11 +162,14 @@ class Dashboard:
         else:
             return TipoDeComparacion.INFERIOR
 
-    def obtener_comparacion_por_mes(self, tipo_de_metrica):
+    def obtener_comparacion_por_mes_anterior(self, tipo_de_metrica):
         if self.porcentajes_comparacion_mes_anterior[tipo_de_metrica] >= 0:
             return TipoDeComparacion.SUPERIOR
         else:
             return TipoDeComparacion.INFERIOR
+
+    def obtener_recomendaciones(self):
+        return self.recomendaciones
 
 
 class TipoDeMetrica(Enum):
@@ -142,9 +179,15 @@ class TipoDeMetrica(Enum):
     BENEFICIO_POR_VENTA = "Beneficio por venta"
 
 
-class TipoDeRecomendacion(Enum):
+class Recomendacion(Enum):
     INFERIOR_A_META_DE_VENTAS = "ajustar precios de los productos"
     SUPERIOR_A_META_DE_VENTAS = "promocionar productos"
+    INFERIOR_A_META_DE_INGRESOS = "promocionar más productos"
+    SUPERIOR_A_META_DE_INGRESOS = "mantener la promoción productos estrella"
+    INFERIOR_A_META_DE_COSTOS = "mantener costos de los productos"
+    SUPERIOR_A_META_DE_COSTOS = "reducir costos de los productos"
+    INFERIOR_A_META_DE_BENEFICIO_POR_VENTA = "ajustar precios sobre los costos de los productos"
+    SUPERIOR_A_META_DE_BENEFICIO_POR_VENTA = "promocionar productos estrella"
 
 
 class TipoDeComparacion(Enum):
