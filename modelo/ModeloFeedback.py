@@ -3,11 +3,13 @@ class Producto:
         self.id_producto = id
         self.nombre_producto = nombre
         self.descripcion = descripcion
-        self.calificaciones = {1: 0, 2: 1, 3: 1, 4: 0, 5: 2}
+        self.calificaciones = {1: 0, 2: 1, 3: 2, 4: 0, 5: 2}
         self.calificaciones_recibidas = list()
         causas = ["Mala calidad de materiales"]
         self.calificaciones_recibidas.append(Calificacion(2, causas, self))
-        causas = ["Mal funcionamiento"]
+        causas = ["Mal funcionamiento", "Concuerda con la descripción"]
+        self.calificaciones_recibidas.append(Calificacion(3, causas, self))
+        causas = ["Buenos acabados", "Concuerda con la descripción"]
         self.calificaciones_recibidas.append(Calificacion(3, causas, self))
         causas = ["Buenos acabados", "Buena calidad de materiales"]
         self.calificaciones_recibidas.append(Calificacion(5, causas, self))
@@ -16,6 +18,16 @@ class Producto:
 
     def feedback_producto_esta_dado(self):
         return True
+
+    def aumentar_estrella(self, calificacion_cliente):
+        for estrellas, calificacion_total in self.calificaciones.items():
+            if estrellas == calificacion_cliente:
+                self.calificaciones[estrellas] += 1
+                break
+
+    def agregar_calificacion(self, calificacion):
+        self.calificaciones_recibidas.append(calificacion)
+        self.aumentar_estrella(calificacion.estrellas)
 
     def obtener_porcentajes_de_calificaciones(self):
         porcentajes_por_estrella = list()
@@ -45,9 +57,8 @@ class Producto:
                         contador_causas[causa] += 1
                     else:
                         contador_causas[causa] = 1
-
-            causas[estrella] = ", ".join(
-                [f"{causa} ({cantidad})" for causa, cantidad in contador_causas.items()])
+            sorted_causas = sorted(contador_causas.items(), key=lambda x: x[1], reverse=True)
+            causas[estrella] = ", ".join([f"{causa} ({cantidad})" for causa, cantidad in sorted_causas])
         return causas
 
 class Pedido:
@@ -69,10 +80,9 @@ class Cliente:
         self.telefono = telefono
         self.pedido = pedido
 
-    #TODO: Dar la responsabilidad a Producto de modificar sis atributos
-    def calificar_producto(self, calificacion):
-        calificacion.producto.calificaciones[calificacion.estrellas] += 1
-        calificacion.producto.calificaciones_recibidas.append(calificacion)
+    def calificar_producto(self, estrellas, causas, producto):
+        calificacion = Calificacion(estrellas, causas, producto)
+        producto.agregar_calificacion(calificacion)
 
     def calificar_servicio(self, pedido, estrellas, causas, producto):
         calificacion = Calificacion(estrellas, causas, producto)
@@ -136,9 +146,8 @@ class Servicio:
                         contador_causas[causa] += 1
                     else:
                         contador_causas[causa] = 1
-
-            causas[estrella] = ", ".join(
-                [f"{causa} ({cantidad})" for causa, cantidad in contador_causas.items()])
+            sorted_causas = sorted(contador_causas.items(), key=lambda x: x[1], reverse=True)
+            causas[estrella] = ", ".join([f"{causa} ({cantidad})" for causa, cantidad in sorted_causas])
         return causas
 
 

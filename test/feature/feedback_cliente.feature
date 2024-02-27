@@ -9,30 +9,27 @@ Característica: Recolección de feedback de compras de los clientes (servicio/p
     Y se tiene un Producto con las siguientes valoraciones totales
       | total_de_calificaciones | cantidad_de_estrellas | porcentaje_de_calificaciones |
       | 0                       | 1                     | 0%                           |
-      | 1                       | 2                     | 25%                          |
-      | 1                       | 3                     | 25%                          |
+      | 1                       | 2                     | 20%                          |
+      | 2                       | 3                     | 40%                          |
       | 0                       | 4                     | 0%                           |
-      | 2                       | 5                     | 50%                          |
-    Cuando el Cliente envíe una Calificación de tres sobre cinco estrellas del Producto
-    #TODO: Seleccionar n causas
-    Y seleccione algunas de las siguientes causas de su Calificación para el Producto
-      | causas                          |
-      | Buenos acabados                 |
-      | Concuerda con la descripción    |
-      | Buena calidad de materiales     |
-      | Buen funcionamiento             |
-      | No concuerda con la descripción |
-      | Mala calidad de materiales      |
-      | Malos acabados                  |
-      | Mal funcionamiento              |
-    Entonces la valoración total de calificaciones de 3 estrellas del Producto aumentará en 1
-    Y el vendedor podrá visualizar el siguiente reporte
+      | 2                       | 5                     | 40%                          |
+    Cuando el Cliente seleccione una Calificación de tres sobre cinco estrellas del Producto y seleccione la causa 2, 8 de las siguientes causas de su Calificación
+      | No. | causas                          |
+      | 1   | Buenos acabados                 |
+      | 2   | Concuerda con la descripción    |
+      | 3   | Buena calidad de materiales     |
+      | 4   | Buen funcionamiento             |
+      | 5   | No concuerda con la descripción |
+      | 6   | Mala calidad de materiales      |
+      | 7   | Malos acabados                  |
+      | 8   | Mal funcionamiento              |
+    Entonces el vendedor podrá visualizar el siguiente reporte del Producto con todas las causas en orden descendente
       | cantidad_de_estrellas | porcentaje_de_calificaciones | causas                                               |
       | 1                     | 0%                           |                                                      |
-      | 2                     | 20%                          | Mala calidad de materiales (1)                       |
-      | 3                     | 40%                          | Mal funcionamiento (2)                               |
+      | 2                     | 17%                          | Mala calidad de materiales (1)                                                |
+      | 3                     | 50%                          | Concuerda con la descripción (3), Mal funcionamiento (2), Buenos acabados (1) |
       | 4                     | 0%                           |                                                      |
-      | 5                     | 40%                          | Buenos acabados (2), Buena calidad de materiales (2) |
+      | 5                     | 33%                          | Buenos acabados (2), Buena calidad de materiales (2)                          |
 
 
   Escenario: Obtener feedback de las calificaciones de los clientes sobre el servicio
@@ -44,15 +41,13 @@ Característica: Recolección de feedback de compras de los clientes (servicio/p
       | 2                       | 3                     | 6%                           |
       | 5                       | 4                     | 15%                          |
       | 10                      | 5                     | 30%                          |
-    Cuando el Cliente envíe una Calificación de tres sobre cinco estrellas del Servicio
-    Y seleccione algunas de las siguientes causas de su Calificación para el Servicio
-      | causas           |
-      | Paquete dañado   |
-      | Entrega tardía   |
-      | Entrega a tiempo |
-      | Entrega rápida   |
-    Entonces la valoración total de calificaciones de 3 estrellas del Servicio aumentará en 1 de la siguiente manera
-    Y el vendedor podrá visualizar el siguiente reporte con todas las causas en orden descendente
+    Cuando el Cliente seleccione una Calificación de tres sobre cinco estrellas del Servicio y seleccione la causa 1 de las siguientes causas de su Calificación
+      | No. | causas           |
+      | 1   | Paquete dañado   |
+      | 2   | Entrega tardía   |
+      | 3   | Entrega a tiempo |
+      | 4   | Entrega rápida   |
+    Entonces el vendedor podrá visualizar el siguiente reporte del Servicio con todas las causas en orden descendente
       | cantidad_de_estrellas | porcentaje_de_calificaciones | causas             |
       | 1                     | 29%                          |                    |
       | 2                     | 18%                          | Entrega tardía (1) |

@@ -4,6 +4,7 @@ from modelo.ModeloFeedback import *
 
 use_step_matcher("re")
 
+
 # PRODUCTO
 @step("que el Cliente ha realizado el pago y el proceso de envío de la compra ha finalizado")
 def step_impl(context):
@@ -37,40 +38,30 @@ def step_impl(context):
             i - 1], "No se tiene el porcentaje de calificaciones correcto"
 
 
-@step("el Cliente envíe una Calificación de tres sobre cinco estrellas del Producto")
-def step_impl(context):
-    #TODO: causaSeleccionada
-    causas = ["Mal funcionamiento"]
-    context.calificacion = Calificacion(3, causas, context.producto)
-    context.cliente.calificar_producto(context.calificacion)
-    assert context.producto.calificaciones[3] == 2, "No se ha calificado correctamente el producto"
-
-
-#TODO:Enviar la calificacion
-@step("seleccione algunas de las siguientes causas de su Calificación para el Producto")
+@step("el Cliente seleccione una Calificación de tres sobre cinco estrellas del Producto y seleccione la causa 2, "
+      "8 de las siguientes causas de su Calificación")
 def step_impl(context):
     causas = list()
-    causa_seleccionada = ""
+    causas_seleccionada = list()
 
     for row in context.table:
         causas.append(row["causas"])
 
     for causa in causas:
         if causa == "Mal funcionamiento":
-            causa_seleccionada = causa
+            causas_seleccionada.append(causa)
+        if causa == "Concuerda con la descripción":
+            causas_seleccionada.append(causa)
+
+    context.cliente.calificar_producto(3, causas_seleccionada, context.producto)
 
     if context.producto.calificaciones_recibidas[-1] is None:
         for causa_buscada in context.producto.calificaciones_recibidas[-1].causas:
-            if causa_buscada == causa_seleccionada:
-                assert True, "No se ha seleccionado la causa correctamente"
+            if causa_buscada == causas_seleccionada:
+                assert True, "No se ha calificado correctamente el Producto"
 
 
-@step("la valoración total de calificaciones de 3 estrellas del Producto aumentará en 1")
-def step_impl(context):
-    assert context.producto.calificaciones[3] == 2, "No se ha aumentado la calificación correctamente"
-
-
-@step("el vendedor podrá visualizar el siguiente reporte")
+@step("el vendedor podrá visualizar el siguiente reporte del Producto con todas las causas en orden descendente")
 def step_impl(context):
     lista_porcentajes_por_estrella = list()
     lista_causas_esperadas = list()
@@ -91,9 +82,6 @@ def step_impl(context):
         lista_causas_obtenidas.append(context.producto.obtener_causas_de_cada_estrella()[i])
         print(lista_causas_obtenidas[i - 1] + " == " + lista_causas_esperadas[i - 1])
         assert lista_causas_obtenidas[i - 1] == lista_causas_esperadas[i - 1], "No se tienen las causas correcta"
-
-
-
 
 
 # SERVICIO
@@ -129,40 +117,30 @@ def step_impl(context):
                                                                                             "de calificaciones correcto")
 
 
-@step("el Cliente envíe una Calificación de tres sobre cinco estrellas del Servicio")
+@step("el Cliente seleccione una Calificación de tres sobre cinco estrellas del Servicio y seleccione la causa 1 de "
+      "las siguientes causas de su Calificación")
 def step_impl(context):
     context.cliente = Cliente("1752458974", "Juan", "Herrera", "juan.herrera@hotmail.com", "0984759642",
                               context.pedido)
-    context.cliente.calificar_servicio(context.pedido, 3, ["Paquete dañado"], context.producto)
-
-    assert context.pedido.servicio.puntuaciones_calificaciones[2]["cantidad"] == 3, "No se ha calificado correctamente el producto"
-    return True
-
-
-
-@step("seleccione algunas de las siguientes causas de su Calificación para el Servicio")
-def step_impl(context):
     causas = list()
-    causa_seleccionada = ""
+    causa_seleccionada = list()
 
     for row in context.table:
         causas.append(row["causas"])
 
     for causa in causas:
         if causa == "Paquete dañado":
-            causa_seleccionada = causa
+            causa_seleccionada.append(causa)
+
+    context.cliente.calificar_servicio(context.pedido, 3, causa_seleccionada, context.producto)
 
     if context.pedido.servicio.calificaciones_recibidas[-1] is None:
         for causa_buscada in context.pedido.servicio.calificaciones_recibidas[-1].causas:
             if causa_buscada == causa_seleccionada:
                 assert True, "No se ha seleccionado la causa correctamente"
 
-@step("la valoración total de calificaciones de 3 estrellas del Servicio aumentará en 1 de la siguiente manera")
-def step_impl(context):
-    assert context.pedido.servicio.puntuaciones_calificaciones[2]["cantidad"] == 3, "No se ha aumentado la calificación correctamente"
 
-
-@step("el vendedor podrá visualizar el siguiente reporte con todas las causas en orden descendente")
+@step("el vendedor podrá visualizar el siguiente reporte del Servicio con todas las causas en orden descendente")
 def step_impl(context):
     lista_porcentajes_por_estrella = list()
     lista_causas_esperadas = list()
