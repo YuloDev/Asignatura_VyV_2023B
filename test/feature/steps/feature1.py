@@ -27,47 +27,28 @@ def step_impl(context):
 
     # Comparar el número de pedido del último pedido con la suma total de pedidos
     suma_total_pedidos = context.vendedor.contar_pedidos()
-    assert ultimo_pedido.numero_pedido == str(suma_total_pedidos).zfill(2), "El número total de pedidos del vendedor no coincide"
+    assert ultimo_pedido.numero_pedido == str(suma_total_pedidos).zfill(
+        2), "El número total de pedidos del vendedor no coincide"
+
 
 @step("el numero de pedidos totales y el tiempo estimado para cada etapa en dias es el siguiente")
 def step_impl(context):
-    # Crear un diccionario para almacenar la información de cada etapa
-    info_etapas = {}
+    # Crear una instancia del Modelo (o Etapa, dependiendo de tu diseño)
+    context.modelo = TiempoEtapa()
 
-    # Iterar sobre las Etapas
-    for etapa in EtapaEncuentra:
-        etapa_nombre = etapa.name.lower()  # Utilizar .name para obtener el nombre del Enum y pasarlo a minúsculas
+    # Calcular la información de las etapas utilizando el método en el modelo
+    info_etapas = context.modelo.calcular_info_etapas(context.vendedor.lista_pedidos)
 
-        # Definir el tiempo etapa fijo para cada etapa de acuerdo a lo que definimos
-        if etapa_nombre == "precompra":
-            tiempo_etapa = 2
-        elif etapa_nombre == "reserva":
-            tiempo_etapa = 4
-        elif etapa_nombre == "listo_para_entregar":
-            tiempo_etapa = 2
-        else:
-            tiempo_etapa = 0  # Este de aquí es por si crearamos otras etapas pero como no creo entonces se le deja así nomas
-
-        # Filtrar los pedidos por la etapa actual
-        pedidos_etapa = [pedido for pedido in context.vendedor.lista_pedidos if pedido.etapa_pedido == etapa_nombre]
-
-        # Obtener el número total de pedidos
-        total_pedidos = len(pedidos_etapa)
-
-        # Almacenar la información en el diccionario
-        info_etapas[etapa_nombre] = {"total_pedidos": total_pedidos, "tiempo_etapa": tiempo_etapa}
-
-        # Imprimir información para verificar
-        print(f"Etapa: {etapa_nombre}, Total Pedidos: {total_pedidos}, Tiempo Estimado: {tiempo_etapa} días")
-
-    # Verificar que el número total de pedidos y el tiempo estimado coinciden con la tabla proporcionada
+    # Iterar sobre las filas de la tabla de BDD
     for row in context.table:
-        etapa_nombre = row["etapa_pedido"].lower()  # Convertir a minúsculas
+        # Obtener el nombre de la etapa de la fila y convertirlo a minúsculas
+        etapa_nombre = row["etapa_pedido"].lower()
 
+        # Obtener el número total de pedidos y el tiempo estimado para la etapa actual
         total_pedidos = info_etapas[etapa_nombre]["total_pedidos"]
         tiempo_etapa = info_etapas[etapa_nombre]["tiempo_etapa"]
 
-        # Verificar que los valores coincidan con la tabla proporcionada
+        # Comparar con los valores proporcionados en la tabla de BDD
         assert total_pedidos == int(
             row["total_pedidos"]), f"El número total de pedidos para la etapa {etapa_nombre} no coincide"
         assert tiempo_etapa == int(row["tiempo_etapa"]), f"El tiempo estimado para la etapa {etapa_nombre} no coincide"
@@ -75,29 +56,23 @@ def step_impl(context):
 
 @step("accede al resumen del seguimiento interno en la etapa de precompra")
 def step_impl(context):
-    # Llamamos al método para actualizar el resumen del vendedor
-    context.vendedor.actualizar_resumen_precompra()
-    context.resumen_PreCompra = next(
-        (resumen for resumen in context.vendedor.resumenes if resumen.nombre_etapa == "PreCompra"), None)
+    # Llamamos al método para obtener el resumen del vendedor
+    context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("PreCompra")
     assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
 
 
 @step("accede al resumen del seguimiento interno en la etapa de reserva")
 def step_impl(context):
-    # Llamamos al método para actualizar el resumen del vendedor
-    context.vendedor.actualizar_resumen_reserva()
-    context.resumen_Reserva = next(
-        (resumen for resumen in context.vendedor.resumenes if resumen.nombre_etapa == "Reserva"), None)
-    assert (context.resumen_Reserva is not None), "El resumen no se ha generado"
+    # Llamamos al método para obtener el resumen del vendedor
+    context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("Reserva")
+    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
 
 
 @step("accede al resumen del seguimiento interno en la etapa de listo_para_entregar")
 def step_impl(context):
-    # Llamamos al método para actualizar el resumen del vendedor
-    context.vendedor.actualizar_resumen_listo_para_entrega()
-    context.resumen_listo_para_entrega = next(
-        (resumen for resumen in context.vendedor.resumenes if resumen.nombre_etapa == "listo_para_entregar"), None)
-    assert (context.resumen_listo_para_entrega is not None), "El resumen no se ha generado"
+    # Llamamos al método para obtener el resumen del vendedor
+    context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("listo_para_entregar")
+    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
 
 
 @step(
