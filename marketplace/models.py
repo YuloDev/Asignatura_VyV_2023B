@@ -100,11 +100,12 @@ class Clasificador:
 
 class Recomendacion:
     def __init__(self):
-        self.recomendados = {}
+        self.recomendados_por_categoria = {}
 
     def asignar_recomendado(self, producto, duracion):
-        if producto.unidades_vendidas_ha_superado_record():
-            self.recomendados[producto] = duracion
+        if producto.categoria not in self.recomendados_por_categoria:
+            self.recomendados_por_categoria[producto.categoria] = {}
+        self.recomendados_por_categoria[producto.categoria][producto] = duracion
 
     def obtener_recomendados(self):
-        return self.recomendados
+        return self.recomendados_por_categoria

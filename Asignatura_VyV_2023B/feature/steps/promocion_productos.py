@@ -19,6 +19,7 @@ def step_impl(context):
     context.producto = Producto(nombre="Martillo",unidades_vendidas=120)
     context.categoria = Categoria("Herramientas",record=100)
     context.producto.asignar_categoria(categoria=context.categoria)
+    # Verificar que el producto haya superado el record de ventas de su categoria
     assert context.producto.unidades_vendidas_ha_superado_record() == True
 
 
@@ -34,11 +35,11 @@ def step_impl(context):
     context.recomendacion.asignar_recomendado(context.producto, duracion=7)
 
     # Obtener la lista de productos recomendados
-    recomendados = context.recomendacion.obtener_recomendados()
+    recomendados_por_categoria = context.recomendacion.obtener_recomendados()
 
-    # Verificar que el producto está recomendado y que la duración es 7
-    assert context.producto in recomendados.keys()
-    assert recomendados[context.producto] == 7
+    # Verificar que los productos están recomendados en su categoria y que la duración es 7
+    assert context.producto in recomendados_por_categoria[context.categoria].keys()
+    assert recomendados_por_categoria[context.categoria][context.producto] == 7
 
 
 @step("que existe un vendedor y su producto")
