@@ -3,35 +3,43 @@ from marketplace.models import *
 use_step_matcher("re")
 
 
-
-
-
-
-@step("que existe un vendedor y su producto y una categoría con un record de ventas inicial")
+@step("que existen productos que pertenecen a una categoria con un record de ventas")
 def step_impl(context):
-    context.vendedor = Vendedor(nombre="Rafael", apellido="Piedra")
-    context.producto = Producto(nombre="Herramienta")
-    context.categoria = Categoria(record=100)
-    context.vendedor.agregar_producto(context.producto)
+    context.producto = Producto(nombre="Martillo",unidades_vendidas=12)
+    context.producto= Producto(nombre="Destornillador",unidades_vendidas=1)
+    context.categoria = Categoria("Herramientas",record=100)
+    context.categoria.agregar_producto(context.producto)
 
-    assert context.producto in context.vendedor.obtener_productos()
+    # Verificar que el producto pertenezca a la categoría
+    assert context.producto in context.categoria.obtener_productos()
 
 
-@step("ese producto supere el récord de ventas de su categoría")
+@step("las unidades vendidas del producto superen el récord de ventas de su categoría")
 def step_impl(context):
-    context.producto.asignar_categoria(context.categoria)
+    context.producto = Producto(nombre="Martillo",unidades_vendidas=120)
+    context.categoria = Categoria("Herramientas",record=100)
+    context.producto.asignar_categoria(categoria=context.categoria)
+    assert context.producto.unidades_vendidas_ha_superado_record() == True
 
-    assert context.producto.ha_superado_record() == True
 
-
-@step("El producto se muestra en el inicio de la lista de productos de esa categoría.")
+@step("el producto se asigna como recomendado dentro de su categoria durante una semana")
 def step_impl(context):
-    context.clasificador = Clasificador()
-    context.clasificador.agregar_vendedor(context.vendedor)
-    context.clasificador.notificar(context.vendedor)
-    context.clasificador.buscar_productos_mas_vendidos()
+    # Crear un producto y una instancia de Recomendacion
+    context.producto = Producto(nombre="Martillo", unidades_vendidas=120)
+    context.categoria = Categoria("Herramientas",record=100)
+    context.producto.asignar_categoria(categoria=context.categoria)
+    context.recomendacion = Recomendacion()
 
-    assert context.producto in context.clasificador.listar_productos_mas_vendidos()
+    # Asignar el producto como recomendado con duración 7
+    context.recomendacion.asignar_recomendado(context.producto, duracion=7)
+
+    # Obtener la lista de productos recomendados
+    recomendados = context.recomendacion.obtener_recomendados()
+
+    # Verificar que el producto está recomendado y que la duración es 7
+    assert context.producto in recomendados.keys()
+    assert recomendados[context.producto] == 7
+
 
 @step("que existe un vendedor y su producto")
 def step_impl(context):
@@ -49,3 +57,4 @@ def step_impl(context):
 
     # assert context.vendedor.tiene_promocion_activa() == True
     assert context.producto_promocionado in context.clasificador.obtener_productos_promocionados()
+

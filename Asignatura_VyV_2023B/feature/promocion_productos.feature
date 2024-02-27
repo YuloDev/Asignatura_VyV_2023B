@@ -7,9 +7,9 @@ Característica: Promoción de productos
 
 
   Escenario: El producto supera el récord de ventas de su categoría
-    Dado que existe un vendedor y su producto y una categoría con un record de ventas inicial
-    Cuando ese producto supere el récord de ventas de su categoría
-    Entonces El producto se muestra en el inicio de la lista de productos de esa categoría.
+    Dado que existen productos que pertenecen a una categoria con un record de ventas
+    Cuando las unidades vendidas del producto superen el récord de ventas de su categoría
+    Entonces el producto se asigna como recomendado dentro de su categoria durante una semana
 
   Escenario: El vendedor paga para promocionar los productos
     Dado que existe un vendedor y su producto

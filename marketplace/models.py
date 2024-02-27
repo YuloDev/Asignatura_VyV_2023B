@@ -1,4 +1,4 @@
-from django.db import models
+
 
 # Create your models here.
 class Vendedor:
@@ -23,17 +23,19 @@ class Vendedor:
 
 
 class Producto:
-    def __init__(self, nombre):
-        self.cantidad_venta = 10000
+    def __init__(self, nombre, unidades_vendidas):
+        self.unidades_vendidas = unidades_vendidas
         self.categoria = None
         self.nombre = nombre
+        self.supera_record = False
         self.promocion = False
 
     def asignar_categoria(self, categoria):
         self.categoria = categoria
 
-    def ha_superado_record(self):
-        return self.categoria.producto_supera_record(self.cantidad_venta)
+    def unidades_vendidas_ha_superado_record(self):
+        self.supera_record = self.categoria.producto_supera_record(self.unidades_vendidas)
+        return self.supera_record
 
     def agregar_promocion(self):
         self.promocion = True
@@ -43,15 +45,23 @@ class Producto:
 
 
 class Categoria:
-    def __init__(self, record):
+    def __init__(self, nombreCategoria, record):
+        self.nombreCategoria = nombreCategoria
         self.record = record
+        self.listaProductos = []
 
-    def producto_supera_record(self, cantidad_venta):
-        if cantidad_venta > self.record:
-            self.record = cantidad_venta
+    def producto_supera_record(self, unidades_vendidas):
+        if unidades_vendidas > self.record:
+            self.record = unidades_vendidas
             return True
         else:
             return False
+
+    def agregar_producto(self, producto):
+        self.listaProductos.append(producto)
+
+    def obtener_productos(self):
+        return self.listaProductos
 
 
 class Clasificador:
@@ -86,3 +96,15 @@ class Clasificador:
 
     def listar_productos_destacados(self):
         return self.productos_promocionados
+
+
+class Recomendacion:
+    def __init__(self):
+        self.recomendados = {}
+
+    def asignar_recomendado(self, producto, duracion):
+        if producto.unidades_vendidas_ha_superado_record():
+            self.recomendados[producto] = duracion
+
+    def obtener_recomendados(self):
+        return self.recomendados
