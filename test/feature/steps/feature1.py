@@ -9,13 +9,14 @@ def step_impl(context):
     # Crear un vendedor
     context.vendedor = Vendedor("Juan", [])  # Se le proporciona una lista vacía de pedidos al instanciar el vendedor
 
-    # Iterar sobre las filas de la tabla
+    # Almacenar información de la tabla en el contexto
+    context.informacion_pedidos = []
     for row in context.table:
-        # Crear un objeto Pedido con los datos de la fila
         pedido = Pedido.from_row(row)
+        context.informacion_pedidos.append({"pedido": pedido, "etapa": row["etapa_pedido"].lower()})
 
         # Agregar el pedido a la lista de pedidos del vendedor
-        context.vendedor.agregar_pedido(pedido)
+        context.vendedor.agregar_pedido(pedido, row["etapa_pedido"].lower())
 
     print(f"El vendedor {context.vendedor.nombre_vendedor} tiene {context.vendedor.contar_pedidos()} pedidos.")
 
@@ -61,6 +62,7 @@ def step_impl(context):
     assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
 
 
+'''
 @step("accede al resumen del seguimiento interno en la etapa de reserva")
 def step_impl(context):
     # Llamamos al método para obtener el resumen del vendedor
@@ -73,14 +75,25 @@ def step_impl(context):
     # Llamamos al método para obtener el resumen del vendedor
     context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("listo_para_entregar")
     assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
-
+'''
 
 @step(
     "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de precompra")
 def step_impl(context):
-    pass
+    # Validar los datos con la tabla de características
+    for row in context.table:
+        estado_pedido = row["estado_pedido"]
+        numero_pedidos_esperados = int(row["numero_pedidos"])
 
-
+        if estado_pedido == "a_tiempo":
+            assert context.resumen_PreCompra.num_pedidos_a_tiempo == numero_pedidos_esperados, f"El número de pedidos a tiempo no coincide"
+        elif estado_pedido == "atrasado":
+            assert context.resumen_PreCompra.num_pedidos_atrasados == numero_pedidos_esperados, f"El número de pedidos atrasados no coincide"
+        elif estado_pedido == "cancelado":
+            assert context.resumen_PreCompra.num_pedido_cancelados == numero_pedidos_esperados, f"El número de pedidos cancelados no coincide"
+        else:
+            raise ValueError(f"Estado de pedido no reconocido: {estado_pedido}")
+'''
 @step(
     "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de reserva")
 def step_impl(context):
@@ -91,3 +104,4 @@ def step_impl(context):
     "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de listo_para_entregar")
 def step_impl(context):
     pass
+'''
