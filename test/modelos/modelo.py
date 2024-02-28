@@ -57,14 +57,6 @@ class Vendedor:
         return resumen_etapa
 
 
-# Definicion de la Clase Etapa
-class Etapa:
-    def __init__(self, nombre_etapa, tiempo_etapa):
-        self.nombre_etapa = nombre_etapa
-        self.tiempo_etapa = tiempo_etapa
-        self.pedidos = []
-
-
 # Creacion de la Clase TiempoEtapa
 class TiempoEtapa:
     def __init__(self):
