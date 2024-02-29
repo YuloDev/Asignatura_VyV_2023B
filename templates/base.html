@@ -1,10 +1,23 @@
+<!-- base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>{% block title %}Mi Sitio Web{% endblock %}</title>
 </head>
 <body>
-
+    <nav>
+        <!-- Barra de navegación -->
+        <a href="/">Inicio</a>
+        <a href="/about/">Acerca de</a>
+    </nav>
+    <div class="content">
+        <!-- Contenido específico de cada página -->
+        {% block content %}{% endblock %}
+    </div>
+    <footer>
+        <!-- Pie de página -->
+        © 2024 Mi Sitio Web
+    </footer>
 </body>
 </html>
