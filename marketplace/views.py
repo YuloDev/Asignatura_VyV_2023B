@@ -5,4 +5,5 @@ from django.shortcuts import render
 
 
 def index(request):
-    return render(request, 'plantilla_hija_ejemplo.html')
+    return render(request, 'seguimiento_interno.html')
+

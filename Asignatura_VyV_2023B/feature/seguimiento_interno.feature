@@ -6,7 +6,7 @@ Característica:
   Quiero monitorear el estado de los pedidos en cada una de sus fases
   Para saber la eficacia y eficiencia de mi proceso.
 
-  Escenario: Visualizar resumen del seguimiento interno de los pedidos en la etapa de precompra.
+  Escenario: Visualizar resumen del seguimiento interno de los pedidos en la etapa de precompra
     Dado que un vendedor tiene uno o varios pedidos
       | numero_pedido | etapa_pedido        | pedido_activo | fecha_creacion_pedido | fecha_maxima_etapa_precompra | fecha_real_etapa_precompra | estado_pedido_precompra | fecha_maxima_etapa_reserva | fecha_real_etapa_reserva | estado_pedido_reserva | fecha_maxima_etapa_listo_para_entregar | fecha_real_etapa_listo_para_entregar | estado_pedido_listo_para_entregar |
       | 01            | precompra           | true          | 2024-02-18            | 2024-02-20                   | 2024-02-19                 | a_tiempo                |                            |                          |                       |                                        |                                      |                                   |
