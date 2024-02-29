@@ -14,6 +14,7 @@ class Producto:
     def obtener_costo(self):
         return self.costo
 
+
 class Meta:
     def __init__(self, tipo_de_metrica, valor, anio, mes):
         self.tipo_de_metrica = tipo_de_metrica
@@ -46,6 +47,16 @@ class Vendedor:
     def obtener_ventas(self):
         return self.ventas
 
+    def obtener_cantidad_de_ventas_por_fecha(self, anio=-1, mes=-1):
+        if anio == -1 or mes == -1:
+            return len(self.ventas)
+        else:
+            ventas_por_fecha = []
+            for venta in self.ventas:
+                if (venta.obtener_fecha().year == anio) and (venta.obtener_fecha().month == mes):
+                    ventas_por_fecha.append(venta)
+            return len(ventas_por_fecha)
+
     def establecer_meta(self, meta):
         self.metas.append(meta)
 
@@ -73,14 +84,16 @@ class Venta:
     def obtener_beneficio_total(self):
         return self.beneficio_total
 
+    def obtener_fecha(self):
+        return self.fecha
 
-class Dashboard:
+
+class DashboardDeMetricas:
     def __init__(self, vendedor):
         self.vendedor = vendedor
         self.metricas_actuales = {metrica: 0 for metrica in TipoDeMetrica}
         self.metricas_mes_anterior = {metrica: 0 for metrica in TipoDeMetrica}
-        self.porcentajes_comparacion_meta = {metrica: 0 for metrica in TipoDeMetrica}
-        self.porcentajes_comparacion_mes_anterior = {metrica: 0 for metrica in TipoDeMetrica}
+        self.porcentajes_de_avance = {metrica: 0 for metrica in TipoDeMetrica}
         self.recomendaciones = []
         self.bandera_metrica = False
         self.anio = 0
@@ -99,14 +112,17 @@ class Dashboard:
 
     def _calcular_metricas(self, lista_de_ventas, mes):
         metricas = {metrica: 0 for metrica in TipoDeMetrica}
+        beneficio_total = 0
         for venta in lista_de_ventas:
             if venta.fecha.year == self.anio and venta.fecha.month == mes:
                 metricas[TipoDeMetrica.NUMERO_DE_VENTAS] += 1
                 metricas[TipoDeMetrica.INGRESOS] += venta.obtener_ingreso_total()
                 metricas[TipoDeMetrica.COSTOS] += venta.obtener_costo_total()
-                metricas[TipoDeMetrica.BENEFICIO_POR_VENTA] = (
-                    metricas[TipoDeMetrica.BENEFICIO_POR_VENTA] * (metricas[TipoDeMetrica.NUMERO_DE_VENTAS] - 1) +
-                    venta.obtener_beneficio_total()) / metricas[TipoDeMetrica.NUMERO_DE_VENTAS]
+                beneficio_total += venta.obtener_ingreso_total() - venta.obtener_costo_total()
+        if metricas[TipoDeMetrica.NUMERO_DE_VENTAS] > 0:
+            metricas[TipoDeMetrica.BENEFICIO_POR_VENTA] = beneficio_total / metricas[TipoDeMetrica.NUMERO_DE_VENTAS]
+        else:
+            metricas[TipoDeMetrica.BENEFICIO_POR_VENTA] = 0
         return metricas
 
     def _actualizar_metricas_y_recomendaciones(self, metricas_actuales, metricas_mes_anterior):
@@ -115,38 +131,40 @@ class Dashboard:
             self.metricas_mes_anterior[metrica] = metricas_mes_anterior[metrica]
 
             meta = self.vendedor.obtener_meta(metrica, self.anio, self.mes)
-            porcentaje_comparacion_meta = int((metricas_actuales[metrica] / meta - 1) * 100)
-            porcentaje_comparacion_mes_anterior = int(
-                (metricas_actuales[metrica] / metricas_mes_anterior[metrica] - 1) * 100)
+            if meta is not None and meta != 0:
+                porcentaje_de_avance = min(int(metricas_actuales[metrica] / meta) * 100, 100)
+            else:
+                porcentaje_de_avance = 0
 
-            self.porcentajes_comparacion_meta[metrica] = porcentaje_comparacion_meta
-            self.porcentajes_comparacion_mes_anterior[metrica] = porcentaje_comparacion_mes_anterior
+            self.porcentajes_de_avance[metrica] = porcentaje_de_avance
 
-            self._agregar_recomendacion(metrica, porcentaje_comparacion_meta)
+            self._agregar_recomendacion(metrica)
 
-    def _agregar_recomendacion(self, tipo_de_metrica, porcentaje_comparacion_meta):
+    def _agregar_recomendacion(self, tipo_de_metrica):
         recomendaciones_por_metrica = {
             TipoDeMetrica.NUMERO_DE_VENTAS: {
-                'superior': Recomendacion.MANTENER_PROMOCION_DE_PRODUCTOS,
+                'igual o superior': Recomendacion.MANTENER_PROMOCION_DE_PRODUCTOS,
                 'inferior': Recomendacion.OFERTA_DE_PRODUCTOS
             },
             TipoDeMetrica.INGRESOS: {
-                'superior': Recomendacion.PROMOCION_PRODUCTOS_ESTRELLA,
+                'igual o superior': Recomendacion.PROMOCION_PRODUCTOS_ESTRELLA,
                 'inferior': Recomendacion.COMBO_DE_PRODUCTO
             },
             TipoDeMetrica.COSTOS: {
-                'superior': Recomendacion.OPTIMIZAR_PROCESOS,
+                'igual o superior': Recomendacion.OPTIMIZAR_PROCESOS,
                 'inferior': Recomendacion.NEGOCIAR_DESCUENTO
             },
             TipoDeMetrica.BENEFICIO_POR_VENTA: {
-                'superior': Recomendacion.MANTENER_PRECIO_SOBRE_COSTO,
+                'igual o superior': Recomendacion.MANTENER_PRECIO_SOBRE_COSTO,
                 'inferior': Recomendacion.AJUSTAR_PRECIO_SOBRE_COSTO
             }
         }
-        recomendacion_al_superar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['superior']
+        recomendacion_al_superar_o_igualar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['igual o superior']
         recomendacion_al_no_superar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['inferior']
-        if porcentaje_comparacion_meta >= 0:
-            self.recomendaciones.append(recomendacion_al_superar_la_meta)
+        if self.obtener_comparacion_por_meta(
+                tipo_de_metrica) is TipoDeComparacion.SUPERIOR or self.obtener_comparacion_por_meta(
+                tipo_de_metrica) is TipoDeComparacion.IGUAL:
+            self.recomendaciones.append(recomendacion_al_superar_o_igualar_la_meta)
         else:
             self.recomendaciones.append(recomendacion_al_no_superar_la_meta)
 
@@ -157,16 +175,23 @@ class Dashboard:
         return self.bandera_metrica
 
     def obtener_comparacion_por_meta(self, tipo_de_metrica):
-        if self.porcentajes_comparacion_meta[tipo_de_metrica] >= 0:
+        if self.metricas_actuales[tipo_de_metrica] > self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes):
             return TipoDeComparacion.SUPERIOR
-        else:
+        if self.metricas_actuales[tipo_de_metrica] == self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes):
+            return TipoDeComparacion.IGUAL
+        if self.metricas_actuales[tipo_de_metrica] < self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes):
             return TipoDeComparacion.INFERIOR
 
     def obtener_comparacion_por_mes_anterior(self, tipo_de_metrica):
-        if self.porcentajes_comparacion_mes_anterior[tipo_de_metrica] >= 0:
+        if self.metricas_actuales[tipo_de_metrica] > self.metricas_mes_anterior[tipo_de_metrica]:
             return TipoDeComparacion.SUPERIOR
-        else:
+        if self.metricas_actuales[tipo_de_metrica] == self.metricas_mes_anterior[tipo_de_metrica]:
+            return TipoDeComparacion.IGUAL
+        if self.metricas_actuales[tipo_de_metrica] < self.metricas_mes_anterior[tipo_de_metrica]:
             return TipoDeComparacion.INFERIOR
+
+    def obtener_porcentaje_de_avance(self, tipo_de_metrica):
+        return self.porcentajes_de_avance[tipo_de_metrica]
 
     def obtener_recomendaciones(self):
         return self.recomendaciones
@@ -185,7 +210,7 @@ class Recomendacion(Enum):
     COMBO_DE_PRODUCTO = "Crear combos o conjunto de productos similares."
     PROMOCION_PRODUCTOS_ESTRELLA = "Promocionar productos estrella."
     NEGOCIAR_DESCUENTO = "Negociar descuentos con proveedores o buscar alternativas más económicas."
-    OPTIMIZAR_PROCESOS = "Optimizar procesos internos para reducir costos operativos. "
+    OPTIMIZAR_PROCESOS = "Optimizar procesos internos para reducir costos operativos."
     AJUSTAR_PRECIO_SOBRE_COSTO = "Ajustar los precios de los productos con respecto a sus costos."
     MANTENER_PRECIO_SOBRE_COSTO = "Mantener los precios de los productos con respecto a sus costos."
 
@@ -193,4 +218,4 @@ class Recomendacion(Enum):
 class TipoDeComparacion(Enum):
     INFERIOR = "son inferiores"
     SUPERIOR = "superan"
-    IGUAL = "igual"
+    IGUAL = "igualan"
