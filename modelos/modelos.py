@@ -118,7 +118,7 @@ class DashboardDeMetricas:
                 metricas[TipoDeMetrica.NUMERO_DE_VENTAS] += 1
                 metricas[TipoDeMetrica.INGRESOS] += venta.obtener_ingreso_total()
                 metricas[TipoDeMetrica.COSTOS] += venta.obtener_costo_total()
-                beneficio_total += venta.obtener_ingreso_total() - venta.obtener_costo_total()
+                beneficio_total += venta.obtener_beneficio_total()
         if metricas[TipoDeMetrica.NUMERO_DE_VENTAS] > 0:
             metricas[TipoDeMetrica.BENEFICIO_POR_VENTA] = beneficio_total / metricas[TipoDeMetrica.NUMERO_DE_VENTAS]
         else:
@@ -132,7 +132,7 @@ class DashboardDeMetricas:
 
             meta = self.vendedor.obtener_meta(metrica, self.anio, self.mes)
             if meta is not None and meta != 0:
-                porcentaje_de_avance = min(int(metricas_actuales[metrica] / meta) * 100, 100)
+                porcentaje_de_avance = min(int(metricas_actuales[metrica] / meta * 100), 100)
             else:
                 porcentaje_de_avance = 0
 

@@ -54,7 +54,7 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
       | ventas_mes_actual | ventas_mes_anterior | meta_costos | costos | comparacion_por_meta | comparacion_por_mes | recomendacion                                                             | porcentaje |
       | 4                 | 3                   | 41          | 40     | son inferiores       | superan             | Negociar descuentos con proveedores o buscar alternativas más económicas. | 97         |
       | 4                 | 5                   | 41          | 40     | son inferiores       | son inferiores      | Negociar descuentos con proveedores o buscar alternativas más económicas. | 97         |
-      | 4                 | 4                   | 41          | 40     | son inferiores       | igualan             | Negociar descuentos con proveedores o buscar alternativas más económicas. | 98         |
+      | 4                 | 4                   | 41          | 40     | son inferiores       | igualan             | Negociar descuentos con proveedores o buscar alternativas más económicas. | 97         |
       | 4                 | 3                   | 39          | 40     | superan              | superan             | Optimizar procesos internos para reducir costos operativos.               | 100        |
       | 4                 | 3                   | 40          | 40     | igualan              | superan             | Optimizar procesos internos para reducir costos operativos.               | 100        |
       | 4                 | 3                   | 0           | 40     | superan              | superan             | Optimizar procesos internos para reducir costos operativos.               | 0          |

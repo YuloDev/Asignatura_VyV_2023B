@@ -47,7 +47,7 @@ def step_impl(context, ventas):
     "se indicará que las ventas del mes actual (?P<comparacion_por_meta>.+) a la meta de ventas del mes actual, con el porcentaje de avance (?P<porcentaje>.+)%")
 def step_impl(context, comparacion_por_meta, porcentaje):
     assert (context.dashboard.obtener_comparacion_por_meta(TipoDeMetrica.NUMERO_DE_VENTAS) == TipoDeComparacion(
-        comparacion_por_meta))
+        comparacion_por_meta) and context.dashboard.obtener_porcentaje_de_avance(TipoDeMetrica.NUMERO_DE_VENTAS) == int(porcentaje))
 
 
 @step(
@@ -77,7 +77,7 @@ def step_impl(context, ingresos):
     "se indicará que los ingresos del mes actual (?P<comparacion_por_meta>.+) a la meta de ingresos del mes actual, con el porcentaje de avance (?P<porcentaje>.+)%")
 def step_impl(context, comparacion_por_meta, porcentaje):
     assert (context.dashboard.obtener_comparacion_por_meta(TipoDeMetrica.INGRESOS) == TipoDeComparacion(
-        comparacion_por_meta))
+        comparacion_por_meta) and context.dashboard.obtener_porcentaje_de_avance(TipoDeMetrica.INGRESOS) == int(porcentaje))
 
 
 @step("se indicará que los ingresos del mes actual (?P<comparacion_por_mes>.+) a los ingresos del mes anterior")
@@ -101,7 +101,7 @@ def step_impl(context, costos):
     "se indicará que los costos del mes actual (?P<comparacion_por_meta>.+) a la meta de costos del mes actual, con el porcentaje de avance (?P<porcentaje>.+)%")
 def step_impl(context, comparacion_por_meta, porcentaje):
     assert (context.dashboard.obtener_comparacion_por_meta(TipoDeMetrica.COSTOS) == TipoDeComparacion(
-        comparacion_por_meta))
+        comparacion_por_meta) and context.dashboard.obtener_porcentaje_de_avance(TipoDeMetrica.COSTOS) == int(porcentaje))
 
 
 @step("se indicará que los costos del mes actual (?P<comparacion_por_mes>.+) a los costos del mes anterior")
@@ -126,7 +126,7 @@ def step_impl(context, beneficio):
     "se indicará que los beneficio por venta del mes actual (?P<comparacion_por_meta>.+) a la meta de los beneficios por venta del mes actual, con el porcentaje de avance (?P<porcentaje>.+)%")
 def step_impl(context, comparacion_por_meta, porcentaje):
     assert (context.dashboard.obtener_comparacion_por_meta(TipoDeMetrica.BENEFICIO_POR_VENTA) == TipoDeComparacion(
-        comparacion_por_meta))
+        comparacion_por_meta) and context.dashboard.obtener_porcentaje_de_avance(TipoDeMetrica.BENEFICIO_POR_VENTA) == int(porcentaje))
 
 
 @step(
