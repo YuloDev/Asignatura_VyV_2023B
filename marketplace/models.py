@@ -33,8 +33,8 @@ class Producto:
     def asignar_categoria(self, categoria):
         self.categoria = categoria
 
-    def unidades_vendidas_ha_superado_record(self):
-        self.supera_record = self.categoria.producto_supera_record(self.unidades_vendidas)
+    def unidades_vendidas_ha_superado_record(self,categoria):
+        self.supera_record = categoria.producto_supera_record(self.unidades_vendidas)
         return self.supera_record
 
     def agregar_promocion(self):
@@ -50,9 +50,8 @@ class Categoria:
         self.record = record
         self.listaProductos = []
 
-    def producto_supera_record(self, unidades_vendidas):
+    def producto_supera_record(self,unidades_vendidas):
         if unidades_vendidas > self.record:
-            self.record = unidades_vendidas
             return True
         else:
             return False
@@ -102,10 +101,11 @@ class Recomendacion:
     def __init__(self):
         self.recomendados_por_categoria = {}
 
-    def asignar_recomendado(self, producto, duracion):
-        if producto.categoria not in self.recomendados_por_categoria:
-            self.recomendados_por_categoria[producto.categoria] = {}
-        self.recomendados_por_categoria[producto.categoria][producto] = duracion
+    def asignar_recomendado(self, categoria,producto, duracion):
+
+        if categoria not in self.recomendados_por_categoria:
+            self.recomendados_por_categoria[categoria] = {}
+        self.recomendados_por_categoria[categoria][producto] = duracion
 
     def obtener_recomendados(self):
         return self.recomendados_por_categoria

@@ -1,45 +1,39 @@
 from behave import *
 from marketplace.models import *
+
 use_step_matcher("re")
 
 
-@step("que existen productos que pertenecen a una categoria con un record de ventas")
-def step_impl(context):
-    context.producto = Producto(nombre="Martillo",unidades_vendidas=12)
-    context.producto= Producto(nombre="Destornillador",unidades_vendidas=1)
-    context.categoria = Categoria("Herramientas",record=100)
-    context.categoria.agregar_producto(context.producto)
-
-    # Verificar que el producto pertenezca a la categoría
-    assert context.producto in context.categoria.obtener_productos()
+@step('que existen "(?P<producto>.+)"que pertenecen a una "(?P<categoria>.+)" con (?P<unidades_vendidas>\\d+)')
+def step_impl(context, producto, categoria, unidades_vendidas):
+    context.producto1 = Producto(nombre=producto, unidades_vendidas=unidades_vendidas)
+    context.categoria1 = Categoria(nombreCategoria=categoria, record=120)
+    context.producto1.asignar_categoria(context.categoria1)
+    assert context.producto1.categoria is not None, "No posee una categoria"
 
 
-@step("las unidades vendidas del producto superen el récord de ventas de su categoría")
-def step_impl(context):
-    context.producto = Producto(nombre="Martillo",unidades_vendidas=120)
-    context.categoria = Categoria("Herramientas",record=100)
-    context.producto.asignar_categoria(categoria=context.categoria)
-    # Verificar que el producto haya superado el record de ventas de su categoria
-    assert context.producto.unidades_vendidas_ha_superado_record() == True
+@step( 'las (?P<unidades_vendidas>\\d+) del "(?P<producto>.+)" superan el (?P<record_ventas>\\d+) de la "(?P<categoria>.+)"')
+def step_impl(context, unidades_vendidas, producto, record_ventas, categoria):
+    context.producto1 = Producto(nombre=producto, unidades_vendidas=unidades_vendidas)
+    context.categoria1 = Categoria(nombreCategoria=categoria, record=record_ventas)
+    context.producto1.asignar_categoria(context.categoria1)
+    # Verificar que las unidades vendidas superen el record de la categoría
+    assert context.producto1.unidades_vendidas_ha_superado_record(
+        context.categoria1), f"Las unidades vendidas no superan el record en la categoría {context.categoria1.nombreCategoria}"
 
 
-@step("el producto se asigna como recomendado dentro de su categoria durante una semana")
-def step_impl(context):
-    # Crear un producto y una instancia de Recomendacion
-    context.producto = Producto(nombre="Martillo", unidades_vendidas=120)
-    context.categoria = Categoria("Herramientas",record=100)
-    context.producto.asignar_categoria(categoria=context.categoria)
+@step( 'el "(?P<producto>.+)" se muestra en la sección de recomendados dentro de la "(?P<categoria>.+)" durante (?P<tiempo>.+)')
+def step_impl(context, producto, categoria, tiempo):
     context.recomendacion = Recomendacion()
 
     # Asignar el producto como recomendado con duración 7
-    context.recomendacion.asignar_recomendado(context.producto, duracion=7)
+    context.recomendacion.asignar_recomendado(categoria,producto, duracion=tiempo)
 
     # Obtener la lista de productos recomendados
     recomendados_por_categoria = context.recomendacion.obtener_recomendados()
 
-    # Verificar que los productos están recomendados en su categoria y que la duración es 7
-    assert context.producto in recomendados_por_categoria[context.categoria].keys()
-    assert recomendados_por_categoria[context.categoria][context.producto] == 7
+    assert producto in recomendados_por_categoria[categoria]
+    assert recomendados_por_categoria[categoria][producto] == tiempo
 
 
 @step("que existe un vendedor y su producto")
@@ -48,6 +42,7 @@ def step_impl(context):
     context.producto = Producto(nombre="Herramienta")
 
     assert context.producto in context.vendedor.obtener_productos()
+
 
 @step("el producto se muestra al inicio de la lista de productos promocionados de esa categoría")
 def step_impl(context):
@@ -58,4 +53,3 @@ def step_impl(context):
 
     # assert context.vendedor.tiene_promocion_activa() == True
     assert context.producto_promocionado in context.clasificador.obtener_productos_promocionados()
-
