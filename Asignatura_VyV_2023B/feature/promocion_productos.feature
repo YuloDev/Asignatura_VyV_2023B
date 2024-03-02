@@ -7,15 +7,14 @@ Característica: Promoción de productos
 
   Escenario: Producto supera récord de ventas en su categoría
     Dado que existen clientes con preferencias establecidas
-      | cliente       | preferencias                          |
-      | Rafael Piedra | categoria_x, categoria_y, categoria_z |
+      | cliente       | preferencias                        |
+      | Rafael Piedra | categoria_x categoria_y categoria_z |
     Y que existen categorías con record de ventas
       | categoria   | record_ventas |
       | categoria_x | 100           |
       | categoria_y | 200           |
       | categoria_z | 300           |
-    Y las categorías pertenecen a las preferencias del cliente
-    Y productos que pertenecen a una categoría con unidades vendidas
+    Y existen productos que pertenecen a una unica categoría con unidades vendidas
       | producto    | categoria   | unidades_vendidas |
       | Producto X1 | categoria_x | 202               |
       | Producto X2 | categoria_x | 30                |
@@ -26,7 +25,10 @@ Característica: Promoción de productos
       | Producto Z1 | categoria_z | 502               |
       | Producto Z2 | categoria_z | 100               |
       | Producto Z3 | categoria_z | 200               |
-    Cuando las unidades vendidas de algun producto superan el record de ventas de la categoría
+    Y al menos una de las categorías pertenece a las preferencias del cliente
+
+    Y las unidades vendidas de algun producto superan el record de ventas de la categoría
+    Cuando se muestre la pagina principal del marketplace
     Entonces en la parte superior de la ventana principal del marketplace se muestran las categorias pertenecientes a las preferencias del cliente con el producto que superó el record de ventas
     Y el record de ventas de la categoria se actualiza con el valor de las unidades vendidas del producto
 
