@@ -1,0 +1,377 @@
+<!-- home.html -->
+{% extends 'base.html' %}
+{% block title %}Inicio - Mi Sitio Web{% endblock %}
+{% block content %}
+    <style>
+    .dflex_column_center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /************************************************************************************************************/
+    /* Borde Cajas */
+    .bordeCajas {
+        border: 2px solid #aaa;
+        border-radius: 10px;
+        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+
+        padding: 10px;
+    }
+
+    /* Color Cajas */
+    .caja_aTiempo {
+        background-color: greenyellow;
+    }
+
+    .caja_atrasado {
+        background-color: darkorchid;
+    }
+
+    .caja_cancelado {
+        background-color: salmon;
+    }
+
+    .caja {
+        width: calc(40% - 20px);
+        /* 50% del ancho del contenedor menos el espacio entre cajas */
+        margin: 10px;
+        /* Espacio entre cajas */
+        padding: 20px;
+        /* Espacio interno */
+        border: 2px solid #aaa;
+        /* Borde */
+    }
+</style>
+
+<body style="padding: 40px;">
+
+    <h1 class="text-center">Seguimiento Entrega de Pedidos</h1>
+    <!-- Barra de Navegacion -->
+    <ul class="nav nav-tabs mt-3">
+        <li class="nav-item"><a class="nav-link active" href="#Tab1" data-toggle="tab">Resumen General</a></li>
+        <li class="nav-item"><a class="nav-link" href="#Tab2" data-toggle="tab">Resumen Etapa Listo para entregar</a></li>
+        <li class="nav-item"><a class="nav-link" href="#Tab3" data-toggle="tab">Resumen Etapa Repartidor asignado</a></li>
+        <li class="nav-item"><a class="nav-link" href="#Tab4" data-toggle="tab">Resumen Etapa Embarcado</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="#Tab2" data-toggle="tab">Resumen Etapa Paquete no entregado</a></li>
+        <li class="nav-item"><a class="nav-link" href="#Tab2" data-toggle="tab">Resumen Etapa Paquete entregado</a></li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <!-- Pestaña General -->
+        <div id="Tab1" class="tab-pane active">
+            <h3 class="text-center">Resumen General</h3>
+            <!-- Contenedor -->
+            <div class="d-flex justify-content-around">
+
+                <!-- Caja de total de pedidos -->
+                <div class="dflex_column_center bordeCajas">
+                    <h4>Número total de pedidos</h4>
+                    <p>6</p>
+                </div>
+
+                <!-- Grafica -->
+                <div class="dflex_column_center">
+                    <h4>Gráfica General del Desempeño del Proceso de Seguimiento Entrega de pedidos</h4>
+                     <canvas width="300" height="300" id="grafica_general"></canvas>
+                </div>
+
+            </div>
+        </div>
+        <!-- Pestaña Listo para entregar -->
+        <div id="Tab2" class="tab-pane">
+            <h3 class="text-center">Etapa Listo para entregar</h3>
+            <!-- Contenedor -->
+            <div class="d-flex">
+                <!-- Contenedor de cajas de totales -->
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-around; width: 50%;">
+                    <!-- Caja de total de pedidos -->
+                    <div class="dflex_column_center bordeCajas caja">
+                        <h4>Número total de pedidos</h4>
+                        <p>2</p>
+                    </div>
+
+                    <!-- Caja de pedidos a tiempo -->
+                    <div class="dflex_column_center bordeCajas caja_aTiempo caja">
+                        <h4>Número de pedidos A Tiempo</h4>
+                        <p>1</p>
+                    </div>
+
+                    <!-- Caja de pedidos atrasados -->
+                    <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                        <h4>Número de pedidos Atrasados</h4>
+                        <p>0</p>
+                    </div>                
+
+                </div>
+
+                <!-- Grafica -->
+                <div class="dflex_column_center" style="width: 50%;">
+                    <h4>Resumen General</h4>
+                     <canvas id="listo_para_entregar"></canvas>
+                </div>
+
+            </div>
+        </div>
+        <!-- Pestaña Repartidor asignado-->
+        <div id="Tab3" class="tab-pane">
+            <h3 class="text-center">Etapa Repartidor asignado</h3>
+
+            <!-- Contenedor -->
+            <div class="d-flex">
+                <!-- Contenedor de cajas de totales -->
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-around; width: 50%;">
+                    <!-- Caja de total de pedidos -->
+                    <div class="dflex_column_center bordeCajas caja">
+                        <h4>Número total de pedidos</h4>
+                        <p>2</p>
+                    </div>
+
+                    <!-- Caja de pedidos a tiempo -->
+                    <div class="dflex_column_center bordeCajas caja_aTiempo caja">
+                        <h4>Número de pedidos A Tiempo</h4>
+                        <p>1</p>
+                    </div>
+
+                    <!-- Caja de pedidos atrasados -->
+                    <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                        <h4>Número de pedidos Atrasados</h4>
+                        <p>0</p>
+                    </div>
+
+                </div>
+
+                <!-- Grafica -->
+                <div class="dflex_column_center" style="width: 50%;">
+                    <h4>Resumen General</h4>
+                     <canvas id="repartidor_asignado"></canvas>
+                </div>
+
+            </div>
+        </div>
+        <!-- Pestaña Embarcado -->
+        <div id="Tab4" class="tab-pane">
+            <h3 class="text-center">Etapa Embarcado</h3>
+
+            <!-- Contenedor -->
+            <div class="d-flex">
+                <!-- Contenedor de cajas de totales -->
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-around; width: 50%;">
+                    <!-- Caja de total de pedidos -->
+                    <div class="dflex_column_center bordeCajas caja">
+                        <h4>Número total de pedidos</h4>
+                        <p>2</p>
+                    </div>
+
+                    <!-- Caja de pedidos a tiempo -->
+                    <div class="dflex_column_center bordeCajas caja_aTiempo caja">
+                        <h4>Número de pedidos A Tiempo</h4>
+                        <p>1</p>
+                    </div>
+
+                    <!-- Caja de pedidos atrasados -->
+                    <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                        <h4>Número de pedidos Atrasados</h4>
+                        <p>0</p>
+                    </div>               
+
+                </div>
+
+                <!-- Grafica -->
+                <div class="dflex_column_center" style="width: 50%;">
+                    <h4>Resumen General</h4>
+                     <canvas id="embarcado"></canvas>
+                </div>
+
+            </div>
+
+        </div>
+        <!-- Pestaña Paquete no entregado -->
+        <div id="Tab4" class="tab-pane">
+            <h3 class="text-center">Etapa Paquete no entregado</h3>
+
+            <!-- Contenedor -->
+            <div class="d-flex">
+                <!-- Contenedor de cajas de totales -->
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-around; width: 50%;">
+                    <!-- Caja de total de pedidos -->
+                    <div class="dflex_column_center bordeCajas caja">
+                        <h4>Número total de pedidos</h4>
+                        <p>2</p>
+                    </div>
+
+                    <!-- Caja de pedidos a tiempo -->
+                    <div class="dflex_column_center bordeCajas caja_aTiempo caja">
+                        <h4>Número de pedidos A Tiempo</h4>
+                        <p>1</p>
+                    </div>
+
+                    <!-- Caja de pedidos atrasados -->
+                    <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                        <h4>Número de pedidos Atrasados</h4>
+                        <p>0</p>
+                    </div>
+
+                    <!-- Caja de pedidos cancelados -->
+                    <div class="dflex_column_center bordeCajas caja_cancelado caja">
+                        <h4>Número de pedidos no entregados porque el cliente no fue encontrado</h4>
+                        <p>1</p>
+                    </div>
+
+                </div>
+
+                <!-- Grafica -->
+                <div class="dflex_column_center" style="width: 50%;">
+                    <h4>Resumen General</h4>
+                     <canvas id="paquete_no_entregado"></canvas>
+                </div>
+
+            </div>
+
+        </div>
+        <!-- Pestaña Paquete entregado -->
+        <div id="Tab4" class="tab-pane">
+            <h3 class="text-center">Etapa Listo Para Entregar</h3>
+
+            <!-- Contenedor -->
+            <div class="d-flex">
+                <!-- Contenedor de cajas de totales -->
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-around; width: 50%;">
+                    <!-- Caja de total de pedidos -->
+                    <div class="dflex_column_center bordeCajas caja">
+                        <h4>Número total de pedidos</h4>
+                        <p>2</p>
+                    </div>
+
+                    <!-- Caja de pedidos a tiempo -->
+                    <div class="dflex_column_center bordeCajas caja_aTiempo caja">
+                        <h4>Número de pedidos A Tiempo</h4>
+                        <p>1</p>
+                    </div>
+
+                    <!-- Caja de pedidos atrasados -->
+                    <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                        <h4>Número de pedidos Atrasados</h4>
+                        <p>0</p>
+                    </div>                   
+
+                </div>
+
+                <!-- Grafica -->
+                <div class="dflex_column_center" style="width: 50%;">
+                    <h4>Resumen General</h4>
+                     <canvas id="paquete_entregado"></canvas>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Datos de ejemplo
+      var data_general = {
+        labels: ['Tardio', 'A tiempo'],
+        datasets: [{
+          data: [10, 20],
+          backgroundColor: ['#FF6384', '#36A2EB'],
+          hoverBackgroundColor: ['#FF6384', '#36A2EB']
+        }]
+      };
+      var data_listo_para_entregar = {
+        labels: ['Tardio', 'A tiempo'],
+        datasets: [{
+          data: [10, 20],
+          backgroundColor: ['#FF6384', '#36A2EB'],
+          hoverBackgroundColor: ['#FF6384', '#36A2EB']
+        }]
+      };
+      var data_repartidor_asignado = {
+        labels: ['Tardio', 'A tiempo'],
+        datasets: [{
+          data: [10, 20],
+          backgroundColor: ['#FF6384', '#36A2EB'],
+          hoverBackgroundColor: ['#FF6384', '#36A2EB']
+        }]
+      };
+      var data_embarcado = {
+        labels: ['Tardio', 'A tiempo'],
+        datasets: [{
+          data: [10, 20],
+          backgroundColor: ['#FF6384', '#36A2EB'],
+          hoverBackgroundColor: ['#FF6384', '#36A2EB']
+        }]
+      };
+      var data_paquete_no_entregado = {
+        labels: ['Tardio', 'A tiempo'],
+        datasets: [{
+          data: [10, 20],
+          backgroundColor: ['#FF6384', '#36A2EB'],
+          hoverBackgroundColor: ['#FF6384', '#36A2EB']
+        }]
+      };
+      var data_paquete_entregado = {
+        labels: ['Tardio', 'A tiempo'],
+        datasets: [{
+          data: [10, 20],
+          backgroundColor: ['#FF6384', '#36A2EB'],
+          hoverBackgroundColor: ['#FF6384', '#36A2EB']
+        }]
+      };
+
+      // Configuración del gráfico de dona
+      var options = {
+               responsive: false,
+                cutoutPercentage: 50, // Ajusta este valor para cambiar el tamaño del anillo
+                maintainAspectRatio: false // Desactiva el mantenimiento del aspecto
+      };
+
+      // Obtener el contexto del lienzo
+      var ctx = document.getElementById('grafica_general').getContext('2d');
+      var ctx1 = document.getElementById('listo_para_entregar').getContext('2d');
+      var ctx2 = document.getElementById('repartidor_asignado').getContext('2d');
+      var ctx3 = document.getElementById('embarcado').getContext('2d');
+      var ctx4 = document.getElementById('paquete_no_entregado').getContext('2d');
+      var ctx5 = document.getElementById('paquete_entregado').getContext('2d');
+      
+
+      // Crear el gráfico de dona
+      var grafica_general = new Chart(ctx, {
+        type: 'doughnut',
+        data: data_general,
+        options: options
+      });
+      var listo_para_entregar = new Chart(ctx1, {
+        type: 'doughnut',
+        data: data_listo_para_entregar,
+        options: options
+      });
+      var repartidor_asignado = new Chart(ctx2, {
+        type: 'doughnut',
+        data: data_repartidor_asignado,
+        options: options
+      });
+      var embarcado = new Chart(ctx3, {
+        type: 'doughnut',
+        data: data_embarcado,
+        options: options
+      });
+      var paquete_no_entregado = new Chart(ctx4, {
+        type: 'doughnut',
+        data: data_paquete_no_entregado,
+        options: options
+      });
+      var paquete_entregado = new Chart(ctx5, {
+        type: 'doughnut',
+        data: data_paquete_entregado,
+        options: options
+      });
+    });
+  </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+{% endblock %}
+
