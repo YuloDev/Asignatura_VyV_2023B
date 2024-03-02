@@ -7,12 +7,12 @@ Característica: : Seguimiento de entrega de compras de clientes
 
 Esquema del escenario: : Visualizar resumen de pedidos en diferentes etapas para los estados a tiempo y atrasado
     Dado que un Vendedor tiene los siguientes Pedidos
-      | estado_pedido | etapa_pedido | fecha_listo_para_entregar | Vendedor     |
-      | a_tiempo      | E            | 2024-02-18                | Luis Almache |
-      | a_tiempo      | EC           | 2024-02-18                | Luis Almache |
-      | a_tiempo      | RA           | 2024-02-18                | Luis Almache |
-      | a_tiempo      | RA           | 2024-02-18                | Luis Almache |
-      | a_tiempo      | LPE          | 2024-02-25                | Luis Almache |
+      | estado_pedido | etapa_pedido | fecha_listo_para_entregar | nombre     | apellido |
+      | a_tiempo      | E            | 2024-02-18                | Luis       | Almache  |
+      | a_tiempo      | EC           | 2024-02-18                | Luis       | Almache  |
+      | a_tiempo      | RA           | 2024-02-18                | Luis       | ALmache  |
+      | a_tiempo      | RA           | 2024-02-18                | Luis       | Almache  |
+      | a_tiempo      | LPE          | 2024-02-25                | Luis       | ALmache  |
     Cuando el Vendedor visualice el resumen de los Pedidos en una etapa <etapa>
     Entonces se actualizarán los estados de los Pedidos según el tiempo actual de la zona
     Y se mostrarán el siguiente estado <estado_pedido> con la siguiente cantidad de pedidos <numero_pedidos>
