@@ -6,20 +6,46 @@ Característica: Promoción de productos
   para aumentar mis ganancias.
 
   Escenario: Producto supera récord de ventas en su categoría
-    Dado que existen "<cliente>" con "<preferencias>"
+    Dado que existen clientes con preferencias establecidas
       | cliente       | preferencias                          |
       | Rafael Piedra | categoria_x, categoria_y, categoria_z |
-    Y "<producto>" con "<unidades_vendidas>"que pertenece a una única "<categoria>" que tiene un "<record_ventas>"
-      | producto     | categoria   | record_ventas | unidades_vendidas |
-      | Smartphone X | categoria_x | 200           | 300               |
-    Cuando las <unidades_vendidas> del "<producto>" superan el <record_ventas> de la "<categoria>"
-    Y la "<categoría>" de ese "<producto>" pertenece a las "<preferencias>" del "<cliente>"
-    Entonces en la parte superior de la ventana principal del marketplace se muestran las "<categoria>" pertenecientes a las "<preferencias>" del "<cliente>" con el "<producto>" que superó el "<record_ventas>"
-    Y el "<record_ventas>" de la "<categoria>" se actualiza con el valor de las "<unidades_vendidas>" del "<producto>"
+    Y que existen categorías con record de ventas
+      | categoria   | record_ventas |
+      | categoria_x | 100           |
+      | categoria_y | 200           |
+      | categoria_z | 300           |
+    Y las categorías pertenecen a las preferencias del cliente
+    Y productos que pertenecen a una categoría con unidades vendidas
+      | producto    | categoria   | unidades_vendidas |
+      | Producto X1 | categoria_x | 202               |
+      | Producto X2 | categoria_x | 30                |
+      | Producto X3 | categoria_x | 40                |
+      | Producto Y1 | categoria_y | 259               |
+      | Producto Y2 | categoria_y | 104               |
+      | Producto Y3 | categoria_y | 69                |
+      | Producto Z1 | categoria_z | 502               |
+      | Producto Z2 | categoria_z | 100               |
+      | Producto Z3 | categoria_z | 200               |
+    Cuando las unidades vendidas de algun producto superan el record de ventas de la categoría
+    Entonces en la parte superior de la ventana principal del marketplace se muestran las categorias pertenecientes a las preferencias del cliente con el producto que superó el record de ventas
+    Y el record de ventas de la categoria se actualiza con el valor de las unidades vendidas del producto
 
 
-  Escenario: El vendedor paga para promocionar los productos
-    Dado que existe un vendedor y su producto
-    Cuando el vendedor realice un pago para promocionar su producto
-    Entonces el producto se muestra al inicio de la lista de productos promocionados de esa categoría
-
+  Escenario: El vendedor paga para promocionar sus productos
+    Dado que existen vendedores que tienen productos
+      | vendedor | nombres_productos                                                                                |
+      | Carlos   | Martillo, Destornillador, Sierra                                                                 |
+      | Slayther | Llave ajustable, Taladro eléctrico, Serrucho de mano, Destornillador eléctrico, Lijadora orbital |
+      | Juan     | Sierra Circular, Llave inglesa, Caja de herramientas, metro                                      |
+    Y que existen paquetes de promociones
+      | paquete  | costo | dias_duracion | cantidad_productos |
+      | gold     | 50    | 30            | 5                  |
+      | platinum | 35    | 20            | 3                  |
+      | basic    | 20    | 15            | 1                  |
+    Y los vendedores adquieren un paquete de promoción
+      | vendedor | paquete_contratado | productos_promocionados                                                                          |
+      | Carlos   | basic              | Martillo                                                                                         |
+      | Juan     | platinum           | Llave inglesa, Caja de herramientas, metro                                                       |
+      | Slayther | gold               | Llave ajustable, Taladro eléctrico, Serrucho de mano, Destornillador eléctrico, Lijadora orbital |
+    Cuando se realice una búsqueda de algún producto
+    Entonces los productos promocionados se mostrarán como primer resultado en la búsqueda que coincida con el nombre del producto, ordenados por el tipo del paquete y la fecha de adquisición del
