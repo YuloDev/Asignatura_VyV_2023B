@@ -6,15 +6,15 @@ class Producto:
         self.calificaciones = {1: 0, 2: 1, 3: 2, 4: 0, 5: 2}
         self.calificaciones_recibidas = list()
         causas = ["Mala calidad de materiales"]
-        self.calificaciones_recibidas.append(Calificacion(2, causas, self))
+        self.calificaciones_recibidas.append(Calificacion(2, causas))
         causas = ["Mal funcionamiento", "Concuerda con la descripción"]
-        self.calificaciones_recibidas.append(Calificacion(3, causas, self))
+        self.calificaciones_recibidas.append(Calificacion(3, causas))
         causas = ["Buenos acabados", "Concuerda con la descripción"]
-        self.calificaciones_recibidas.append(Calificacion(3, causas, self))
+        self.calificaciones_recibidas.append(Calificacion(3, causas))
         causas = ["Buenos acabados", "Buena calidad de materiales"]
-        self.calificaciones_recibidas.append(Calificacion(5, causas, self))
+        self.calificaciones_recibidas.append(Calificacion(5, causas))
         causas = ["Buenos acabados", "Buena calidad de materiales"]
-        self.calificaciones_recibidas.append(Calificacion(5, causas, self))
+        self.calificaciones_recibidas.append(Calificacion(5, causas))
 
     def feedback_producto_esta_dado(self):
         return True
@@ -40,6 +40,9 @@ class Producto:
                 porcentaje_calculado = (self.calificaciones[i] / calificaciones_totales) * 100
                 porcentaje_calculado = round(porcentaje_calculado)
                 porcentajes_por_estrella.append(str(porcentaje_calculado) + "%")
+
+        porcentajes_por_estrella.reverse()
+
         return porcentajes_por_estrella
 
     def obtener_causas_de_cada_estrella(self):
@@ -61,6 +64,18 @@ class Producto:
             causas[estrella] = ", ".join([f"{causa} ({cantidad})" for causa, cantidad in sorted_causas])
         return causas
 
+    def obtener_promedio_general_del_producto(self):
+        total_calificaciones = 0
+        total_estrellas = 0
+        for clave in self.calificaciones:
+            total_calificaciones += self.calificaciones[clave]
+            total_estrellas += clave * self.calificaciones[clave]
+
+        promedio_general = round(total_estrellas / total_calificaciones)
+        print(promedio_general)
+        return promedio_general
+
+
 class Pedido:
     def __init__(self, id, estado, cantidad, direccion, productos):
         self.id_pedido = id
@@ -70,6 +85,7 @@ class Pedido:
         self.productos = productos
         self.servicio = Servicio(self)
         self.pagado = True
+
 
 class Cliente:
     def __init__(self, cedula, nombre, apellido, correo, telefono, pedido):
@@ -81,17 +97,17 @@ class Cliente:
         self.pedido = pedido
 
     def calificar_producto(self, estrellas, causas, producto):
-        calificacion = Calificacion(estrellas, causas, producto)
+        calificacion = Calificacion(estrellas, causas)
         producto.agregar_calificacion(calificacion)
 
-    def calificar_servicio(self, pedido, estrellas, causas, producto):
-        calificacion = Calificacion(estrellas, causas, producto)
+    def calificar_servicio(self, pedido, estrellas, causas):
+        calificacion = Calificacion(estrellas, causas)
         pedido.servicio.agregar_calificacion(calificacion)
+
 
 class Servicio:
     def __init__(self, pedido):
         self.pedido = pedido
-
         self.puntuaciones_calificaciones = [
             {'estrellas': 1, "cantidad": 10, "porcentaje": "30%"},
             {'estrellas': 2, "cantidad": 6, "porcentaje": "16%"},
@@ -102,7 +118,7 @@ class Servicio:
         self.calificaciones_recibidas = list()
 
         causas = ["Entrega tardía"]
-        self.calificaciones_recibidas.append(Calificacion(2, causas, self))
+        self.calificaciones_recibidas.append(Calificacion(2, causas))
 
     def aumentar_estrella(self, calificacion_cliente):
         for calificacion in self.puntuaciones_calificaciones:
@@ -150,9 +166,19 @@ class Servicio:
             causas[estrella] = ", ".join([f"{causa} ({cantidad})" for causa, cantidad in sorted_causas])
         return causas
 
+    def obtener_promedio_general_del_servicio(self):
+        total_calificaciones = 0
+        total_estrellas = 0
+        for calificacion in self.puntuaciones_calificaciones:
+            total_calificaciones += calificacion["cantidad"]
+            total_estrellas += calificacion["estrellas"] * calificacion["cantidad"]
+
+        promedio_general = round(total_estrellas / total_calificaciones)
+        print(promedio_general)
+        return promedio_general
+
 
 class Calificacion:
-    def __init__(self, estrellas, causas, producto):
+    def __init__(self, estrellas, causas):
         self.estrellas = estrellas
         self.causas = causas
-        self.producto = producto

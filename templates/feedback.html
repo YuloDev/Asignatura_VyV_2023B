@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}Feedback{% endblock %}
+{% block content %}
+    <style>
+        * {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .rating label:before {
+            content: "\f005";
+            font-family: "Font Awesome 5 Free", serif;
+            font-weight: 900;
+        }
+
+        .rating input:checked ~ label {
+            color: #FFBF00;
+        }
+
+        .rating label {
+            color: #ddd;
+            font-size: 30px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            margin: 0px 15px 0px 0px;
+            pointer-events: none;
+        }
+
+        .progress {
+            height: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border: 1px solid #aaa;
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            align-items: center;
+        }
+
+        .porcentaje {
+            position: absolute;
+            top: 50%;
+            left: 48%;
+        }
+
+        .container_causas {
+            background: #e9e9e9;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        h3, h4, h5, .text {
+            font-weight: bold;
+        }
+        .input-group {
+            margin: 20px 10px 40px 35px;
+        }
+        .icon{
+            margin: 0px 10px 0px 35px;
+        }
+    </style>
+    <div class="form-check">
+        <input class="form-check-input mx-2" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+        <i class="fa-solid fa-cube icon"></i>
+        <label class="form-check-label text" for="flexRadioDefault1">
+            Producto
+        </label>
+    </div>
+    <div class="input-group mb-3 mx-5">
+        <input type="text" class="form-control" placeholder="Ingrese el nombre del producto"
+               aria-label="Recipient's username" aria-describedby="button-addon2">
+        <button class="btn btn-outline-secondary" type="button" id="button-addon2">Buscar</button>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input m-2" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+        <i class="fa-solid fa-truck-fast icon"></i>
+        <label class="form-check-label text" for="flexRadioDefault1">
+            Servicio
+        </label>
+    </div>
+
+    <h3 class="text-center">Reporte</h3>
+    <h4>{{ nombre_producto }}</h4>
+    <div class="rating m-4">
+        <input type="radio" id="star5" name="rating" value="5">
+        <label for="star5"></label>
+        <input type="radio" id="star4" name="rating" value="4">
+        <label for="star4"></label>
+        <input type="radio" id="star3" name="rating" value="3">
+        <label for="star3"></label>
+        <input type="radio" id="star2" name="rating" value="2">
+        <label for="star2"></label>
+        <input type="radio" id="star1" name="rating" value="1">
+        <label for="star1"></label>
+    </div>
+    {% for porcentaje_calculado in porcentajes_calculados %}
+        <div class="container_causas">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <label>{{ estrellas.pop }} estrellas</label>
+                </div>
+                <div class="col">
+                    <div class="progress position-relative" role="progressbar" aria-label="Success example"
+                         aria-valuenow="{{ porcentaje_calculado }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-success " style="width: {{ porcentaje_calculado }}%"></div>
+                        <div class="porcentaje">
+                            <span>{{ porcentaje_calculado }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h6 class="m-1">Causas:</h6>
+            <ol>
+                {% for causa in causas %}
+                    <li>{{ causa }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+    {% endfor %}
+    </div>
+
+    <script>
+        function seleccionarEstrellas(numEstrellas) {
+            var estrellas = document.querySelectorAll('.rating input[type="radio"]');
+            for (var i = 0; i < estrellas.length; i++) {
+                if (parseInt(estrellas[i].value) === numEstrellas) {
+                    estrellas[i].checked = true;
+                    break;
+                }
+            }
+        }
+
+        seleccionarEstrellas({{ num_estrella_calculada }});
+    </script>
+
+    <script src="https://kit.fontawesome.com/85e6f64c7f.js" crossorigin="anonymous"></script>
+{% endblock %}

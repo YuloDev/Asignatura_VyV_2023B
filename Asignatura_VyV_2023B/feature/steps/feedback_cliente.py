@@ -61,18 +61,21 @@ def step_impl(context):
                 assert True, "No se ha calificado correctamente el Producto"
 
 
-@step("el vendedor podrá visualizar el siguiente reporte del Producto con todas las causas en orden descendente")
+@step(
+    "el vendedor podrá visualizar el siguiente reporte del Producto con todas las causas en orden descendente y un "
+    "promedio general de estrellas del Producto")
 def step_impl(context):
     lista_porcentajes_por_estrella = list()
     lista_causas_esperadas = list()
     lista_causas_obtenidas = list()
-
+    promedio_general = 0
     lista_porcentajes_por_estrella = context.producto.obtener_porcentajes_de_calificaciones()
 
     for row in context.table:
         cantidad_de_estrellas = int(row["cantidad_de_estrellas"])
         porcentaje_de_calificaciones = row["porcentaje_de_calificaciones"]
         causas = row["causas"]
+        promedio_general = row["promedio"]
         lista_causas_esperadas.append(causas)
         assert lista_porcentajes_por_estrella[
                    cantidad_de_estrellas - 1] == porcentaje_de_calificaciones, ("No se tiene el porcentaje de "
@@ -83,6 +86,9 @@ def step_impl(context):
         print(lista_causas_obtenidas[i - 1] + " == " + lista_causas_esperadas[i - 1])
         assert lista_causas_obtenidas[i - 1] == lista_causas_esperadas[i - 1], "No se tienen las causas correcta"
 
+    assert context.producto.obtener_promedio_general_del_producto() == int(promedio_general), ("No se tiene el promedio"
+                                                                                          " general correcto del "
+                                                                                          "Producto")
 
 # SERVICIO
 @step("que el Cliente ha dado su feedback sobre el producto")
@@ -132,7 +138,7 @@ def step_impl(context):
         if causa == "Paquete dañado":
             causa_seleccionada.append(causa)
 
-    context.cliente.calificar_servicio(context.pedido, 3, causa_seleccionada, context.producto)
+    context.cliente.calificar_servicio(context.pedido, 3, causa_seleccionada)
 
     if context.pedido.servicio.calificaciones_recibidas[-1] is None:
         for causa_buscada in context.pedido.servicio.calificaciones_recibidas[-1].causas:
@@ -140,18 +146,21 @@ def step_impl(context):
                 assert True, "No se ha seleccionado la causa correctamente"
 
 
-@step("el vendedor podrá visualizar el siguiente reporte del Servicio con todas las causas en orden descendente")
+@step(
+    "el vendedor podrá visualizar el siguiente reporte del Servicio con todas las causas en orden descendente y un "
+    "promedio general de estrellas del Servicio")
 def step_impl(context):
     lista_porcentajes_por_estrella = list()
     lista_causas_esperadas = list()
     lista_causas_obtenidas = list()
-
+    promedio_general = 0
     lista_porcentajes_por_estrella = context.pedido.servicio.obtener_porcentajes_de_calificaciones()
 
     for row in context.table:
         cantidad_de_estrellas = int(row["cantidad_de_estrellas"])
         porcentaje_de_calificaciones = row["porcentaje_de_calificaciones"]
         causas = row["causas"]
+        promedio_general = row["promedio"]
         lista_causas_esperadas.append(causas)
         assert lista_porcentajes_por_estrella[
                    cantidad_de_estrellas - 1] == porcentaje_de_calificaciones, ("No se tiene el porcentaje de "
@@ -161,3 +170,7 @@ def step_impl(context):
         lista_causas_obtenidas.append(context.pedido.servicio.obtener_causas_de_cada_estrella()[i])
         print(lista_causas_obtenidas[i - 1] + " == " + lista_causas_esperadas[i - 1])
         assert lista_causas_obtenidas[i - 1] == lista_causas_esperadas[i - 1], "No se tienen las causas correcta"
+
+    assert context.pedido.servicio.obtener_promedio_general_del_servicio() == int(promedio_general), ("No se tiene el "
+                                                                                                 "promedio general"
+                                                                                                 " correcto")

@@ -23,13 +23,13 @@ Característica: Recolección de feedback de compras de los clientes (servicio/p
       | 6   | Mala calidad de materiales      |
       | 7   | Malos acabados                  |
       | 8   | Mal funcionamiento              |
-    Entonces el vendedor podrá visualizar el siguiente reporte del Producto con todas las causas en orden descendente
-      | cantidad_de_estrellas | porcentaje_de_calificaciones | causas                                               |
-      | 1                     | 0%                           |                                                      |
-      | 2                     | 17%                          | Mala calidad de materiales (1)                                                |
-      | 3                     | 50%                          | Concuerda con la descripción (3), Mal funcionamiento (2), Buenos acabados (1) |
-      | 4                     | 0%                           |                                                      |
-      | 5                     | 33%                          | Buenos acabados (2), Buena calidad de materiales (2)                          |
+    Entonces el vendedor podrá visualizar el siguiente reporte del Producto con todas las causas en orden descendente y un promedio general de estrellas del Producto
+      | cantidad_de_estrellas | porcentaje_de_calificaciones | causas                                                                        | promedio |
+      | 1                     | 0%                           |                                                                               | 4        |
+      | 2                     | 17%                          | Mala calidad de materiales (1)                                                | 4        |
+      | 3                     | 50%                          | Concuerda con la descripción (3), Mal funcionamiento (2), Buenos acabados (1) | 4        |
+      | 4                     | 0%                           |                                                                               | 4        |
+      | 5                     | 33%                          | Buenos acabados (2), Buena calidad de materiales (2)                          | 4        |
 
 
   Escenario: Obtener feedback de las calificaciones de los clientes sobre el servicio
@@ -47,10 +47,10 @@ Característica: Recolección de feedback de compras de los clientes (servicio/p
       | 2   | Entrega tardía   |
       | 3   | Entrega a tiempo |
       | 4   | Entrega rápida   |
-    Entonces el vendedor podrá visualizar el siguiente reporte del Servicio con todas las causas en orden descendente
-      | cantidad_de_estrellas | porcentaje_de_calificaciones | causas             |
-      | 1                     | 29%                          |                    |
-      | 2                     | 18%                          | Entrega tardía (1) |
-      | 3                     | 9%                           | Paquete dañado (1) |
-      | 4                     | 15%                          |                    |
-      | 5                     | 29%                          |                    |
+    Entonces el vendedor podrá visualizar el siguiente reporte del Servicio con todas las causas en orden descendente y un promedio general de estrellas del Servicio
+      | cantidad_de_estrellas | porcentaje_de_calificaciones | causas             | promedio |
+      | 1                     | 29%                          |                    | 3        |
+      | 2                     | 18%                          | Entrega tardía (1) | 3        |
+      | 3                     | 9%                           | Paquete dañado (1) | 3        |
+      | 4                     | 15%                          |                    | 3        |
+      | 5                     | 29%                          |                    | 3        |
