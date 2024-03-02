@@ -13,6 +13,9 @@ def index(request):
 def seguimiento_entrega(request):
 
     pedidos_todos_los_pedidos = Pedido.objects.all()
+    for pedido in pedidos_todos_los_pedidos:
+        pedido.actualizar_estado_pedido()
+
     numero_pedidos_totales = pedidos_todos_los_pedidos.count()
     numero_pedidos_totales_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO).count()
     numero_pedidos_totales_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO).count()
