@@ -59,7 +59,7 @@ class Calificacion(models.Model):
 
 
 class Producto(models.Model):
-    id_producto = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True, unique=True)
     nombre = models.CharField(max_length=50)
     descripcion = models.TextField(null=True)
     unidades_vendidas = models.IntegerField()
