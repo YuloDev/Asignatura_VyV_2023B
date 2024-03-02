@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard de Métricas{% endblock %}
+{% block content %}
+
+    <main>
+        <h1 class="text-center display-4 mb-4">Dashboard de Métricas</h1>
+        <div class="container-fluid">
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Número de ventas</div>
+                        <div class="card-body">
+                            <h1 class="card-title">125</h1>
+                            <p class="card-text">
+                            <span class="badge bg-success">
+                                <i class="fa-solid fa-bullseye"></i>
+                                ▲ 14%
+                            </span>
+                                <span class="badge bg-success">
+                                <i class="fa-regular fa-calendar-days"></i>
+                                ▲ 14%
+                            </span>
+                            </p>
+                            <p class="recommendation">
+                                Aumentar tu meta para el siguiente mes
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Nuevos ingresos</div>
+                        <div class="card-body">
+                            <h1 class="card-title">$178,125</h1>
+                            <p class="card-text">
+                            <span class="badge bg-success">
+                                <i class="fa-regular fa-calendar-days"></i>
+                                ▲ 14%
+                            </span>
+                                <span class="badge badge-fail">
+                                <i class="fa-solid fa-bullseye"></i>
+                                ▼ 49%
+                            </span>
+                            </p>
+                            <p class="recommendation">
+                                Crear combos o conjunto de productos similares
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Costo</div>
+                        <div class="card-body">
+                            <h1 class="card-title">${{ costo_mes_actual }}</h1>
+                            <p class="card-text">
+                                {% if diferencia_costo_mes_anterior > 0 %}
+                                    <span class="badge bg-success">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    ▲ {{ diferencia_costo_mes_anterior|floatformat:"-1" }}%
+                                </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    ▼ {{ diferencia_costo_mes_anterior|floatformat:"-1" }}%
+                                </span>
+                                {% endif %}
+                                <span class="badge bg-success">
+                                <i class="fa-regular fa-calendar-days"></i>
+                                ▲ 10%
+                            </span>
+                            </p>
+                            <p class="recommendation">
+                                Optimizar procesos internos para reducir costos
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Beneficio por venta</div>
+                        <div class="card-body">
+                            <h1 class="card-title">$521</h1>
+                            <p class="card-text">
+                            <span class="badge bg-success">
+                                <i class="fa-solid fa-bullseye"></i>
+                                ▲ 6%
+                            </span>
+                                <span class="badge bg-success">
+                                <i class="fa-regular fa-calendar-days"></i>
+                                ▲ 49%
+                            </span>
+                            </p>
+                            <p class="recommendation">
+                                Mantener los precios de los productos con respecto a sus costos
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        main {
+            padding: 20px;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #f7f7f7;
+            font-weight: bold;
+        }
+
+        .card-title {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        .card-text {
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .badge-fail {
+            background-color: #f00;
+            color: #fff;
+        }
+
+        .recommendation {
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+
+{% endblock %}
