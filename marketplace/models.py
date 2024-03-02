@@ -1,5 +1,10 @@
+from enum import Enum
+
 from django.db import models
 from django.db.models import JSONField
+
+from modelo.ModeloFeedback import Cliente
+
 
 # Create your models here.
 class Categoria(models.Model):
@@ -53,9 +58,8 @@ class Vendedor(models.Model):
         return any(producto.promocion for producto in self.obtener_productos())
 
 class Calificacion(models.Model):
-    def __init__(self, estrellas, causas):
-        self.estrellas = estrellas
-        self.causas = causas
+    estrellas = models.IntegerField(default=1)
+    causas = models.TextField(default="")
 
 
 class Producto(models.Model):
@@ -67,7 +71,6 @@ class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     promocion = models.BooleanField(default=False)
     calificaciones = JSONField(default=dict)
-    calificaciones_recibidas = models.ManyToManyField(Calificacion)
 
     def asignar_categoria(self, categoria):
         self.categoria = categoria
@@ -142,3 +145,29 @@ class Producto(models.Model):
         print(promedio_general)
         return promedio_general
 
+class Cliente(models.Model):
+    cedula = models.CharField(max_length=10, primary_key=True, unique=True)
+    nombre = models.CharField(max_length=50)
+    apellido = models.CharField(max_length=50)
+    correo = models.EmailField(max_length=50)
+    telefono = models.CharField(max_length=10)
+
+    def calificar_producto(self, estrellas, causas, producto):
+        calificacion = Calificacion(estrellas, causas)
+        producto.agregar_calificacion(calificacion)
+
+class Pedido(models.Model):
+    id_pedido = models.AutoField(primary_key=True, unique=True)
+    estado_pedido = models.CharField(max_length=50)
+    lista_de_productos = models.ManyToManyField(Producto)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='pedidos')
+
+class Causas(Enum):
+    BUENOS_ACABADOS = "Buenos acabados"
+    CONCUERDA_DESCRIPCION = "Concuerda con la descripción"
+    BUENA_CALIDAD = "Buena calidad de materiales"
+    BUEN_FUNCIONAMIENTO = "Buen funcionamiento"
+    NO_CONCUERDA_DESC = "No concuerda con la descripción"
+    MALA_CALIDAD = "Mala calidad de materiales"
+    MALOS_ACABADOS = "Malos acabados"
+    MAL_FUNCIONAMIENTO = "Mal funcionamiento"
