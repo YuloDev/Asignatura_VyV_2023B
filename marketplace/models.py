@@ -69,6 +69,10 @@ class Cliente(models.Model):
         calificacion = Calificacion(estrellas, causas)
         producto.agregar_calificacion(calificacion)
 
+    def calificar_servicio(self, pedido, estrellas, causas):
+        calificacion = Calificacion(estrellas, causas)
+        pedido.servicio.agregar_calificacion(calificacion)
+
 class Producto(models.Model):
     id = models.AutoField(primary_key=True, unique=True)
     nombre = models.CharField(max_length=50)
@@ -227,8 +231,6 @@ class Calificacion(models.Model):
     id_servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, default=None)
 
 
-
-
 class Causas(Enum):
     BUENOS_ACABADOS = "Buenos acabados"
     CONCUERDA_DESCRIPCION = "Concuerda con la descripción"
@@ -238,5 +240,12 @@ class Causas(Enum):
     MALA_CALIDAD = "Mala calidad de materiales"
     MALOS_ACABADOS = "Malos acabados"
     MAL_FUNCIONAMIENTO = "Mal funcionamiento"
+
+    PAQUETE_DANIADO = "Paquete dañado"
+    ENTREGA_TARDIA = "Entrega tardía"
+    ENTREGA_A_TIEMPO = "Entrega a tiempo"
+    ENTREGA_RAPIDA = "Entrega rápida"
+    UBICACION_EQUIVOCADA = "Ubicación equivocada"
+    ENTREGA_SIN_PERCANCES = "Entrega sin percances"
 
 
