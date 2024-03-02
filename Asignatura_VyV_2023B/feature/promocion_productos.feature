@@ -49,3 +49,5 @@ Característica: Promoción de productos
       | Slayther | gold               | Llave ajustable, Taladro eléctrico, Serrucho de mano, Destornillador eléctrico, Lijadora orbital |
     Cuando se realice una búsqueda de algún producto
     Entonces los productos promocionados se mostrarán como primer resultado en la búsqueda que coincida con el nombre del producto, ordenados por el tipo del paquete y la fecha de adquisición del
+
+

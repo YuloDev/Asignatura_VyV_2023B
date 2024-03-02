@@ -1,55 +1,70 @@
 from behave import *
-from marketplace.models import *
 
 use_step_matcher("re")
 
 
-@step('que existen "(?P<producto>.+)"que pertenecen a una "(?P<categoria>.+)" con (?P<unidades_vendidas>\\d+)')
-def step_impl(context, producto, categoria, unidades_vendidas):
-    context.producto1 = Producto(nombre=producto, unidades_vendidas=unidades_vendidas)
-    context.categoria1 = Categoria(nombreCategoria=categoria, record=120)
-    context.producto1.asignar_categoria(context.categoria1)
-    assert context.producto1.categoria is not None, "No posee una categoria"
-
-
-@step( 'las (?P<unidades_vendidas>\\d+) del "(?P<producto>.+)" superan el (?P<record_ventas>\\d+) de la "(?P<categoria>.+)"')
-def step_impl(context, unidades_vendidas, producto, record_ventas, categoria):
-    context.producto1 = Producto(nombre=producto, unidades_vendidas=unidades_vendidas)
-    context.categoria1 = Categoria(nombreCategoria=categoria, record=record_ventas)
-    context.producto1.asignar_categoria(context.categoria1)
-    # Verificar que las unidades vendidas superen el record de la categoría
-    assert context.producto1.unidades_vendidas_ha_superado_record(
-        context.categoria1), f"Las unidades vendidas no superan el record en la categoría {context.categoria1.nombreCategoria}"
-
-
-@step( 'el "(?P<producto>.+)" se muestra en la sección de recomendados dentro de la "(?P<categoria>.+)" durante (?P<tiempo>.+)')
-def step_impl(context, producto, categoria, tiempo):
-    context.recomendacion = Recomendacion()
-
-    # Asignar el producto como recomendado con duración 7
-    context.recomendacion.asignar_recomendado(categoria,producto, duracion=tiempo)
-
-    # Obtener la lista de productos recomendados
-    recomendados_por_categoria = context.recomendacion.obtener_recomendados()
-
-    assert producto in recomendados_por_categoria[categoria]
-    assert recomendados_por_categoria[categoria][producto] == tiempo
-
-
-@step("que existe un vendedor y su producto")
+@step("que existen clientes con preferencias establecidas")
 def step_impl(context):
-    context.vendedor = Vendedor(nombre="Rafael", apellido="Piedra")
-    context.producto = Producto(nombre="Herramienta")
-
-    assert context.producto in context.vendedor.obtener_productos()
+    raise NotImplementedError(u'STEP: Dado que existen clientes con preferencias establecidas')
 
 
-@step("el producto se muestra al inicio de la lista de productos promocionados de esa categoría")
+@step("que existen categorías con record de ventas")
 def step_impl(context):
-    context.vendedor = Vendedor(nombre="Rafael", apellido="Piedra")
-    context.producto_promocionado = Producto(nombre="Herramienta2")
-    context.vendedor.agregar_producto(context.producto_promocionado)
-    context.vendedor.pagar_promocion(monto=10, producto=context.producto_promocionado)
+    raise NotImplementedError(u'STEP:')
 
-    # assert context.vendedor.tiene_promocion_activa() == True
-    assert context.producto_promocionado in context.clasificador.obtener_productos_promocionados()
+
+@step("las categorías pertenecen a las preferencias del cliente")
+def step_impl(context):
+    raise NotImplementedError(u'STEP: Y las categorías pertenecen a las preferencias del cliente')
+
+
+@step("productos que pertenecen a una categoría con unidades vendidas")
+def step_impl(context):
+    raise NotImplementedError(u'STEP: Y productos que pertenecen a una categoría con unidades vendidas')
+
+
+@step("las unidades vendidas de algun producto superan el record de ventas de la categoría")
+def step_impl(context):
+    raise NotImplementedError(
+        u'STEP: Cuando las unidades vendidas de algun producto superan el record de ventas de la categoría')
+
+
+@step(
+    "en la parte superior de la ventana principal del marketplace se muestran las categorias pertenecientes a las preferencias del cliente con el producto que superó el record de ventas")
+def step_impl(context):
+    raise NotImplementedError(
+        u'STEP: Entonces en la parte superior de la ventana principal del marketplace se muestran las categorias pertenecientes a las preferencias del cliente con el producto que superó el record de ventas')
+
+
+@step("el record de ventas de la categoria se actualiza con el valor de las unidades vendidas del producto")
+def step_impl(context):
+    raise NotImplementedError(
+        u'STEP: Y el record de ventas de la categoria se actualiza con el valor de las unidades vendidas del producto')
+
+
+@step("que existen vendedores que tienen productos")
+def step_impl(context):
+    raise NotImplementedError(u'STEP: Dado que existen vendedores que tienen productos')
+
+
+@step("que existen paquetes de promociones")
+def step_impl(context):
+    raise NotImplementedError(u'STEP: Y que existen paquetes de promociones')
+
+
+@step("los vendedores adquieren un paquete de promoción")
+def step_impl(context):
+    raise NotImplementedError(u'STEP: Y los vendedores adquieren un paquete de promoción') \
+ \
+    @step("se realice una búsqueda de algún producto")
+
+
+def step_impl(context):
+    raise NotImplementedError(u'STEP: Cuando se realice una búsqueda de algún producto')
+
+
+@step(
+    "los productos promocionados se mostrarán como primer resultado en la búsqueda que coincida con el nombre del producto, ordenados por el tipo del paquete y la fecha de adquisición del")
+def step_impl(context):
+    raise NotImplementedError(
+        u'STEP: Entonces los productos promocionados se mostrarán como primer resultado en la búsqueda que coincida con el nombre del producto, ordenados por el tipo del paquete y la fecha de adquisición del')
