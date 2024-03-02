@@ -52,10 +52,9 @@
         <li class="nav-item"><a class="nav-link active" href="#Tab1" data-toggle="tab">Resumen General</a></li>
         <li class="nav-item"><a class="nav-link" href="#Tab2" data-toggle="tab">Resumen Etapa Listo para entregar</a></li>
         <li class="nav-item"><a class="nav-link" href="#Tab3" data-toggle="tab">Resumen Etapa Repartidor asignado</a></li>
-        <li class="nav-item"><a class="nav-link" href="#Tab4" data-toggle="tab">Resumen Etapa Embarcado</a>
-        </li>
-        <li class="nav-item"><a class="nav-link" href="#Tab2" data-toggle="tab">Resumen Etapa Paquete no entregado</a></li>
-        <li class="nav-item"><a class="nav-link" href="#Tab2" data-toggle="tab">Resumen Etapa Paquete entregado</a></li>
+        <li class="nav-item"><a class="nav-link" href="#Tab4" data-toggle="tab">Resumen Etapa Embarcado</a></li>        
+        <li class="nav-item"><a class="nav-link" href="#Tab5" data-toggle="tab">Resumen Etapa Paquete no entregado</a></li>
+        <li class="nav-item"><a class="nav-link" href="#Tab6" data-toggle="tab">Resumen Etapa Paquete entregado</a></li>
     </ul>
 
     <div class="tab-content mt-3">
@@ -68,7 +67,7 @@
                 <!-- Caja de total de pedidos -->
                 <div class="dflex_column_center bordeCajas">
                     <h4>Número total de pedidos</h4>
-                    <p>6</p>
+                    <p>{{ numero_pedidos_totales }}</p>
                 </div>
 
                 <!-- Grafica -->
@@ -89,20 +88,21 @@
                     <!-- Caja de total de pedidos -->
                     <div class="dflex_column_center bordeCajas caja">
                         <h4>Número total de pedidos</h4>
-                        <p>2</p>
+                        <p>{{ numero_pedidos_listo_para_entregar_totales }}</p>
                     </div>
 
                     <!-- Caja de pedidos a tiempo -->
                     <div class="dflex_column_center bordeCajas caja_aTiempo caja">
                         <h4>Número de pedidos A Tiempo</h4>
-                        <p>1</p>
+                        <p>{{ numero_pedidos_listo_para_entregar_a_tiempo }}</p>
                     </div>
 
                     <!-- Caja de pedidos atrasados -->
                     <div class="dflex_column_center bordeCajas caja_atrasado caja">
                         <h4>Número de pedidos Atrasados</h4>
-                        <p>0</p>
-                    </div>                
+                        <p>{{ numero_pedidos_listo_para_entregar_atrasado }}</p>
+                    </div>                   
+                   
 
                 </div>
 
@@ -125,19 +125,19 @@
                     <!-- Caja de total de pedidos -->
                     <div class="dflex_column_center bordeCajas caja">
                         <h4>Número total de pedidos</h4>
-                        <p>2</p>
+                        <p>{{ numero_pedidos_repartidor_asignado_totales }}</p>
                     </div>
 
                     <!-- Caja de pedidos a tiempo -->
                     <div class="dflex_column_center bordeCajas caja_aTiempo caja">
                         <h4>Número de pedidos A Tiempo</h4>
-                        <p>1</p>
+                        <p>{{ numero_pedidos_repartidor_asignadio_a_tiempo }}</p>
                     </div>
 
                     <!-- Caja de pedidos atrasados -->
                     <div class="dflex_column_center bordeCajas caja_atrasado caja">
                         <h4>Número de pedidos Atrasados</h4>
-                        <p>0</p>
+                        <p>{{ numero_pedidos_repartidor_asignadio_atrasado }}</p>
                     </div>
 
                 </div>
@@ -161,19 +161,19 @@
                     <!-- Caja de total de pedidos -->
                     <div class="dflex_column_center bordeCajas caja">
                         <h4>Número total de pedidos</h4>
-                        <p>2</p>
+                        <p>{{ numero_pedidos_embarcado_totales }}</p>
                     </div>
 
                     <!-- Caja de pedidos a tiempo -->
                     <div class="dflex_column_center bordeCajas caja_aTiempo caja">
                         <h4>Número de pedidos A Tiempo</h4>
-                        <p>1</p>
+                        <p>{{ numero_pedidos_embarcado_a_tiempo }}</p>
                     </div>
 
                     <!-- Caja de pedidos atrasados -->
                     <div class="dflex_column_center bordeCajas caja_atrasado caja">
                         <h4>Número de pedidos Atrasados</h4>
-                        <p>0</p>
+                        <p>{{ numero_pedidos_embarcado_atrasado }}</p>
                     </div>               
 
                 </div>
@@ -188,7 +188,7 @@
 
         </div>
         <!-- Pestaña Paquete no entregado -->
-        <div id="Tab4" class="tab-pane">
+        <div id="Tab5" class="tab-pane">
             <h3 class="text-center">Etapa Paquete no entregado</h3>
 
             <!-- Contenedor -->
@@ -198,26 +198,26 @@
                     <!-- Caja de total de pedidos -->
                     <div class="dflex_column_center bordeCajas caja">
                         <h4>Número total de pedidos</h4>
-                        <p>2</p>
+                        <p>{{ numero_pedidos_paquete_no_entregado_totales }}</p>
                     </div>
 
                     <!-- Caja de pedidos a tiempo -->
                     <div class="dflex_column_center bordeCajas caja_aTiempo caja">
                         <h4>Número de pedidos A Tiempo</h4>
-                        <p>1</p>
+                        <p>{{ numero_pedidos_paquete_no_entregado_a_tiempo }}</p>
                     </div>
 
                     <!-- Caja de pedidos atrasados -->
                     <div class="dflex_column_center bordeCajas caja_atrasado caja">
                         <h4>Número de pedidos Atrasados</h4>
-                        <p>0</p>
+                        <p>{{ numero_pedidos_paquete_no_entregado_atrasado }}</p>
                     </div>
-
-                    <!-- Caja de pedidos cancelados -->
-                    <div class="dflex_column_center bordeCajas caja_cancelado caja">
-                        <h4>Número de pedidos no entregados porque el cliente no fue encontrado</h4>
-                        <p>1</p>
+                    
+                    <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                        <h4>Número de pedidos que no se entregaron porque no se encontro al cliente</h4>
+                        <p>{{ numero_pedidos_paquete_no_entregado_cliente_no_encontrado }}</p>
                     </div>
+                  
 
                 </div>
 
@@ -231,7 +231,7 @@
 
         </div>
         <!-- Pestaña Paquete entregado -->
-        <div id="Tab4" class="tab-pane">
+        <div id="Tab6" class="tab-pane">
             <h3 class="text-center">Etapa Listo Para Entregar</h3>
 
             <!-- Contenedor -->
@@ -241,19 +241,19 @@
                     <!-- Caja de total de pedidos -->
                     <div class="dflex_column_center bordeCajas caja">
                         <h4>Número total de pedidos</h4>
-                        <p>2</p>
+                        <p>{{ numero_pedidos_paquete_entregado_totales }}</p>
                     </div>
 
                     <!-- Caja de pedidos a tiempo -->
                     <div class="dflex_column_center bordeCajas caja_aTiempo caja">
                         <h4>Número de pedidos A Tiempo</h4>
-                        <p>1</p>
+                        <p>{{ numero_pedidos_paquete_entregado_a_tiempo }}</p>
                     </div>
 
                     <!-- Caja de pedidos atrasados -->
                     <div class="dflex_column_center bordeCajas caja_atrasado caja">
                         <h4>Número de pedidos Atrasados</h4>
-                        <p>0</p>
+                        <p>{{ numero_pedidos_paquete_entregado_atrasad }}</p>
                     </div>                   
 
                 </div>
@@ -272,17 +272,17 @@
     document.addEventListener('DOMContentLoaded', function () {
       // Datos de ejemplo
       var data_general = {
-        labels: ['Tardio', 'A tiempo'],
+        labels: ['Tardio', 'A tiempo', 'Cliente no encontrado'],
         datasets: [{
-          data: [10, 20],
-          backgroundColor: ['#FF6384', '#36A2EB'],
-          hoverBackgroundColor: ['#FF6384', '#36A2EB']
+          data: [{{ numero_pedidos_totales_atrasado }}, {{ numero_pedidos_totales_a_tiempo }}, {{ numero_pedidos_totales_cliente_no_encotrado }}],
+          backgroundColor: ['#FF6384', '#36A2EB', '#EBE836FF'],
+          hoverBackgroundColor: ['#FF6384', '#36A2EB', '#EBE836FF']
         }]
       };
       var data_listo_para_entregar = {
         labels: ['Tardio', 'A tiempo'],
         datasets: [{
-          data: [10, 20],
+          data: [{{ numero_pedidos_listo_para_entregar_atrasado }}, {{ numero_pedidos_listo_para_entregar_a_tiempo }}],
           backgroundColor: ['#FF6384', '#36A2EB'],
           hoverBackgroundColor: ['#FF6384', '#36A2EB']
         }]
@@ -290,7 +290,7 @@
       var data_repartidor_asignado = {
         labels: ['Tardio', 'A tiempo'],
         datasets: [{
-          data: [10, 20],
+          data: [{{ numero_pedidos_repartidor_asignadio_atrasado }}, {{ numero_pedidos_repartidor_asignadio_a_tiempo }}],
           backgroundColor: ['#FF6384', '#36A2EB'],
           hoverBackgroundColor: ['#FF6384', '#36A2EB']
         }]
@@ -298,23 +298,23 @@
       var data_embarcado = {
         labels: ['Tardio', 'A tiempo'],
         datasets: [{
-          data: [10, 20],
+          data: [{{ numero_pedidos_repartidor_asignadio_atrasado }}, {{ numero_pedidos_repartidor_asignadio_a_tiempo }}],
           backgroundColor: ['#FF6384', '#36A2EB'],
           hoverBackgroundColor: ['#FF6384', '#36A2EB']
         }]
       };
       var data_paquete_no_entregado = {
-        labels: ['Tardio', 'A tiempo'],
+        labels: ['Tardio', 'A tiempo', 'No se encontro al cliente'],
         datasets: [{
-          data: [10, 20],
-          backgroundColor: ['#FF6384', '#36A2EB'],
-          hoverBackgroundColor: ['#FF6384', '#36A2EB']
+          data: [{{ numero_pedidos_paquete_no_entregado_atrasado }}, {{ numero_pedidos_paquete_no_entregado_a_tiempo }}, {{ numero_pedidos_paquete_no_entregado_cliente_no_encontrado }}],
+          backgroundColor: ['#FF6384', '#36A2EB', '#EBE836FF'],
+          hoverBackgroundColor: ['#FF6384', '#36A2EB', '#EBE836FF']
         }]
       };
       var data_paquete_entregado = {
         labels: ['Tardio', 'A tiempo'],
         datasets: [{
-          data: [10, 20],
+          data: [{{ numero_pedidos_paquete_entregado_atrasado }}, {{ numero_pedidos_paquete_entregado_a_tiempo }}],
           backgroundColor: ['#FF6384', '#36A2EB'],
           hoverBackgroundColor: ['#FF6384', '#36A2EB']
         }]

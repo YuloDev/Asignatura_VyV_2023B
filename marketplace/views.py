@@ -11,19 +11,67 @@ def index(request):
     return render(request, 'plantilla_hija_ejemplo.html')
 
 def seguimiento_entrega(request):
-    pedidos_listos_para_entregar = Pedido.objects.filter(etapa_pedido=Pedido.LISTO_PARA_ENTREGAR)
-    cantidad_pedidos = pedidos_listos_para_entregar.count()
 
-    # De los pedidos listos, contar cuántos están a tiempo y cuántos están atrasados
-    pedidos_a_tiempo = pedidos_listos_para_entregar.filter(estado_pedido=Pedido.A_TIEMPO).count()
-    pedidos_atrasados = pedidos_listos_para_entregar.filter(estado_pedido=Pedido.ATRASADO).count()
+    pedidos_todos_los_pedidos = Pedido.objects.all()
+    numero_pedidos_totales = pedidos_todos_los_pedidos.count()
+    numero_pedidos_totales_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO).count()
+    numero_pedidos_totales_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO).count()
+    numero_pedidos_totales_cliente_no_encotrado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.CLIENTE_NO_ENCONTRADO).count()
+
+    numero_pedidos_listo_para_entregar_totales = pedidos_todos_los_pedidos.filter(etapa_pedido=Pedido.LISTO_PARA_ENTREGAR).count()
+    numero_pedidos_listo_para_entregar_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO, etapa_pedido=Pedido.LISTO_PARA_ENTREGAR).count()
+    numero_pedidos_listo_para_entregar_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO, etapa_pedido=Pedido.LISTO_PARA_ENTREGAR).count()
+
+    numero_pedidos_repartidor_asignado_totales = pedidos_todos_los_pedidos.filter(etapa_pedido=Pedido.REPARTIDOR_ASIGNADO).count()
+    numero_pedidos_repartidor_asignadio_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO,
+                                                                                   etapa_pedido=Pedido.REPARTIDOR_ASIGNADO).count()
+    numero_pedidos_repartidor_asignadio_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
+                                                                                   etapa_pedido=Pedido.REPARTIDOR_ASIGNADO).count()
+    numero_pedidos_embarcado_totales = pedidos_todos_los_pedidos.filter(
+        etapa_pedido=Pedido.REPARTIDOR_ASIGNADO).count()
+    numero_pedidos_embarcado_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.EMBARCADO,
+                                                                                    etapa_pedido=Pedido.EMBARCADO).count()
+    numero_pedidos_embarcado_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
+                                                                                    etapa_pedido=Pedido.EMBARCADO).count()
+
+    numero_pedidos_paquete_no_entregado_totales = pedidos_todos_los_pedidos.filter(
+        etapa_pedido=Pedido.PAQUETE_NO_ENTREGADO).count()
+    numero_pedidos_paquete_no_entregado_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO,
+                                                                         etapa_pedido=Pedido.PAQUETE_NO_ENTREGADO).count()
+    numero_pedidos_paquete_no_entregado_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
+                                                                         etapa_pedido=Pedido.PAQUETE_NO_ENTREGADO).count()
+    numero_pedidos_paquete_no_entregado_cliente_no_encontrado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.CLIENTE_NO_ENCONTRADO,
+                                                                                    etapa_pedido=Pedido.PAQUETE_NO_ENTREGADO).count()
+    numero_pedidos_paquete_entregado_totales = pedidos_todos_los_pedidos.filter(
+        etapa_pedido=Pedido.PAQUETE_ENTREGADO).count()
+    numero_pedidos_paquete_entregado_a_tiempo = pedidos_todos_los_pedidos.filter(
+        estado_pedido=Pedido.A_TIEMPO,
+        etapa_pedido=Pedido.PAQUETE_ENTREGADO).count()
+    numero_pedidos_paquete_entregado_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
+                                                                                    etapa_pedido=Pedido.PAQUETE_ENTREGADO).count()
 
     context = {
-        'pedidos_a_tiempo': pedidos_a_tiempo,
-        'pedidos_atrasados': pedidos_atrasados,
-        'cantidad_pedidos': cantidad_pedidos,
+        'numero_pedidos_totales': numero_pedidos_totales,
+        'numero_pedidos_totales_a_tiempo': numero_pedidos_totales_a_tiempo,
+        'numero_pedidos_totales_atrasado': numero_pedidos_totales_atrasado,
+        'numero_pedidos_totales_cliente_no_encotrado' : numero_pedidos_totales_cliente_no_encotrado,
+        'numero_pedidos_listo_para_entregar_a_tiempo' : numero_pedidos_listo_para_entregar_a_tiempo,
+        'numero_pedidos_listo_para_entregar_atrasado': numero_pedidos_listo_para_entregar_atrasado,
+        'numero_pedidos_listo_para_entregar_totales': numero_pedidos_listo_para_entregar_totales,
+        'numero_pedidos_repartidor_asignado_totales': numero_pedidos_repartidor_asignado_totales,
+        'numero_pedidos_repartidor_asignadio_a_tiempo': numero_pedidos_repartidor_asignadio_a_tiempo,
+        'numero_pedidos_repartidor_asignadio_atrasado': numero_pedidos_repartidor_asignadio_atrasado,
+        'numero_pedidos_embarcado_totales': numero_pedidos_embarcado_totales,
+        'numero_pedidos_embarcado_a_tiempo': numero_pedidos_embarcado_a_tiempo,
+        'numero_pedidos_embarcado_atrasado': numero_pedidos_embarcado_atrasado,
+        'numero_pedidos_paquete_no_entregado_totales': numero_pedidos_paquete_no_entregado_totales,
+        'numero_pedidos_paquete_no_entregado_a_tiempo': numero_pedidos_paquete_no_entregado_a_tiempo,
+        'numero_pedidos_paquete_no_entregado_atrasado': numero_pedidos_paquete_no_entregado_atrasado,
+        'numero_pedidos_paquete_no_entregado_cliente_no_encontrado': numero_pedidos_paquete_no_entregado_cliente_no_encontrado,
+        'numero_pedidos_paquete_entregado_totales': numero_pedidos_paquete_entregado_totales,
+        'numero_pedidos_paquete_entregado_a_tiempo': numero_pedidos_paquete_entregado_a_tiempo,
+        'numero_pedidos_paquete_entregado_atrasado': numero_pedidos_paquete_entregado_atrasado
     }
 
-    return render(request, 'dashboard_listo_para_entregar.html', context)
-    return render(request, 'seguimiento_entrega.html')
+    return render(request, 'seguimiento_entrega.html', context)
 
