@@ -104,17 +104,17 @@ class DashboardDeMetricas:
         self.mes = mes
         lista_de_ventas = self.vendedor.obtener_ventas()
 
-        metricas_actuales = self._calcular_metricas(lista_de_ventas, mes)
-        metricas_mes_anterior = self._calcular_metricas(lista_de_ventas, mes - 1 if mes > 1 else 12)
+        metricas_actuales = self._calcular_metricas(lista_de_ventas, anio, mes)
+        metricas_mes_anterior = self._calcular_metricas(lista_de_ventas, anio if mes > 1 else anio - 1, mes - 1 if mes > 1 else 12)
 
         self._actualizar_metricas_y_recomendaciones(metricas_actuales, metricas_mes_anterior)
         self.bandera_metrica = True
 
-    def _calcular_metricas(self, lista_de_ventas, mes):
+    def _calcular_metricas(self, lista_de_ventas, anio, mes):
         metricas = {metrica: 0 for metrica in TipoDeMetrica}
         beneficio_total = 0
         for venta in lista_de_ventas:
-            if venta.fecha.year == self.anio and venta.fecha.month == self.mes:
+            if venta.fecha.year == anio and venta.fecha.month == mes:
                 metricas[TipoDeMetrica.NUMERO_DE_VENTAS] += 1
                 metricas[TipoDeMetrica.INGRESOS] += venta.obtener_ingreso_total()
                 metricas[TipoDeMetrica.COSTOS] += venta.obtener_costo_total()
@@ -175,11 +175,12 @@ class DashboardDeMetricas:
         return self.bandera_metrica
 
     def obtener_comparacion_por_meta(self, tipo_de_metrica):
-        if self.metricas_actuales[tipo_de_metrica] > self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes):
+        valor_meta = self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes)
+        if self.metricas_actuales[tipo_de_metrica] > valor_meta:
             return TipoDeComparacion.SUPERIOR
-        if self.metricas_actuales[tipo_de_metrica] == self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes):
+        if self.metricas_actuales[tipo_de_metrica] == valor_meta:
             return TipoDeComparacion.IGUAL
-        if self.metricas_actuales[tipo_de_metrica] < self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes):
+        if self.metricas_actuales[tipo_de_metrica] < valor_meta:
             return TipoDeComparacion.INFERIOR
 
     def obtener_comparacion_por_mes_anterior(self, tipo_de_metrica):

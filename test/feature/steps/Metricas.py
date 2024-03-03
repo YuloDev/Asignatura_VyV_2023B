@@ -53,6 +53,8 @@ def step_impl(context, comparacion_por_meta, porcentaje):
 @step(
     "se indicará que las ventas del mes actual (?P<comparacion_por_mes>.+) a las ventas del mes anterior")
 def step_impl(context, comparacion_por_mes):
+    print(context.dashboard.obtener_comparacion_por_mes_anterior(TipoDeMetrica.NUMERO_DE_VENTAS))
+    print(TipoDeComparacion(comparacion_por_mes))
     assert (context.dashboard.obtener_comparacion_por_mes_anterior(TipoDeMetrica.NUMERO_DE_VENTAS) == TipoDeComparacion(
         comparacion_por_mes))
 
