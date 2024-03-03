@@ -1,7 +1,5 @@
-from django.shortcuts import render
-from .models import MetaG3, MetricaG3, DetalleDePedidoG3
-from datetime import datetime, timedelta
-from django.db.models import Sum
+from django.shortcuts import render, get_object_or_404
+from .models import *
 
 
 # Create your views here.

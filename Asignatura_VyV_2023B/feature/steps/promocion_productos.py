@@ -73,16 +73,16 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Asignatura_VyV_2023B.settings')
 def step_impl(context):
     for row in context.table:
         categoria, created = Categoria.objects.get_or_create(nombre=row['categoria'])
-        vendedor, created = VendedorG3.objects.get_or_create(nombre=row['nombre_vendedor'],
-                                                             apellido=row['apellido_vendedor'])
-        ProductoG3.objects.create(nombre=row['nombre_producto'], unidades_vendidas=0, vendedor=vendedor,
-                                  categoria=categoria)
+        vendedor, created = Vendedor.objects.get_or_create(nombre=row['nombre_vendedor'],
+                                                           apellido=row['apellido_vendedor'])
+        Producto.objects.create(nombre=row['nombre_producto'], unidades_vendidas=0, vendedor=vendedor,
+                                categoria=categoria)
     # assert Vendedor.objects.count() == len(set(row['nombre_vendedor'] for row in context.table.rows))
     # assert Producto.objects.count() == len(context.table.rows)
-    for producto in ProductoG3.objects.all():
+    for producto in Producto.objects.all():
         assert producto.categoria is not None
-    assert VendedorG3.objects.all() is not []
-    assert ProductoG3.objects.all() is not []
+    assert Vendedor.objects.all() is not []
+    assert Producto.objects.all() is not []
 
 
 @step("que existen paquetes de promociones")
@@ -106,8 +106,8 @@ def step_impl(context):
 def step_impl(context):
     promociones = Promocion.objects.all()
 
-    for vendedor in VendedorG3.objects.all():
-        productos_vendedor = ProductoG3.objects.filter(vendedor=vendedor)
+    for vendedor in Vendedor.objects.all():
+        productos_vendedor = Producto.objects.filter(vendedor=vendedor)
         for producto in productos_vendedor:
             for promocion in promociones:
                 if not producto.promocion and promocion.tipo_promocion == 'gold':
@@ -117,15 +117,15 @@ def step_impl(context):
                     break
 
     productos_promocionados = sum(
-        1 for vendedor in VendedorG3.objects.all() for producto in vendedor.obtener_productos() if
+        1 for vendedor in Vendedor.objects.all() for producto in vendedor.obtener_productos() if
         producto.tiene_promocion())
-    assert ProductoG3.objects.filter(promocion=True).count() == productos_promocionados
+    assert Producto.objects.filter(promocion=True).count() == productos_promocionados
 
 
 
 @step("se mostrará la sección de productos promocionados de la siguiente manera")
 def step_impl(context):
-    productos_promocionados = ProductoG3.objects.filter(promocion=True)
+    productos_promocionados = Producto.objects.filter(promocion=True)
 
     for row in context.table:
         assert productos_promocionados.filter(nombre=row['nombre_producto'], vendedor__nombre=row['nombre_vendedor'],

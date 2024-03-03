@@ -9,7 +9,7 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
   Esquema del escenario: Vendedor evalúa su rendimiento con el número de venta
     Dado que un vendedor realizó <ventas_mes_actual> ventas en el mes actual, diciembre, de productos cuyo costo y precio fueron 10 y 15, respectivamente, y <ventas_mes_anterior> ventas en el mes anterior de productos cuyo costo y precio fueron 10 y 15, respectivamente
     Y el vendedor estableció como meta de número de ventas para el mes actual el valor <meta_ventas>
-    Cuando se despliegue el Dashboard de Métricas
+    Cuando se genera el Reporte de métricas
     Entonces se mostrarán <ventas> ventas
     Y se indicará que las ventas del mes actual <comparacion_por_meta> a la meta de ventas del mes actual, con el porcentaje de avance <porcentaje>%
     Y se indicará que las ventas del mes actual <comparacion_por_mes> a las ventas del mes anterior
@@ -27,7 +27,7 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
   Esquema del escenario: Vendedor evalúa su rendimiento con los ingresos
     Dado que un vendedor realizó <ventas_mes_actual> ventas en el mes actual, diciembre, de productos cuyo costo y precio fueron 10 y 15, respectivamente, y <ventas_mes_anterior> ventas en el mes anterior de productos cuyo costo y precio fueron 10 y 15, respectivamente
     Y el vendedor estableció como meta de ingresos para el mes actual la cantidad de <meta_ingresos> dólares
-    Cuando se despliegue el Dashboard de Métricas
+    Cuando se genera el Reporte de métricas
     Entonces se mostrarán <ingresos> dólares de ingresos
     Y se indicará que los ingresos del mes actual <comparacion_por_meta> a la meta de ingresos del mes actual, con el porcentaje de avance <porcentaje>%
     Y se indicará que los ingresos del mes actual <comparacion_por_mes> a los ingresos del mes anterior
@@ -45,7 +45,7 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
   Esquema del escenario: Vendedor evalúa su rendimiento con los costos
     Dado que un vendedor realizó <ventas_mes_actual> ventas en el mes actual, diciembre, de productos cuyo costo y precio fueron 10 y 15, respectivamente, y <ventas_mes_anterior> ventas en el mes anterior de productos cuyo costo y precio fueron 10 y 15, respectivamente
     Y el vendedor estableció como la meta de costos para el mes actual la cantidad de <meta_costos> dólares
-    Cuando se despliegue el Dashboard de Métricas
+    Cuando se genera el Reporte de métricas
     Entonces se mostrarán <costos> dólares de costos
     Y se indicará que los costos del mes actual <comparacion_por_meta> a la meta de costos del mes actual, con el porcentaje de avance <porcentaje>%
     Y se indicará que los costos del mes actual <comparacion_por_mes> a los costos del mes anterior
@@ -63,7 +63,7 @@ Característica: Obtención de métricas de ventas mensualizadas por vendedor
   Esquema del escenario: Vendedor evalúa su rendimiento con los beneficios por venta
     Dado que un vendedor realizó 4 ventas en el mes actual, diciembre, de productos cuyo costo y precio fueron 10 y <precio_mes_actual>, respectivamente, y 4 ventas en el mes anterior de productos cuyo costo y precio fueron 10 y <precio_mes_anterior>, respectivamente
     Y el vendedor estableció como meta de beneficio por venta para el mes actual la cantidad de <meta_beneficio> dólares
-    Cuando se despliegue el Dashboard de Métricas
+    Cuando se genera el Reporte de métricas
     Entonces se mostrarán <beneficio> dólares de beneficio por venta
     Y se indicará que los beneficio por venta del mes actual <comparacion_por_meta> a la meta de los beneficios por venta del mes actual, con el porcentaje de avance <porcentaje>%
     Y se indicará que los beneficio por venta del mes actual <comparacion_por_mes> a los beneficios por venta del mes anterior

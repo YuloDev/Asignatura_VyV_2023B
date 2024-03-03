@@ -13,25 +13,32 @@ use_step_matcher("re")
     "que un vendedor realizó (?P<ventas_mes_actual>.+) ventas en el mes actual, diciembre, de productos cuyo costo y precio fueron (?P<costo_mes_actual>.+) y (?P<precio_mes_actual>.+), respectivamente, y (?P<ventas_mes_anterior>.+) ventas en el mes anterior de productos cuyo costo y precio fueron (?P<costo_mes_anterior>.+) y (?P<precio_mes_anterior>.+), respectivamente")
 def step_impl(context, ventas_mes_actual, costo_mes_actual, precio_mes_actual, ventas_mes_anterior, costo_mes_anterior, precio_mes_anterior):
     faker = Faker()
-    vendedor, _ = VendedorG3.objects.get_or_create(
+    vendedor, _ = Vendedor.objects.get_or_create(
         nombre=faker.name()
     )
     context.vendedor = vendedor
 
-    context.producto_de_mes_actual = ProductoG3.objects.get_or_create(nombre_producto="Pepsi", precio=float(precio_mes_actual), costo=float(costo_mes_actual))
-    context.producto_de_mes_anterior = ProductoG3.objects.get_or_create(nombre_producto="Pepsi", precio=float(precio_mes_anterior), costo=float(costo_mes_anterior))
+    context.producto_de_mes_actual, _ = Producto.objects.get_or_create(nombre_producto="Pepsi",
+                                                                       precio=float(precio_mes_actual),
+                                                                       costo=float(costo_mes_actual),
+                                                                       vendedor=context.vendedor)
+    context.producto_de_mes_anterior, _ = Producto.objects.get_or_create(nombre_producto="Pepsi",
+                                                                         precio=float(precio_mes_anterior),
+                                                                         costo=float(costo_mes_anterior),
+                                                                         vendedor=context.vendedor)
     context.anio = 2023
     context.mes_actual = 12
     context.mes_anterior = 11
 
     for _ in range(int(ventas_mes_actual)):
-        context.pedido = PedidoG3.objects.get_or_create(fecha_listo_para_entregar=date(context.anio, context.mes_actual, 1), vendedor=context.vendedor)
-        DetalleDePedidoG3.objects.get_or_create(pedido=context.pedido,producto=context.producto_de_mes_actual,cantidad=1)
+        context.pedido = context.vendedor.pedidos.create(
+            fecha_listo_para_entregar=date(context.anio, context.mes_actual, 1))
+        context.pedido.detalles.get_or_create(producto=context.producto_de_mes_actual, cantidad=1)
     for _ in range(int(ventas_mes_anterior)):
-        context.pedido = PedidoG3.objects.get_or_create(
-            fecha_listo_para_entregar=date(context.anio, context.mes_anterior, 1), vendedor=context.vendedor)
-        DetalleDePedidoG3.objects.get_or_create(pedido=context.pedido, producto=context.producto_de_mes_anterior,
-                                                cantidad=1)
+        context.pedido = context.vendedor.pedidos.create(
+            fecha_listo_para_entregar=date(context.anio, context.mes_anterior, 1))
+        context.pedido.detalles.get_or_create(producto=context.producto_de_mes_anterior,
+                                              cantidad=1)
 
     assert (context.vendedor.obtener_cantidad_de_ventas_por_fecha(context.anio, context.mes_actual) == int(ventas_mes_actual) and
             context.vendedor.obtener_cantidad_de_ventas_por_fecha(context.anio, context.mes_anterior) == int(ventas_mes_anterior))
@@ -39,15 +46,15 @@ def step_impl(context, ventas_mes_actual, costo_mes_actual, precio_mes_actual, v
 
 @step("el vendedor estableció como meta de número de ventas para el mes actual el valor (?P<meta_ventas>.+)")
 def step_impl(context, meta_ventas):
-    context.meta = MetaG3.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.NUMERO_DE_VENTAS, valor=meta_ventas, anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
+    context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.NUMERO_DE_VENTAS, valor=meta_ventas, anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
     context.vendedor.establecer_meta(context.meta)
-    assert (context.vendedor.obtener_meta(TipoDeMetrica.NUMERO_DE_VENTAS, context.anio, context.mes_actual) == float(
+    assert (context.vendedor.obtener_meta(TipoDeMetrica.NUMERO_DE_VENTAS, context.anio, context.mes_actual).obtener_valor() == float(
         meta_ventas))
 
 
-@step("se despliegue el Dashboard de Métricas")
+@step("se genera el Reporte de métricas")
 def step_impl(context):
-    context.reporte = context.vendedor.obtener_reporte(context.anio, context.mes_actual)
+    context.reporte = context.vendedor.generar_reporte(context.anio, context.mes_actual)
     assert (context.reporte is not None)
 
 
@@ -76,10 +83,10 @@ def step_impl(context, recomendacion):
 
 @step("el vendedor estableció como meta de ingresos para el mes actual la cantidad de (?P<meta_ingresos>.+) dólares")
 def step_impl(context, meta_ingresos):
-    context.meta = MetaG3.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.INGRESOS, valor=meta_ingresos,
-                                                anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
+    context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.INGRESOS, valor=meta_ingresos,
+                                                 anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
     context.vendedor.establecer_meta(context.meta)
-    assert (context.vendedor.obtener_meta(TipoDeMetrica.INGRESOS, context.anio, context.mes_actual) == float(
+    assert (context.vendedor.obtener_meta(TipoDeMetrica.INGRESOS, context.anio, context.mes_actual).obtener_valor() == float(
         meta_ingresos))
 
 
@@ -102,10 +109,10 @@ def step_impl(context, comparacion_por_mes):
 
 @step("el vendedor estableció como la meta de costos para el mes actual la cantidad de (?P<meta_costos>.+) dólares")
 def step_impl(context, meta_costos):
-    context.meta = MetaG3.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.COSTOS, valor=meta_costos,
-                                                anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
+    context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.COSTOS, valor=meta_costos,
+                                                 anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
     context.vendedor.establecer_meta(context.meta)
-    assert (context.vendedor.obtener_meta(TipoDeMetrica.COSTOS, context.anio, context.mes_actual) == float(
+    assert (context.vendedor.obtener_meta(TipoDeMetrica.COSTOS, context.anio, context.mes_actual).obtener_valor() == float(
         meta_costos))
 
 
@@ -130,10 +137,10 @@ def step_impl(context, comparacion_por_mes):
 @step(
     "el vendedor estableció como meta de beneficio por venta para el mes actual la cantidad de (?P<meta_beneficio>.+) dólares")
 def step_impl(context, meta_beneficio):
-    context.meta = MetaG3.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.BENEFICIO_POR_VENTA, valor=meta_beneficio,
-                                                anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
+    context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.BENEFICIO_POR_VENTA, valor=meta_beneficio,
+                                                 anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
     context.vendedor.establecer_meta(context.meta)
-    assert (context.vendedor.obtener_meta(TipoDeMetrica.BENEFICIO_POR_VENTA, context.anio, context.mes_actual) == float(meta_beneficio))
+    assert (context.vendedor.obtener_meta(TipoDeMetrica.BENEFICIO_POR_VENTA, context.anio, context.mes_actual).obtener_valor() == float(meta_beneficio))
 
 
 @step("se mostrarán (?P<beneficio>.+) dólares de beneficio por venta")

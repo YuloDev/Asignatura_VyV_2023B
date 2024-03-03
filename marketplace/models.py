@@ -3,80 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
-class Categoria(models.Model):
-    nombre = models.CharField(max_length=50)
-    record = models.IntegerField(default=0)
-
-    def producto_supera_record(self, unidades_vendidas):
-        if unidades_vendidas > self.record:
-            self.record = unidades_vendidas
-            self.save()
-            return True
-        else:
-            return False
-
-
-class Promocion(models.Model):
-    TIPO_PROMOCION = (
-        ('GD', 'Gold'),
-        ('PG', 'Platinum'),
-        ('BS', 'Basic'),
-    )
-    COSTO = (
-        ('GD', 50),
-        ('PG', 35),
-        ('BS', 20),
-    )
-
-    fecha_inicio = models.DateField()
-    tipo_promocion = models.CharField(max_length=2, choices=TIPO_PROMOCION)
-    costo = models.CharField(max_length=2, choices=COSTO, default='BS')
-    dias_duracion = models.IntegerField()
-    cantidad_productos = models.IntegerField()
-
-
 class Vendedor(models.Model):
-    nombre = models.CharField(max_length=20)
-    apellido = models.CharField(max_length=20)
-
-    def agregar_producto(self, producto):
-        self.productos.add(producto)
-        self.save()
-
-    def obtener_productos(self):
-        return self.productos.all()
-
-    def pagar_promocion(self, monto, producto):
-        producto.promocion = True
-        producto.save()
-
-    def tiene_promocion_activa(self):
-        return any(producto.promocion for producto in self.obtener_productos())
-
-
-class Producto(models.Model):
-    nombre = models.CharField(max_length=50)
-    unidades_vendidas = models.IntegerField()
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='productos')
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    promocion = models.BooleanField(default=False)
-
-    def asignar_categoria(self, categoria):
-        self.categoria = categoria
-        self.save()
-
-    def unidades_vendidas_ha_superado_record(self):
-        return self.categoria.producto_supera_record(self.unidades_vendidas)
-
-    def agregar_promocion(self):
-        self.promocion = True
-        self.save()
-
-    def tiene_promocion(self):
-        return self.promocion
-
-
-class VendedorG3(models.Model):
     vendedorID = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
 
@@ -113,12 +40,12 @@ class VendedorG3(models.Model):
         return reporte
 
 
-class ProductoG3(models.Model):
+class Producto(models.Model):
     productoID = models.AutoField(primary_key=True)
     nombre_producto = models.CharField(max_length=100)
     precio = models.FloatField()
     costo = models.FloatField()
-    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE, related_name='productos')
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='productos')
 
     def __str__(self):
         return self.nombre_producto
@@ -130,10 +57,10 @@ class ProductoG3(models.Model):
         return self.costo
 
 
-class PedidoG3(models.Model):
+class Pedido(models.Model):
     pedidoID = models.AutoField(primary_key=True)
     fecha_listo_para_entregar = models.DateField()
-    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE, related_name='pedidos')
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='pedidos')
 
     def obtener_ingreso_total(self):
         return sum(producto.obtener_precio_total() for producto in self.detalles.all())
@@ -172,13 +99,13 @@ class TipoDeMetrica(models.TextChoices):
     BENEFICIO_POR_VENTA = "BV", _("Beneficio por venta")
 
 
-class MetaG3(models.Model):
+class Meta(models.Model):
     metaID = models.AutoField(primary_key=True)
     tipo_de_metrica = models.CharField(max_length=2, choices=TipoDeMetrica)
     valor = models.FloatField(null=True)
     anio = models.IntegerField(null=True)
     mes = models.IntegerField(null=True)
-    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE, related_name='metas')
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='metas')
 
     def obtener_tipo_de_metrica(self):  # Necesario?
         return self.tipo_de_metrica
@@ -202,9 +129,9 @@ class TipoDeComparacion(models.TextChoices):
     IGUAL = 'IL', _('igualan')
 
 
-class ReporteG3(models.Model):
+class Reporte(models.Model):
     reporteID = models.AutoField(primary_key=True)
-    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE, related_name='reportes')
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='reportes')
     anio = models.IntegerField(null=True)
     mes = models.IntegerField(null=True)
 
@@ -279,7 +206,7 @@ class ReporteG3(models.Model):
     def obtener_porcentaje_de_avance(self, tipo_de_metrica):
         meta = self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes)
         metrica_actual = self.obtener_metrica(tipo_de_metrica)
-        if meta is not None and meta != 0:
+        if meta is not None and meta.obtener_valor() != 0:
             porcentaje_de_avance = min(int(metrica_actual.obtener_valor() / meta.obtener_valor() * 100), 100)
         else:
             porcentaje_de_avance = 0
@@ -290,13 +217,13 @@ class ReporteG3(models.Model):
         return f"{self.vendedor} / {self.anio} / {self.mes}"
 
 
-class MetricaG3(models.Model):
+class Metrica(models.Model):
     metricaID = models.AutoField(primary_key=True)
     tipo_de_metrica = models.CharField(max_length=19, choices=TipoDeMetrica)
     valor = models.FloatField(null=True)
     anio = models.IntegerField(null=True)
     mes = models.IntegerField(null=True)
-    reporte = models.ForeignKey(ReporteG3, on_delete=models.CASCADE, related_name='metricas')
+    reporte = models.ForeignKey(Reporte, on_delete=models.CASCADE, related_name='metricas')
 
     def calcular_metrica(self, ventas):
         beneficio_total = 0
@@ -344,9 +271,9 @@ class TipoDeRecomendacion(models.TextChoices):
         'Mantener los precios de los productos con respecto a sus costos.')
 
 
-class RecomendacionGR3(models.Model):
+class Recomendacion(models.Model):
     contenido = models.CharField(max_length=31, choices=TipoDeRecomendacion)
-    reporte = models.ForeignKey(ReporteG3, on_delete=models.CASCADE, related_name='recomendaciones')
+    reporte = models.ForeignKey(Reporte, on_delete=models.CASCADE, related_name='recomendaciones')
 
     def determinar_contenido(self, comparacion_meta, tipo_de_metrica):
         recomendaciones_por_metrica = {
@@ -371,7 +298,7 @@ class RecomendacionGR3(models.Model):
         recomendacion_al_superar_o_igualar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['igual o superior']
         recomendacion_al_no_superar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['inferior']
 
-        if comparacion_meta == TipoDeComparacion.SUPERIOR or comparacion_meta == TipoDeComparacion.IGUAL:
+        if comparacion_meta == TipoDeComparacion.SUPERIOR.label or comparacion_meta == TipoDeComparacion.IGUAL.label:
             self.contenido = recomendacion_al_superar_o_igualar_la_meta
         else:
             self.contenido = recomendacion_al_no_superar_la_meta

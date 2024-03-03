@@ -21,5 +21,5 @@ from marketplace import views
 
 urlpatterns = [
     path('', views.index),
-    path('metrica/', views.metricas)
+    path('metrica/<int:vendedor_id>/', views.metricas)
 ]
