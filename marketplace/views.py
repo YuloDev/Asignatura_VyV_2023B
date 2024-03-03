@@ -11,50 +11,64 @@ def index(request):
     return render(request, 'plantilla_hija_ejemplo.html')
 
 
-def metricas(request):
-    # Obtener el vendedor actual (supongamos que está autenticado)
-    vendedor_id = 1  # Esto debe ser el ID del vendedor actual
-    # Obtener la fecha actual
-    fecha_actual = datetime(2023,12,31)
-    # Calcular el mes anterior
-    mes_anterior = fecha_actual.month - 1 if fecha_actual.month > 1 else 12
-    # Calcular el año del mes anterior
-    anio_anterior = fecha_actual.year if fecha_actual.month > 1 else fecha_actual.year - 1
+def metricas(request, vendedor_id):
+    
+    anio = 2023
+    mes = 12
 
-    # Calcular el costo total de los productos vendidos en el mes actual
-    costo_mes_actual = DetalleDePedidoG3.objects.filter(pedido__fecha_listo_para_entregar__year=fecha_actual.year,
-                                                        pedido__fecha_listo_para_entregar__month=fecha_actual.month,
-                                                        pedido__vendedor_id=vendedor_id).aggregate(
-        Sum('producto__costo'))['producto__costo__sum'] or 0
+    vendedor = get_object_or_404(Vendedor, pk=vendedor_id)
 
-    # Calcular el costo total de los productos vendidos en el mes anterior
-    costo_mes_anterior = DetalleDePedidoG3.objects.filter(pedido__fecha_listo_para_entregar__year=anio_anterior,
-                                                          pedido__fecha_listo_para_entregar__month=mes_anterior,
-                                                          pedido__vendedor_id=vendedor_id).aggregate(
-        Sum('producto__costo'))['producto__costo__sum'] or 0
+    reporte = vendedor.generar_reporte(anio, mes)
 
-    # Obtener la meta de costo para el mes actual
-    meta_costo = MetaG3.objects.filter(tipo_de_metrica='Costos', anio=fecha_actual.year, mes=fecha_actual.month,
-                                       vendedor_id=vendedor_id).first()
+    recomendaciones = reporte.obtener_recomendaciones()
 
-    # Calcular la diferencia entre el costo del mes actual y el costo del mes anterior
-    diferencia_costo_mes_anterior = costo_mes_actual - costo_mes_anterior
+    numero_ventas = reporte.obtener_metrica(TipoDeMetrica.NUMERO_DE_VENTAS).valor
+    ingresos = reporte.obtener_metrica(TipoDeMetrica.INGRESOS).valor
+    costos = reporte.obtener_metrica(TipoDeMetrica.COSTOS).valor
+    beneficio_venta = reporte.obtener_metrica(TipoDeMetrica.BENEFICIO_POR_VENTA).valor
 
-    # Si hay una meta de costo para el mes actual, calcular si se ha superado
-    superado = None
-    if meta_costo:
-        superado = costo_mes_actual > meta_costo.valor
+    nv_porcentaje = reporte.obtener_porcentaje_de_avance(TipoDeMetrica.NUMERO_DE_VENTAS)
+    is_porcentaje = reporte.obtener_porcentaje_de_avance(TipoDeMetrica.INGRESOS)
+    cs_porcentaje = reporte.obtener_porcentaje_de_avance(TipoDeMetrica.COSTOS)
+    bv_porcentaje = reporte.obtener_porcentaje_de_avance(TipoDeMetrica.BENEFICIO_POR_VENTA)
 
-    # Guardar la métrica de costo en la base de datos
-    metrica_costo = MetricaG3.objects.create(tipo_de_metrica='Costo', valor=costo_mes_actual, anio=fecha_actual.year,
-                                             mes=fecha_actual.month, vendedor_id=vendedor_id)
+    nv_comparacion_meta = reporte.obtener_comparacion_por_meta(TipoDeMetrica.NUMERO_DE_VENTAS)
+    is_comparacion_meta = reporte.obtener_comparacion_por_meta(TipoDeMetrica.INGRESOS)
+    cs_comparacion_meta = reporte.obtener_comparacion_por_meta(TipoDeMetrica.COSTOS)
+    bv_comparacion_meta = reporte.obtener_comparacion_por_meta(TipoDeMetrica.BENEFICIO_POR_VENTA)
 
-    # Enviar los datos al HTML
+    nv_comparacion_mes_anterior = reporte.obtener_comparacion_por_mes_anterior(TipoDeMetrica.NUMERO_DE_VENTAS)
+    is_comparacion_mes_anterior = reporte.obtener_comparacion_por_mes_anterior(TipoDeMetrica.INGRESOS)
+    cs_comparacion_mes_anterior = reporte.obtener_comparacion_por_mes_anterior(TipoDeMetrica.COSTOS)
+    bv_comparacion_mes_anterior = reporte.obtener_comparacion_por_mes_anterior(TipoDeMetrica.BENEFICIO_POR_VENTA)
+
+    nv_valor_mes_anterior = reporte.obtener_metrica_mes_anterior(TipoDeMetrica.NUMERO_DE_VENTAS).valor
+    is_valor_mes_anterior = reporte.obtener_metrica_mes_anterior(TipoDeMetrica.INGRESOS).valor
+    cs_valor_mes_anterior = reporte.obtener_metrica_mes_anterior(TipoDeMetrica.COSTOS).valor
+    bv_valor_mes_anterior = reporte.obtener_metrica_mes_anterior(TipoDeMetrica.BENEFICIO_POR_VENTA).valor
+
     context = {
-        'costo_mes_actual': costo_mes_actual,
-        'costo_mes_anterior': costo_mes_anterior,
-        'diferencia_costo_mes_anterior': diferencia_costo_mes_anterior,
-        'superado': superado,
+        'recomendaciones': recomendaciones,
+        'numero_ventas': numero_ventas,
+        'ingresos': ingresos,
+        'costos': costos,
+        'beneficio_venta': beneficio_venta,
+        'nv_porcentaje': nv_porcentaje,
+        'is_porcentaje': is_porcentaje,
+        'cs_porcentaje': cs_porcentaje,
+        'bv_porcentaje': bv_porcentaje,
+        'nv_comparacion_meta': nv_comparacion_meta,
+        'is_comparacion_meta': is_comparacion_meta,
+        'cs_comparacion_meta': cs_comparacion_meta,
+        'bv_comparacion_meta': bv_comparacion_meta,
+        'nv_comparacion_mes_anterior': nv_comparacion_mes_anterior,
+        'is_comparacion_mes_anterior': is_comparacion_mes_anterior,
+        'cs_comparacion_mes_anterior': cs_comparacion_mes_anterior,
+        'bv_comparacion_mes_anterior': bv_comparacion_mes_anterior,
+        'nv_valor_mes_anterior': nv_valor_mes_anterior,
+        'is_valor_mes_anterior': is_valor_mes_anterior,
+        'cs_valor_mes_anterior': cs_valor_mes_anterior,
+        'bv_valor_mes_anterior': bv_valor_mes_anterior
     }
 
     return render(request, 'metrica.html', context)

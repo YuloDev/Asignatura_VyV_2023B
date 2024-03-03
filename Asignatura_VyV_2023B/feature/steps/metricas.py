@@ -1,3 +1,6 @@
+import django
+
+django.setup()
 from behave import *
 from faker import Faker
 from datetime import date

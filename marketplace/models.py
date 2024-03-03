@@ -101,7 +101,7 @@ class VendedorG3(models.Model):
     def obtener_cantidad_de_ventas_por_fecha(self, anio, mes):
         return self.obtener_ventas_por_fecha(anio, mes).count()
 
-    def obtener_reporte(self, anio, mes):
+    def generar_reporte(self, anio, mes):
         reportes = self.reportes.filter(anio=anio, mes=mes)
 
         if reportes.exists():
@@ -136,10 +136,10 @@ class PedidoG3(models.Model):
     vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE, related_name='pedidos')
 
     def obtener_ingreso_total(self):
-        return sum(producto.obtener_precio_total() for producto in self.detalledepedidog3_set.all())
+        return sum(producto.obtener_precio_total() for producto in self.detalles.all())
 
     def obtener_costo_total(self):
-        return sum(producto.obtener_costo_total() for producto in self.detalledepedidog3_set.all())
+        return sum(producto.obtener_costo_total() for producto in self.detalles.all())
 
     def obtener_beneficio_total(self):
         ingreso_total = self.obtener_ingreso_total()
@@ -150,9 +150,9 @@ class PedidoG3(models.Model):
         return f"{self.pedidoID} / {self.fecha_listo_para_entregar} / {self.vendedor}"
 
 
-class DetalleDePedidoG3(models.Model):
-    pedido = models.ForeignKey(PedidoG3, on_delete=models.CASCADE)
-    producto = models.ForeignKey(ProductoG3, on_delete=models.CASCADE)
+class DetalleDePedido(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='detalles')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
 
     def obtener_precio_total(self):
@@ -214,8 +214,6 @@ class ReporteG3(models.Model):
             metrica.save()
 
         recomendaciones = self.obtener_recomendaciones()
-        for recomendacion in recomendaciones:
-            recomendacion.save()
 
     def obtener_metrica(self, tipo_de_metrica):
         metrica = self.metricas.filter(tipo_de_metrica=tipo_de_metrica, reporte=self).first()
@@ -253,7 +251,7 @@ class ReporteG3(models.Model):
         anio_anterior = self.anio if self.mes > 1 else self.anio - 1
         mes_anterior = self.mes - 1 if self.mes > 1 else 12
 
-        metrica_mes_anterior = self.vendedor.obtener_reporte(anio_anterior,mes_anterior).obtener_metrica(tipo_de_metrica)
+        metrica_mes_anterior = self.vendedor.generar_reporte(anio_anterior,mes_anterior).obtener_metrica(tipo_de_metrica)
 
         return metrica_mes_anterior
 
