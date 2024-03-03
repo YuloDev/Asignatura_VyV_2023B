@@ -21,4 +21,5 @@ from marketplace import views
 
 urlpatterns = [
     path('', views.index),
+    path('seguimientoInterno', views.seguimiento_interno),
 ]

@@ -21,7 +21,6 @@ class Vendedor:
         self.lista_pedidos = []  # Inicializa la lista de pedidos del vendedor
         self.resumenes = []  # Inicializa la lista de resúmenes del vendedor
 
-    # Este metodo pueden cambiar a su criterio
     def agregar_pedido(self, pedido, nombre_etapa):
         # Método para agregar un pedido a la lista de pedidos del vendedor
         self.lista_pedidos.append(pedido)
@@ -31,10 +30,6 @@ class Vendedor:
 
     def contar_pedidos(self):
         return len(self.lista_pedidos)
-
-    # Este metodo pueden cambiar a su criterio
-    def visualizar_resumen(self):
-        pass
 
     def obtener_resumen_etapa(self, nombre_etapa):
         # Limpiamos los resúmenes existentes
@@ -114,18 +109,11 @@ class ResumenSeguimiento:
 
         self.num_pedidos_total = None  # Inicializamos la variable total_pedidos como None
 
-    # Este metodo pueden cambiar a su criterio
-    def visualizar_graficas(self):
-        pass
-
     def sumar_pedidos(self):
         self.total_pedidos = self.num_pedidos_atrasados + self.num_pedidos_a_tiempo + self.num_pedido_cancelados
         return self.total_pedidos
 
     def obtener_detalles_resumen(self, pedidos, etapa):
-
-
-        # Filtrar los pedidos por la etapa actual
         pedidos_etapa = [pedido for pedido in pedidos if pedido.etapa_pedido == etapa.lower()]
 
         # Inicializamos las variables
@@ -158,11 +146,6 @@ class ResumenSeguimiento:
 
         # Devolvemos los resultados
         return self.resultados
-
-
-
-
-# Definicion de la clase Pedido
 
 class Pedido:
     def __init__(self, numero_pedido, etapa_pedido, pedido_activo, fecha_creacion_pedido,
@@ -223,9 +206,6 @@ class Pedido:
                    fecha_real_etapa_reserva, estado_pedido_reserva, fecha_maxima_etapa_listo_para_entregar,
                    fecha_real_etapa_listo_para_entregar, estado_pedido_listo_para_entregar)
 
-
-
-    # Este metodo pueden cambiar a su criterio, nosotros medio le adelatamos la logica pensandole algo asi, pero pueden cambiarle dependiendo lo que necesiten
     # Método para cambiar el estado de un pedido
     def cambiar_estado(self, pedido_activo, nombre_etapa):
         if pedido_activo == True:
@@ -258,7 +238,6 @@ class Etapa:
         self.pedidos = []  # Inicializa la lista de pedidos de la etapa
         self.tiempo_etapa = tiempo_etapa
 
-    # Este metodo pueden cambiar a su criterio
     def agregar_pedido(self, pedido):
         # Método para agregar un pedido a la lista de pedidos de la etapa
         self.pedidos.append(pedido)
@@ -274,4 +253,3 @@ class EstadoPedido(Enum):
     Atrasado = "Atrasado"
     A_tiempo = "A tiempo"
     Cancelado = "Cancelado"
-
