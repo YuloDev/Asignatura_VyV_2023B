@@ -50,9 +50,11 @@ class Cliente(models.Model):
         calificacion.save()
         producto.agregar_calificacion(calificacion, calificaciones_recibidas)
 
-    def calificar_servicio(self, pedido, estrellas, causas):
-        calificacion = Calificacion(estrellas, causas)
-        pedido.servicio.agregar_calificacion(calificacion)
+    def calificar_servicio(self, pedido, estrellas, causas, calificaciones_recibidas):
+        calificacion = Calificacion(estrellas=estrellas, causas=causas, id_servicio=pedido.servicio)
+        print(causas)
+        pedido.servicio.agregar_calificacion(calificacion, calificaciones_recibidas)
+        calificacion.save()
 
 
 class Vendedor(models.Model):
@@ -103,8 +105,10 @@ class Producto(models.Model):
 
     def aumentar_estrella(self, calificacion_cliente):
         for estrellas, calificacion_total in self.calificaciones.items():
-            if estrellas == calificacion_cliente:
-                self.calificaciones[estrellas] += 1
+            if estrellas == str(calificacion_cliente):
+                self.calificaciones[str(estrellas)] += 1
+                print(self.calificaciones[str(estrellas)])
+                self.save()
                 break
 
     def agregar_calificacion(self, calificacion, calificaciones_recibidas):
@@ -131,7 +135,7 @@ class Producto(models.Model):
         causas_temp = {1: list(), 2: list(), 3: list(), 4: list(), 5: list()}
 
         for calificacion in calificaciones_recibidas:
-            causas_temp[calificacion.estrellas].extend(calificacion.causas)
+            causas_temp[int(calificacion.estrellas)].extend(calificacion.causas)
 
         for estrella, lista_causas in causas_temp.items():
             contador_causas = {}
@@ -165,6 +169,7 @@ class Servicio(models.Model):
         for calificacion in self.puntuaciones_calificaciones:
             if calificacion["estrellas"] == calificacion_cliente:
                 calificacion["cantidad"] += 1
+                self.save()
                 break
         self.calcular_porcentajes()
 
@@ -195,7 +200,7 @@ class Servicio(models.Model):
         causas_temp = {1: list(), 2: list(), 3: list(), 4: list(), 5: list()}
 
         for calificacion in calificaciones_recibidas:
-            causas_temp[calificacion.estrellas].extend(calificacion.causas)
+            causas_temp[int(calificacion.estrellas)].extend(calificacion.causas)
 
         for estrella, lista_causas in causas_temp.items():
             contador_causas = {}

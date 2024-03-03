@@ -60,7 +60,7 @@ def step_impl(context):
     for causa in causas:
         if causa == "Mal funcionamiento":
             causas_seleccionada.append(causa)
-        if causa == "Concuerda con la descripción":
+        if causa == "Concuerda con la descripcion":
             causas_seleccionada.append(causa)
 
     calificaciones_recibidas = list(Calificacion.objects.filter(id_producto_id=context.producto.id))
@@ -80,7 +80,8 @@ def step_impl(context):
     lista_causas_esperadas = list()
     lista_causas_obtenidas = list()
     promedio_general = 0
-    lista_porcentajes_por_estrella = context.producto.obtener_porcentajes_de_calificaciones()
+    lista_porcentajes_por_estrella = list(context.producto.obtener_porcentajes_de_calificaciones())
+    lista_porcentajes_por_estrella.reverse()
 
     for row in context.table:
         cantidad_de_estrellas = int(row["cantidad_de_estrellas"])
@@ -88,12 +89,14 @@ def step_impl(context):
         causas = row["causas"]
         promedio_general = row["promedio"]
         lista_causas_esperadas.append(causas)
+
         assert lista_porcentajes_por_estrella[
-                   cantidad_de_estrellas - 1] == porcentaje_de_calificaciones, ("No se tiene el porcentaje de "
+                   cantidad_de_estrellas - 1] + "%" == porcentaje_de_calificaciones, ("No se tiene el porcentaje de "
                                                                                 "calificaciones correcto")
 
+    calificaciones_recibidas = list(Calificacion.objects.filter(id_producto_id=1).all())
     for i in range(1, 6, 1):
-        lista_causas_obtenidas.append(context.producto.obtener_causas_de_cada_estrella()[i])
+        lista_causas_obtenidas.append(context.producto.obtener_causas_de_cada_estrella(calificaciones_recibidas)[i])
         print(lista_causas_obtenidas[i - 1] + " == " + lista_causas_esperadas[i - 1])
         assert lista_causas_obtenidas[i - 1] == lista_causas_esperadas[i - 1], "No se tienen las causas correcta"
 
@@ -105,11 +108,14 @@ def step_impl(context):
 # SERVICIO
 @step("que el Cliente ha dado su feedback sobre el producto")
 def step_impl(context):
-    context.producto = Producto(1, "Martillo", "De madera")
+    context.producto = Producto.objects.get(nombre="Martillo")
     arreglo_productos_pedidos = [context.producto]
-    context.pedido = Pedido(1, "Entregado", 6, "direccion", arreglo_productos_pedidos)
-
-    assert context.producto.feedback_producto_esta_dado()
+    context.cliente = Cliente.objects.get(cedula="1752124578")
+    pedido, creado = Pedido.objects.get_or_create(estado_pedido="Entregado", cliente_id=context.cliente.cedula,
+                                                  servicio_id=1)
+    context.pedido, creado = pedido, creado
+    producto_con_feedback = context.producto.feedback_producto_esta_dado()
+    assert producto_con_feedback == True, "No se ha calificado el producto"
 
 
 @step("se tiene un Servicio con las siguientes valoraciones totales")
@@ -131,15 +137,14 @@ def step_impl(context):
 
     context.pedido.servicio.calcular_porcentajes()
     for i in context.pedido.servicio.puntuaciones_calificaciones:
-        assert i["porcentaje"] == lista_porcentajes_por_estrella[int(i["estrellas"]) - 1], ("No se tiene el porcentaje "
+        print(str(i["porcentaje"]) + "%" + "==" + str(lista_porcentajes_por_estrella[int(i["estrellas"]) - 1]))
+        assert i["porcentaje"] + "%" == lista_porcentajes_por_estrella[int(i["estrellas"]) - 1], ("No se tiene el porcentaje "
                                                                                             "de calificaciones correcto")
 
 
 @step("el Cliente seleccione una Calificación de tres sobre cinco estrellas del Servicio y seleccione la causa 1 de "
       "las siguientes causas de su Calificación")
 def step_impl(context):
-    context.cliente = Cliente("1752458974", "Juan", "Herrera", "juan.herrera@hotmail.com", "0984759642",
-                              context.pedido)
     causas = list()
     causa_seleccionada = list()
 
@@ -147,13 +152,14 @@ def step_impl(context):
         causas.append(row["causas"])
 
     for causa in causas:
-        if causa == "Paquete dañado":
+        if causa == "Paquete daniado":
             causa_seleccionada.append(causa)
 
-    context.cliente.calificar_servicio(context.pedido, 3, causa_seleccionada)
+    calificaciones_recibidas = list(Calificacion.objects.filter(id_servicio_id=1).all())
+    context.cliente.calificar_servicio(context.pedido, 3, causa_seleccionada, calificaciones_recibidas)
 
-    if context.pedido.servicio.calificaciones_recibidas[-1] is None:
-        for causa_buscada in context.pedido.servicio.calificaciones_recibidas[-1].causas:
+    if calificaciones_recibidas[-1] is None:
+        for causa_buscada in calificaciones_recibidas[-1].causas:
             if causa_buscada == causa_seleccionada:
                 assert True, "No se ha seleccionado la causa correctamente"
 
@@ -166,7 +172,8 @@ def step_impl(context):
     lista_causas_esperadas = list()
     lista_causas_obtenidas = list()
     promedio_general = 0
-    lista_porcentajes_por_estrella = context.pedido.servicio.obtener_porcentajes_de_calificaciones()
+    lista_porcentajes_por_estrella = list(context.pedido.servicio.obtener_porcentajes_de_calificaciones())
+    lista_porcentajes_por_estrella.reverse()
 
     for row in context.table:
         cantidad_de_estrellas = int(row["cantidad_de_estrellas"])
@@ -175,11 +182,11 @@ def step_impl(context):
         promedio_general = row["promedio"]
         lista_causas_esperadas.append(causas)
         assert lista_porcentajes_por_estrella[
-                   cantidad_de_estrellas - 1] == porcentaje_de_calificaciones, ("No se tiene el porcentaje de "
+                   cantidad_de_estrellas - 1] + "%" == porcentaje_de_calificaciones, ("No se tiene el porcentaje de "
                                                                                 "calificaciones correcto")
-
+    calificaciones_recibidas = list(Calificacion.objects.filter(id_servicio_id=1).all())
     for i in range(1, 6, 1):
-        lista_causas_obtenidas.append(context.pedido.servicio.obtener_causas_de_cada_estrella()[i])
+        lista_causas_obtenidas.append(context.pedido.servicio.obtener_causas_de_cada_estrella(calificaciones_recibidas)[i])
         print(lista_causas_obtenidas[i - 1] + " == " + lista_causas_esperadas[i - 1])
         assert lista_causas_obtenidas[i - 1] == lista_causas_esperadas[i - 1], "No se tienen las causas correcta"
 
