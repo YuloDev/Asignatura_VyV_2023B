@@ -6,17 +6,6 @@ import datetime
 
 
 # Create your models here.
-class Categoria(models.Model):
-    nombre = models.CharField(max_length=50)
-    record = models.IntegerField(default=0)
-
-    def producto_supera_record(self, unidades_vendidas):
-        if unidades_vendidas > self.record:
-            self.record = unidades_vendidas
-            self.save()
-            return True
-        else:
-            return False
 
 
 class Promocion(models.Model):

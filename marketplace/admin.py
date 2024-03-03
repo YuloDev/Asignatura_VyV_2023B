@@ -1,6 +1,11 @@
 from django.contrib import admin
-from .models import Pedido, Vendedor
+
 # Register your models here.
-admin.site.register(Pedido)
+from .models import Categoria, Vendedor, Producto, Promocion, Pedido
+
+admin.site.register(Categoria)
 admin.site.register(Vendedor)
-# Register your models here.
+admin.site.register(Producto)
+admin.site.register(Promocion)
+
+admin.site.register(Pedido)
