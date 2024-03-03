@@ -53,18 +53,16 @@ def step_impl(context):
         nombre=faker.name()
     )
     context.vendedor = vendedor
+    context.pedidos = []
 
-    # Asegurándose de que haya una lista para los pedidos en el contexto
-    if not hasattr(context, 'pedidos'):
-        context.pedidos = []  # Crea una nueva lista si no existe
     for row in context.table:
-        pedido = Pedido.objects.get_or_create(
+        pedido, creado = Pedido.objects.get_or_create(
             estado_pedido=row['estado_pedido'],
             etapa_pedido=row['etapa_pedido'],
             fecha_listo_para_entregar=datetime.datetime.strptime(row['fecha_listo_para_entregar'], '%Y-%m-%d').date(),
             vendedor=vendedor
         )
-        # Agregar el pedido creado a la lista en el contexto
+        # Agregar solo pedido creado no la tupla completa, método get_or_create de Django devuelve una tupla (objeto, creado) y objeto es la instancia del modelo, creado solo es booleano que indica si se creó una nueva instancia
         context.pedidos.append(pedido)
 
 @step("los Pedidos estan registrados como cliente no encontrado")
