@@ -26,7 +26,6 @@ Característica: Promoción de productos
       | Producto Z2 | categoria_z | 100               |
       | Producto Z3 | categoria_z | 200               |
     Y al menos una de las categorías pertenece a las preferencias del cliente
-
     Y las unidades vendidas de algun producto superan el record de ventas de la categoría
     Cuando se muestre la pagina principal del marketplace
     Entonces en la parte superior de la ventana principal del marketplace se muestran las categorias pertenecientes a las preferencias del cliente con el producto que superó el record de ventas
@@ -35,21 +34,25 @@ Característica: Promoción de productos
 
   Escenario: El vendedor paga para promocionar sus productos
     Dado que existen vendedores que tienen productos
-      | vendedor | nombres_productos                                                                                |
-      | Carlos   | Martillo, Destornillador, Sierra                                                                 |
-      | Slayther | Llave ajustable, Taladro eléctrico, Serrucho de mano, Destornillador eléctrico, Lijadora orbital |
-      | Juan     | Sierra Circular, Llave inglesa, Caja de herramientas, metro                                      |
+      | vendedor | nombres_productos                                                                            |
+      | Carlos   | Martillo,Destornillador,Sierra                                                               |
+      | Slayther | Llave ajustable,Taladro eléctrico,Serrucho de mano,Destornillador eléctrico,Lijadora orbital |
+      | Juan     | Sierra Circular,Llave inglesa,Caja de herramientas,metro                                     |
     Y que existen paquetes de promociones
-      | paquete  | costo | dias_duracion | cantidad_productos |
-      | gold     | 50    | 30            | 5                  |
-      | platinum | 35    | 20            | 3                  |
-      | basic    | 20    | 15            | 1                  |
+      | paquete  | costo | dias_duracion |
+      | gold     | 50    | 30            |
+      | platinum | 35    | 20            |
+      | basic    | 20    | 15            |
     Y los vendedores adquieren un paquete de promoción
-      | vendedor | paquete_contratado | productos_promocionados                                                                          |
-      | Carlos   | basic              | Martillo                                                                                         |
-      | Juan     | platinum           | Llave inglesa, Caja de herramientas, metro                                                       |
-      | Slayther | gold               | Llave ajustable, Taladro eléctrico, Serrucho de mano, Destornillador eléctrico, Lijadora orbital |
+      | vendedor | paquete_contratado | producto_promocionado |
+      | Carlos   | basic              | Martillo              |
+      | Juan     | platinum           | Llave inglesa         |
+      | Juan     | basic              | Caja de herramientas  |
+      | Juan     | platinum           | Llave inglesa         |
+      | Slayther | gold               | Llave ajustable       |
+      | Slayther | basic              | Serrucho de mano      |
+      | Slayther | gold               | Destornillador        |
     Cuando se realice una búsqueda de algún producto
-    Entonces los productos promocionados se mostrarán como primer resultado en la búsqueda que coincida con el nombre del producto, ordenados por el tipo del paquete y la fecha de adquisición del
+    Entonces los productos promocionados se mostrarán como primer resultado en la búsqueda que coincida con el nombre del producto, ordenados por el tipo del paquete y la fecha de adquisición del paquete
 
 

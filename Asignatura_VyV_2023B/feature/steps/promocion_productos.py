@@ -1,10 +1,10 @@
 import django
-from django.test import RequestFactory
-from marketplace.views import index
 
 django.setup()
-
 from behave import *
+
+from django.test import RequestFactory
+from marketplace.views import index, buscar_producto
 from marketplace.models import *
 
 use_step_matcher("re")
@@ -71,7 +71,6 @@ def step_impl(context):
     print(response.content)
 
 
-
 @step("el record de ventas de la categoria se actualiza con el valor de las unidades vendidas del producto")
 def step_impl(context):
     pass
@@ -79,25 +78,46 @@ def step_impl(context):
 
 @step("que existen vendedores que tienen productos")
 def step_impl(context):
-    pass
+    nombres_productos = []
+    for row in context.table:
+        vendedor, created = Vendedor.objects.get_or_create(nombre=row['vendedor'])
+        nombres_productos = row['nombres_productos'].split(",")
+        for nombre_producto in nombres_productos:
+            Producto.objects.get_or_create(nombre=nombre_producto,
+                                           categoria=Categoria.objects.get(nombre="categoria_x"), vendedor=vendedor)
+    for nombre_producto in nombres_productos:
+        assert Producto.objects.filter(nombre=nombre_producto).exists()
 
 
 @step("que existen paquetes de promociones")
 def step_impl(context):
-    pass
+    for row in context.table:
+        Promocion.objects.get_or_create(
+            paquete=row["paquete"],
+            costo=row["costo"],
+            dias_duracion=row["dias_duracion"],
+        )
 
 
 @step("los vendedores adquieren un paquete de promoción")
 def step_impl(context):
-    pass
+    for row in context.table:
+        promocion = Promocion.objects.get(paquete=row["paquete_contratado"])
+        vendedor = Vendedor.objects.get(nombre=row["vendedor"])
+        producto = Producto.objects.get(nombre=row["producto_promocionado"])
+        producto.promocion = promocion
+        producto.save()
 
 
 @step("se realice una búsqueda de algún producto")
 def step_impl(context):
-    pass
+    request_factory = RequestFactory()
+    request = request_factory.get('/buscar-producto/?q=producto')
+    response = buscar_producto(request)
+    assert response.status_code == 200
 
 
 @step(
-    "los productos promocionados se mostrarán como primer resultado en la búsqueda que coincida con el nombre del producto, ordenados por el tipo del paquete y la fecha de adquisición del")
+    "los productos promocionados se mostrarán como primer resultado en la búsqueda que coincida con el nombre del producto, ordenados por el tipo del paquete y la fecha de adquisición del paquete")
 def step_impl(context):
     pass
