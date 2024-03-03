@@ -4,34 +4,38 @@ from enum import Enum
 from django.db import models
 
 from django.db.models import JSONField
+from django.template.defaultfilters import default
 from datetime import datetime
 from datetime import timedelta
 from django.utils import timezone
 import datetime
 
-
-
-
 # Create your models here.
 
 
-class Promocion(models.Model):
-    TIPO_PROMOCION = (
-        ('GD', 'Gold'),
-        ('PG', 'Platinum'),
-        ('BS', 'Basic'),
-    )
-    COSTO = (
-        ('GD', 50),
-        ('PG', 35),
-        ('BS', 20),
-    )
+class Cliente(models.Model):
+    nombre = models.CharField(max_length=50)
+    preferencias = models.CharField(max_length=200, blank=True)
 
+
+class Categoria(models.Model):
+    id_categoria = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=50)
+    record_ventas = models.IntegerField()
+
+    def __str__(self):
+        return self.nombre
+
+    def supera_record(self, cantidad):
+        return cantidad > self.record_ventas
+
+
+class Promocion(models.Model):
+    id_promocion = models.AutoField(primary_key=True)
+    paquete = models.CharField(max_length=30)
+    costo = models.DecimalField(decimal_places=2, max_digits=10, default=0)
+    dias_duracion = models.IntegerField(default=0)
     fecha_inicio = models.DateField()
-    tipo_promocion = models.CharField(max_length=2, choices=TIPO_PROMOCION)
-    costo = models.CharField(max_length=2, choices=COSTO, default='BS')
-    dias_duracion = models.IntegerField()
-    cantidad_productos = models.IntegerField()
 
 
 class Cliente(models.Model):
@@ -75,7 +79,7 @@ class Vendedor(models.Model):
         # Cuenta los pedidos por estado en una etapa específica
         return self.pedido_set.filter(etapa_pedido=etapa, estado_pedido=estado).count()
 
-    def contar_pedidos_por_estado(self,estado):
+    def contar_pedidos_por_estado(self, estado):
         # Cuenta los pedidos por estado en una etapa específica
         return self.pedido_set.filter(estado_pedido=estado).count()
 
@@ -91,25 +95,19 @@ class Vendedor(models.Model):
         cancelados = pedidos_etapa.filter(estado_pedido=Pedido.CANCELADO).count()
         return total_pedidos_etapa, atrasados, a_tiempo, cancelados
 
+
 class Producto(models.Model):
-    id = models.AutoField(primary_key=True, unique=True)
-    nombre = models.CharField(max_length=50)
-    descripcion = models.TextField(null=True)
-    unidades_vendidas = models.IntegerField()
-    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='productos')
-    promocion = models.BooleanField(default=False)
+    id_producto = models.AutoField(primary_key=True)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=50, default="")
+    unidades_vendidas = models.IntegerField(default=0)
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, null=True)
+    promocion = models.ForeignKey(Promocion, on_delete=models.CASCADE, null=True)
     calificaciones = JSONField(default=dict)
 
-    def asignar_categoria(self, categoria):
-        self.categoria = categoria
-        self.save()
 
-    def unidades_vendidas_ha_superado_record(self):
-        return self.categoria.producto_supera_record(self.unidades_vendidas)
-
-    def agregar_promocion(self):
-        self.promocion = True
-        self.save()
+    def ha_superado_record(self):
+        return self.categoria.supera_record(self.unidades_vendidas)
 
     def tiene_promocion(self):
         return self.promocion
@@ -271,19 +269,6 @@ class Causas(Enum):
     ENTREGA_SIN_PERCANCES = "Entrega sin percances"
 
 
-
-def calcular_dias_laborales(fecha_inicio, fecha_fin):
-    dias_totales = (fecha_fin - fecha_inicio).days + 1  # +1 para incluir ambos días en el rango
-    dias_laborales = 0
-    for single_date in (fecha_inicio + datetime.timedelta(n) for n in range(dias_totales)):
-        if single_date.weekday() < 5:  # Lunes a Viernes son días laborales (0-4)
-            dias_laborales += 1
-
-    return dias_laborales
-
-
-######################################################
-# GRUPO 4
 class Pedido(models.Model):
     A_TIEMPO = 'AT'
     ATRASADO = 'A'
@@ -296,8 +281,6 @@ class Pedido(models.Model):
     PAQUETE_NO_ENTREGADO = 'PNE'
     PAQUETE_ENTREGADO = 'PE'
     CLIENTE_NO_ENCONTRADO = 'CNE'
-
-
 
     ETAPA = (
         (PRECOMPRA, 'precompra'),
@@ -328,9 +311,16 @@ class Pedido(models.Model):
     fecha_real_etapa_precompra = models.DateField(null=True, blank=True)
     fecha_real_etapa_reserva = models.DateField(null=True, blank=True)
     fecha_real_etapa_listo_para_entregar = models.DateField(null=True, blank=True)
-
-
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, default=1)
+
+    def calcular_dias_laborales(fecha_inicio, fecha_fin):
+        dias_totales = (fecha_fin - fecha_inicio).days + 1  # +1 para incluir ambos días en el rango
+        dias_laborales = 0
+        for single_date in (fecha_inicio + datetime.timedelta(n) for n in range(dias_totales)):
+            if single_date.weekday() < 5:  # Lunes a Viernes son días laborales (0-4)
+                dias_laborales += 1
+
+        return dias_laborales
 
     def total_pedidos_vendedor(vendedor_id):
         return Pedido.objects.filter(vendedor_id=vendedor_id).count()
@@ -361,7 +351,6 @@ class Pedido(models.Model):
         # Calcular las fechas máximas para cada etapa en función de la fecha de creación
         fecha_maxima_etapa_precompra = self.fecha_creacion_pedido + timedelta(days=plazo_precompra)
 
-
         if self.fecha_etapa_precompra is not None:
             fecha_maxima_etapa_reserva = self.fecha_etapa_precompra + timedelta(days=plazo_reserva)
 
@@ -369,9 +358,9 @@ class Pedido(models.Model):
             # Manejar el caso cuando la fecha real de la etapa de precompra no está definida
             fecha_maxima_etapa_reserva = None
 
-
         if self.fecha_etapa_reserva is not None:
-            fecha_maxima_etapa_listo_para_entregar = self.fecha_etapa_reserva + timedelta(days=plazo_listo_para_entregar)
+            fecha_maxima_etapa_listo_para_entregar = self.fecha_etapa_reserva + timedelta(
+                days=plazo_listo_para_entregar)
         else:
             # Manejar el caso cuando la fecha real de la etapa de reserva no está definida
             fecha_maxima_etapa_listo_para_entregar = None
@@ -403,7 +392,6 @@ class Pedido(models.Model):
             self.estado_pedido = self.CANCELADO
 
         self.save()
-
 
     def calcular_fecha_entrega(self, dias_laborales):
         fecha_inicio = self.fecha_listo_para_entregar
@@ -446,7 +434,7 @@ class Pedido(models.Model):
         else:
             fecha_referencia = self.fecha_listo_para_entregar + timedelta(days=días_totales)
 
-        dias_transcurridos = calcular_dias_laborales(self.fecha_listo_para_entregar, fecha_referencia)
+        dias_transcurridos = self.calcular_dias_laborales(self.fecha_listo_para_entregar, fecha_referencia)
 
         etapa_dias_maximos = {
             self.LISTO_PARA_ENTREGAR: 1,
