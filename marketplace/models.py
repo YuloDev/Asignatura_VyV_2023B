@@ -45,22 +45,5 @@ class Producto(models.Model):
         return self.categoria.supera_record(self.unidades_vendidas)
 
 
-class Vendedor(models.Model):
-    nombre = models.CharField(max_length=50)
-    productos = models.ManyToManyField(Producto)
-
-    def adquirir_paquete_promocional(self, paquete):
-        pass
-
-    def __str__(self):
-        return self.nombre
 
 
-class PaquetePromocional(models.Model):
-    nombre = models.CharField(max_length=50)
-    cantidad_productos = models.IntegerField()
-    duracion = models.IntegerField()
-    costo = models.FloatField()
-
-    def __str__(self):
-        return self.nombre

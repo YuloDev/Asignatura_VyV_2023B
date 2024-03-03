@@ -68,7 +68,7 @@ def step_impl(context):
 def step_impl(context):
     request = RequestFactory().get('/')
     response = index(request)
-    print(response.content)
+
 
 
 @step("el record de ventas de la categoria se actualiza con el valor de las unidades vendidas del producto")
@@ -87,13 +87,7 @@ def step_impl(context):
                                            categoria=Categoria.objects.get(nombre="categoria_x"), vendedor=vendedor)
     for nombre_producto in nombres_productos:
         assert Producto.objects.filter(nombre=nombre_producto).exists()
-    for row in context.table:
-        Vendedor.objects.get_or_create(nombre=row["vendedor"],
-                                       productos=Producto.objects.get_or_create(nombre=row["nombres_productos"],
-                                                                                categoria=Categoria.objects.get(
-                                                                                    nombre="categoria_x")))
-    for row in context.table:
-        assert Vendedor.objects.filter(nombre=row["vendedor"]).exists()
+
 
 
 @step("que existen paquetes de promociones")
@@ -104,10 +98,9 @@ def step_impl(context):
             costo=row["costo"],
             dias_duracion=row["dias_duracion"],
         )
-        PaquetePromocional.objects.get_or_create(nombre=row["paquete"], cantidad_productos=row["cantidad_productos"],
-                                                 duracion=row["dias_duracion"], costo=row["costo"])
+
     for row in context.table:
-        assert PaquetePromocional.objects.filter(nombre=row["nombre"]).exists()
+        assert Promocion.objects.filter(paquete=row["paquete"]).exists()
 
 
 @step("los vendedores adquieren un paquete de promoción")

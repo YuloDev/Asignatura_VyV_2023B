@@ -10,7 +10,7 @@ from marketplace.models import Producto
 
 
 def index(request):
-    return render(request, 'index.html', context={"productos_destacados": []})
+    return render(request, 'home.html', context={"productos_destacados": []})
 
 
 def buscar_producto(request):
