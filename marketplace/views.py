@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import MetaG3, MetricaG3, Pedido_ProductoG3
+from .models import MetaG3, MetricaG3, DetalleDePedidoG3
 from datetime import datetime, timedelta
 from django.db.models import Sum
 
@@ -22,13 +22,13 @@ def metricas(request):
     anio_anterior = fecha_actual.year if fecha_actual.month > 1 else fecha_actual.year - 1
 
     # Calcular el costo total de los productos vendidos en el mes actual
-    costo_mes_actual = Pedido_ProductoG3.objects.filter(pedido__fecha_listo_para_entregar__year=fecha_actual.year,
+    costo_mes_actual = DetalleDePedidoG3.objects.filter(pedido__fecha_listo_para_entregar__year=fecha_actual.year,
                                                         pedido__fecha_listo_para_entregar__month=fecha_actual.month,
                                                         pedido__vendedor_id=vendedor_id).aggregate(
         Sum('producto__costo'))['producto__costo__sum'] or 0
 
     # Calcular el costo total de los productos vendidos en el mes anterior
-    costo_mes_anterior = Pedido_ProductoG3.objects.filter(pedido__fecha_listo_para_entregar__year=anio_anterior,
+    costo_mes_anterior = DetalleDePedidoG3.objects.filter(pedido__fecha_listo_para_entregar__year=anio_anterior,
                                                           pedido__fecha_listo_para_entregar__month=mes_anterior,
                                                           pedido__vendedor_id=vendedor_id).aggregate(
         Sum('producto__costo'))['producto__costo__sum'] or 0

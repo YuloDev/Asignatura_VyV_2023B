@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from enum import Enum
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
@@ -284,28 +285,79 @@ class VendedorG3(models.Model):
     def __str__(self):
         return self.nombre
 
+    def establecer_meta(self, meta):
+        self.metas.add(meta)
+        meta.save()
+
+    def obtener_meta(self, tipo_de_metrica, anio, mes):
+        meta = self.metas.filter(tipo_de_metrica=tipo_de_metrica, anio=anio, mes=mes).first()
+
+        if meta is not None:
+            return meta.valor
+        else:
+            return -1
+
+    def obtener_ventas(self):
+        return self.pedidos.all()
+
+    def obtener_ventas_por_fecha(self, anio, mes):
+        ventas_por_fecha = self.pedidos.filter(fecha_listo_para_entregar__year=anio,
+                                               fecha_listo_para_entregar__month=mes)
+        return ventas_por_fecha
+
+    def obtener_cantidad_de_ventas_por_fecha(self, anio, mes):
+        return self.obtener_ventas_por_fecha(anio, mes).count()
+
+    def obtener_reporte(self, anio, mes):
+        reportes = self.reportes.filter(anio=anio, mes=mes)
+
+        if reportes.exists():
+            reporte = reportes.first()
+        else:
+            reporte = self.reportes.create(anio=anio, mes=mes)
+
+        reporte.determinar_metricas_y_recomendaciones()
+        return reporte
+
 
 class ProductoG3(models.Model):
     productoID = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
+    nombre_producto = models.CharField(max_length=100)
     precio = models.FloatField()
     costo = models.FloatField()
-    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE)
+    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE, related_name='productos')
 
     def __str__(self):
-        return self.nombre
+        return self.nombre_producto
+
+    def obtener_precio(self):  # Necesario?
+        return self.precio
+
+    def obtener_costo(self):  # Necesario?
+        return self.costo
 
 
 class PedidoG3(models.Model):
     pedidoID = models.AutoField(primary_key=True)
     fecha_listo_para_entregar = models.DateField()
-    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE)
+    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE, related_name='pedidos')
+
+    def obtener_ingreso_total(self):
+        return sum(producto.obtener_precio_total() for producto in self.detalledepedidog3_set.all())
+
+    def obtener_costo_total(self):
+        return sum(producto.obtener_costo_total() for producto in self.detalledepedidog3_set.all())
+
+    def obtener_beneficio_total(self):
+        ingreso_total = self.obtener_ingreso_total()
+        costo_total = self.obtener_costo_total()
+        return ingreso_total - costo_total
 
     def __str__(self):
         return f"{self.pedidoID} / {self.fecha_listo_para_entregar} / {self.vendedor}"
 
 
-class Pedido_ProductoG3(models.Model):
+class DetalleDePedidoG3(models.Model):
     pedido = models.ForeignKey(PedidoG3, on_delete=models.CASCADE)
     producto = models.ForeignKey(ProductoG3, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
@@ -314,25 +366,236 @@ class Pedido_ProductoG3(models.Model):
         return f"{self.pedido.pedidoID} / {self.producto} / {self.cantidad}"
 
 
+class TipoDeMetrica(models.TextChoices):
+    NUMERO_DE_VENTAS = "NV", _("Número de ventas")
+    INGRESOS = "IS", _("Ingresos")
+    COSTOS = "CS", _("Costos")
+    BENEFICIO_POR_VENTA = "BV", _("Beneficio por venta")
+
+
 class MetaG3(models.Model):
     metaID = models.AutoField(primary_key=True)
-    tipo_de_metrica = models.CharField(max_length=100)
+    tipo_de_metrica = models.CharField(max_length=2, choices=TipoDeMetrica)
     valor = models.FloatField()
     anio = models.IntegerField()
     mes = models.IntegerField()
-    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE)
+    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE, related_name='metas')
+
+    def obtener_tipo_de_metrica(self):  # Necesario?
+        return self.tipo_de_metrica
+
+    def obtener_valor(self):  # Necesario?
+        return self.valor
+
+    def obtener_anio(self):  # Necesario?
+        return self.anio
+
+    def obtener_mes(self):  # Necesario?
+        return self.mes
 
     def __str__(self):
         return self.tipo_de_metrica
+
+
+class TipoDeComparacion(models.TextChoices):
+    INFERIOR = 'IR', _('son inferiores')
+    SUPERIOR = 'SR', _('superan')
+    IGUAL = 'IL', _('igualan')
+
+
+class ReporteG3(models.Model):
+    reporteID = models.AutoField(primary_key=True)
+    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE, related_name='reportes')
+    anio = models.IntegerField()
+    mes = models.IntegerField()
+
+    def determinar_metricas_y_recomendaciones(self):
+        for tipo_de_metrica in TipoDeMetrica:
+            metrica = self.obtener_metrica(tipo_de_metrica)
+            metrica.save()
+
+        recomendaciones = self.obtener_recomendaciones()
+        for recomendacion in recomendaciones:
+            recomendacion.save()
+
+    def obtener_metrica(self, tipo_de_metrica):
+        metrica = self.metricas.filter(tipo_de_metrica=tipo_de_metrica, reporte=self).first()
+
+        if not metrica:
+            metrica = self.metricas.create(tipo_de_metrica=tipo_de_metrica, reporte=self)
+            metrica.save()
+
+        metrica.calcular_metrica(self.vendedor.obtener_ventas_por_fecha(self.anio, self.mes))
+        return metrica
+
+    def obtener_comparacion_por_meta(self, tipo_de_metrica):
+        venta_misma_fecha = self.obtener_metrica(tipo_de_metrica)
+        meta = self.vendedor.obtener_meta(tipo_de_metrica, venta_misma_fecha.anio, venta_misma_fecha.mes)
+
+        if venta_misma_fecha.valor < meta:
+            return TipoDeComparacion.INFERIOR.label
+        elif venta_misma_fecha.valor > meta:
+            return TipoDeComparacion.SUPERIOR.label
+        else:
+            return TipoDeComparacion.IGUAL.label
+
+    def obtener_comparacion_por_mes_anterior(self, tipo_de_metrica):
+        venta_misma_fecha = self.obtener_metrica(tipo_de_metrica)
+        metrica_mes_anterior = self.obtener_metrica_mes_anterior(tipo_de_metrica)
+
+        if venta_misma_fecha.valor < metrica_mes_anterior.valor:
+            return TipoDeComparacion.INFERIOR.label
+        elif venta_misma_fecha.valor > metrica_mes_anterior.valor:
+            return TipoDeComparacion.SUPERIOR.label
+        else:
+            return TipoDeComparacion.IGUAL.label
+
+    def obtener_metrica_mes_anterior(self, tipo_de_metrica):
+        anio_anterior = self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes).obtener_anio_anterior()
+        mes_anterior = self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes).obtener_mes_anterior()
+
+        metrica_mes_anterior = self.metricas.filter(
+            tipo_de_metrica=tipo_de_metrica,
+            reporte__vendedor=self.vendedor,
+            reporte__anio=anio_anterior,
+            reporte__mes=mes_anterior
+        ).first()
+
+        if not metrica_mes_anterior:
+            metrica_mes_anterior = self.metricas.create(
+                tipo_de_metrica=tipo_de_metrica,
+                reporte__vendedor=self.vendedor,
+                reporte__anio=anio_anterior,
+                reporte__mes=mes_anterior,
+                valor=0
+            )
+            metrica_mes_anterior.save()
+
+        return metrica_mes_anterior
+
+    def obtener_recomendaciones(self):
+        recomendaciones = []
+
+        for tipo_de_metrica in TipoDeMetrica:
+            comparacion_meta = self.obtener_comparacion_por_meta(tipo_de_metrica)
+
+            recomendacion_existente = self.recomendaciones.filter(
+                contenido=f'{tipo_de_metrica}'
+            ).first()
+
+            if not recomendacion_existente:
+                recomendacion_existente = self.recomendaciones.create(
+                    contenido=''
+                )
+            recomendacion_existente.determinar_contenido(comparacion_meta, tipo_de_metrica)
+            recomendacion_existente.save()
+            recomendaciones.append(recomendacion_existente)
+            self.save()
+
+        return recomendaciones
+
+    def obtener_porcentaje_de_avance(self, tipo_de_metrica):
+        meta = self.vendedor.obtener_meta(tipo_de_metrica, self.anio, self.mes)
+        metrica_actual = self.obtener_metrica(tipo_de_metrica)
+        if meta is not None and meta != 0:
+            porcentaje_de_avance = min(int(metrica_actual / meta * 100), 100)
+        else:
+            porcentaje_de_avance = 0
+
+        return porcentaje_de_avance
+
+    def __str__(self):
+        return f"{self.vendedor} / {self.anio} / {self.mes}"
 
 
 class MetricaG3(models.Model):
     metricaID = models.AutoField(primary_key=True)
-    tipo_de_metrica = models.CharField(max_length=100)
+    tipo_de_metrica = models.CharField(max_length=19, choices=TipoDeMetrica)
     valor = models.FloatField()
     anio = models.IntegerField()
     mes = models.IntegerField()
-    vendedor = models.ForeignKey(VendedorG3, on_delete=models.CASCADE)
+    reporte = models.ForeignKey(ReporteG3, on_delete=models.CASCADE, related_name='metricas')
+
+    def calcular_metrica(self, ventas):
+        beneficio_total = 0
+        cantidad_ventas = 0
+        ingresos_total = 0
+        costos_total = 0
+
+        for venta in ventas:
+            cantidad_ventas += 1
+            ingresos_total += venta.obtener_ingreso_total()
+            costos_total += venta.obtener_costo_total()
+            beneficio_total += venta.obtener_beneficio_total()
+
+        if self.tipo_de_metrica == TipoDeMetrica.NUMERO_DE_VENTAS:
+            self.valor = cantidad_ventas
+        elif self.tipo_de_metrica == TipoDeMetrica.INGRESOS:
+            self.valor = ingresos_total
+        elif self.tipo_de_metrica == TipoDeMetrica.COSTOS:
+            self.valor = costos_total
+        elif self.tipo_de_metrica == TipoDeMetrica.BENEFICIO_POR_VENTA and cantidad_ventas > 0:
+            self.valor = beneficio_total / cantidad_ventas
+        elif self.tipo_de_metrica == TipoDeMetrica.BENEFICIO_POR_VENTA:
+            self.valor = 0
+
+        self.save()
+
+    def obtener_valor(self):
+        return self.valor
 
     def __str__(self):
-        return self.tipo_de_metrica
+        return f"{self.tipo_de_metrica} / {self.valor}"
+
+
+class TipoDeRecomendacion(models.TextChoices):
+    OFERTA_DE_PRODUCTOS = 'OFERTA_DE_PRODUCTOS', _('Crear oferta en los productos para generar más ventas.')
+    MANTENER_PROMOCION_DE_PRODUCTOS = 'MANTENER_PROMOCION_DE_PRODUCTOS', _('Aumentar tu meta para el siguiente mes.')
+    COMBO_DE_PRODUCTO = 'COMBO_DE_PRODUCTO', _('Crear combos o conjunto de productos similares.')
+    PROMOCION_PRODUCTOS_ESTRELLA = 'PROMOCION_PRODUCTOS_ESTRELLA', _('Promocionar productos estrella.')
+    NEGOCIAR_DESCUENTO = 'NEGOCIAR_DESCUENTO', _(
+        'Negociar descuentos con proveedores o buscar alternativas más económicas.')
+    OPTIMIZAR_PROCESOS = 'OPTIMIZAR_PROCESOS', _('Optimizar procesos internos para reducir costos operativos.')
+    AJUSTAR_PRECIO_SOBRE_COSTO = 'AJUSTAR_PRECIO_SOBRE_COSTO', _(
+        'Ajustar los precios de los productos con respecto a sus costos.')
+    MANTENER_PRECIO_SOBRE_COSTO = 'MANTENER_PRECIO_SOBRE_COSTO', _(
+        'Mantener los precios de los productos con respecto a sus costos.')
+
+
+class RecomendacionGR3(models.Model):
+    contenido = models.CharField(max_length=31, choices=TipoDeRecomendacion)
+    reporte = models.ForeignKey(ReporteG3, on_delete=models.CASCADE, related_name='recomendaciones')
+
+    def determinar_contenido(self, comparacion_meta, tipo_de_metrica):
+        recomendaciones_por_metrica = {
+            TipoDeMetrica.NUMERO_DE_VENTAS: {
+                'igual o superior': TipoDeRecomendacion.MANTENER_PROMOCION_DE_PRODUCTOS,
+                'inferior': TipoDeRecomendacion.OFERTA_DE_PRODUCTOS
+            },
+            TipoDeMetrica.INGRESOS: {
+                'igual o superior': TipoDeRecomendacion.PROMOCION_PRODUCTOS_ESTRELLA,
+                'inferior': TipoDeRecomendacion.COMBO_DE_PRODUCTO
+            },
+            TipoDeMetrica.COSTOS: {
+                'igual o superior': TipoDeRecomendacion.OPTIMIZAR_PROCESOS,
+                'inferior': TipoDeRecomendacion.NEGOCIAR_DESCUENTO
+            },
+            TipoDeMetrica.BENEFICIO_POR_VENTA: {
+                'igual o superior': TipoDeRecomendacion.MANTENER_PRECIO_SOBRE_COSTO,
+                'inferior': TipoDeRecomendacion.AJUSTAR_PRECIO_SOBRE_COSTO
+            }
+        }
+
+        recomendacion_al_superar_o_igualar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['igual o superior']
+        recomendacion_al_no_superar_la_meta = recomendaciones_por_metrica[tipo_de_metrica]['inferior']
+
+        if comparacion_meta == TipoDeComparacion.SUPERIOR or comparacion_meta == TipoDeComparacion.IGUAL:
+            self.contenido = recomendacion_al_superar_o_igualar_la_meta
+        else:
+            self.contenido = recomendacion_al_no_superar_la_meta
+
+    def obtener_contenido(self):
+        return self.contenido
+
+    def __str__(self):
+        return f"{self.contenido}"

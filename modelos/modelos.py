@@ -114,7 +114,7 @@ class DashboardDeMetricas:
         metricas = {metrica: 0 for metrica in TipoDeMetrica}
         beneficio_total = 0
         for venta in lista_de_ventas:
-            if venta.fecha.year == self.anio and venta.fecha.month == mes:
+            if venta.fecha.year == self.anio and venta.fecha.month == self.mes:
                 metricas[TipoDeMetrica.NUMERO_DE_VENTAS] += 1
                 metricas[TipoDeMetrica.INGRESOS] += venta.obtener_ingreso_total()
                 metricas[TipoDeMetrica.COSTOS] += venta.obtener_costo_total()
