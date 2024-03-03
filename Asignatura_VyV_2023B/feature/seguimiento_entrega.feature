@@ -10,8 +10,6 @@ Esquema del escenario: : Visualizar resumen de pedidos en diferentes etapas para
       | estado_pedido | etapa_pedido | fecha_listo_para_entregar |
       | a_tiempo      | E            | 2024-02-18                |
       | a_tiempo      | RA           | 2024-02-18                |
-      | a_tiempo      | RA           | 2024-02-18                |
-      | a_tiempo      | RA           | 2024-02-18                |
       | a_tiempo      | LPE          | 2024-02-25                |
       | a_tiempo      | PNE          | 2024-02-25                |
     Y ha pasado <anios> años <meses> meses <semanas> semanas <dias> dias, desde su fecha listo para entregar
@@ -21,6 +19,10 @@ Esquema del escenario: : Visualizar resumen de pedidos en diferentes etapas para
     Ejemplos:
       | anios | meses | semanas | dias | etapa | estado_pedido | numero_pedidos |
       | 1     | 0     | 1       | 5    | LPE   | AT            | 0              |
+      | 1     | 0     | 1       | 5    | LPE   | A             | 1              |
+      | 0     | 3     | 2       | 10   | RA    | A             | 1              |
+      | 0     | 0     | 0       | 1    | RA    | AT            | 1              |
+      | 0     | 0     | 0       | 11   | PNE   | AT             | 0              |
 
 
 Esquema del escenario: : Visualizar resumen de pedidos en los cuales los clientes no han sido encontrados
