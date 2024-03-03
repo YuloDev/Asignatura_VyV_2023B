@@ -44,6 +44,7 @@ def seguimiento_interno(request):
         'listo_para_entregar_atrasados': listo_para_entregar_atrasados,
         'listo_para_entregar_cancelados': listo_para_entregar_cancelados
     }
+
     return render(request, 'seguimiento_interno.html', context)
 
 def seguimiento_entrega(request, vendedor_id):
@@ -113,4 +114,5 @@ def seguimiento_entrega(request, vendedor_id):
     }
 
     return render(request, 'seguimiento_entrega.html', context)
+
 

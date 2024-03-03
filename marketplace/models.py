@@ -5,6 +5,7 @@ from django.utils import timezone
 import datetime
 
 
+
 # Create your models here.
 
 
@@ -86,6 +87,7 @@ class Producto(models.Model):
         return self.promocion
 
 
+
 def calcular_dias_laborales(fecha_inicio, fecha_fin):
     dias_totales = (fecha_fin - fecha_inicio).days + 1  # +1 para incluir ambos días en el rango
     dias_laborales = 0
@@ -94,6 +96,7 @@ def calcular_dias_laborales(fecha_inicio, fecha_fin):
             dias_laborales += 1
 
     return dias_laborales
+
 
 ######################################################
 # GRUPO 4
@@ -109,6 +112,8 @@ class Pedido(models.Model):
     PAQUETE_NO_ENTREGADO = 'PNE'
     PAQUETE_ENTREGADO = 'PE'
     CLIENTE_NO_ENCONTRADO = 'CNE'
+
+
 
     ETAPA = (
         (PRECOMPRA, 'precompra'),
@@ -136,6 +141,10 @@ class Pedido(models.Model):
     fecha_etapa_reserva = models.DateField(null=True, blank=True)
     fecha_listo_para_entregar = models.DateField(null=True, blank=True)
     cliente_no_encontrado = models.BooleanField(default=False)
+    fecha_real_etapa_precompra = models.DateField(null=True, blank=True)
+    fecha_real_etapa_reserva = models.DateField(null=True, blank=True)
+    fecha_real_etapa_listo_para_entregar = models.DateField(null=True, blank=True)
+
 
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, default=1)
 
@@ -168,15 +177,17 @@ class Pedido(models.Model):
         # Calcular las fechas máximas para cada etapa en función de la fecha de creación
         fecha_maxima_etapa_precompra = self.fecha_creacion_pedido + timedelta(days=plazo_precompra)
 
+
         if self.fecha_etapa_precompra is not None:
             fecha_maxima_etapa_reserva = self.fecha_etapa_precompra + timedelta(days=plazo_reserva)
+
         else:
             # Manejar el caso cuando la fecha real de la etapa de precompra no está definida
             fecha_maxima_etapa_reserva = None
 
+
         if self.fecha_etapa_reserva is not None:
-            fecha_maxima_etapa_listo_para_entregar = self.fecha_etapa_reserva + timedelta(
-                days=plazo_listo_para_entregar)
+            fecha_maxima_etapa_listo_para_entregar = self.fecha_etapa_reserva + timedelta(days=plazo_listo_para_entregar)
         else:
             # Manejar el caso cuando la fecha real de la etapa de reserva no está definida
             fecha_maxima_etapa_listo_para_entregar = None
@@ -208,6 +219,7 @@ class Pedido(models.Model):
             self.estado_pedido = self.CANCELADO
 
         self.save()
+
 
     def calcular_fecha_entrega(self, dias_laborales):
         fecha_inicio = self.fecha_listo_para_entregar
@@ -277,6 +289,7 @@ class Pedido(models.Model):
                 self.estado_pedido = self.ATRASADO
 
         self.save()
+
 
 
 
