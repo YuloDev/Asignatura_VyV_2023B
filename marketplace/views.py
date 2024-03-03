@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-from .models import Servicio, Pedido, Vendedor, Calificacion
+from .models import Servicio, Pedido, Vendedor, Calificacion, Producto
 
 
 # Create your views here.
@@ -33,14 +33,22 @@ def feedback(request):
                 'nombre': request.POST.get('opcion')
             })
         else:
-
-            return render(request, 'feedback.html', {
-                'causas': causas,
-                'porcentajes_calculados': porcentajes_calculados,
-                'num_estrella_calculada': num_estrella_calculada,
-                'estrellas': estrellas,
-                'nombre': request.POST.get('nombre_producto')
-            })
+            productos = Producto.objects.filter(vendedor_id=1).all()
+            for  producto in productos:
+                if request.POST.get('nombre_producto') is not None and request.POST.get('nombre_producto') == producto.nombre:
+                    producto = Producto.objects.filter(nombre=request.POST.get('nombre_producto')).first()
+                    calificaciones_recibidas = Calificacion.objects.filter(id_producto_id=producto.id)
+                    porcentajes_calculados = producto.obtener_porcentajes_de_calificaciones()
+                    causas_dict = producto.obtener_causas_de_cada_estrella(calificaciones_recibidas)
+                    causas = list(causas_dict.values())
+                    print(causas)
+                    num_estrella_calculada = producto.obtener_promedio_general_del_producto()
+                    return render(request, 'feedback.html', {
+                        'causas': causas,
+                        'porcentajes_calculados': porcentajes_calculados,
+                        'num_estrella_calculada': num_estrella_calculada,
+                        'estrellas': estrellas,
+                        'nombre': request.POST.get('nombre_producto')
+                    })
     else:
-        # Si la solicitud no es POST, renderizar la plantilla de formulario vacía
         return render(request, 'feedback.html')

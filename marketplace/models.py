@@ -114,13 +114,14 @@ class Producto(models.Model):
         porcentajes_por_estrella = list()
         calificaciones_totales = 0
         for i in self.calificaciones:
-            calificaciones_totales += self.calificaciones[i]
+            calificaciones_totales += int(self.calificaciones[i])
 
-        for i in range(1, 6, 1):
+        for i in self.calificaciones:
             if i in self.calificaciones:
-                porcentaje_calculado = (self.calificaciones[i] / calificaciones_totales) * 100
+                porcentaje_calculado = (int(self.calificaciones[i]) / calificaciones_totales) * 100
                 porcentaje_calculado = round(porcentaje_calculado)
-                porcentajes_por_estrella.append(str(porcentaje_calculado) + "%")
+                porcentajes_por_estrella.append(str(porcentaje_calculado))
+                print("++++++++" + str(self.calificaciones[i]))
 
         porcentajes_por_estrella.reverse()
         return porcentajes_por_estrella
@@ -149,7 +150,7 @@ class Producto(models.Model):
         total_estrellas = 0
         for clave in self.calificaciones:
             total_calificaciones += self.calificaciones[clave]
-            total_estrellas += clave * self.calificaciones[clave]
+            total_estrellas += int(clave) * int(self.calificaciones[clave])
 
         promedio_general = round(total_estrellas / total_calificaciones)
         print(promedio_general)
