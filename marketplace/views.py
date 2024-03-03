@@ -11,7 +11,7 @@ def index(request):
 
 
 def feedback(request):
-    causas = ""
+    causas = dict()
     porcentajes_calculados = list()
     calificaciones_recibidas = list()
     estrellas = [1, 2, 3, 4, 5]
@@ -21,7 +21,8 @@ def feedback(request):
             servicio = Servicio.objects.filter(vendedor_id=1).first()
             calificaciones_recibidas = Calificacion.objects.filter(id_servicio_id=servicio.id)
             porcentajes_calculados = servicio.obtener_porcentajes_de_calificaciones()
-            causas = servicio.obtener_causas_de_cada_estrella(calificaciones_recibidas)
+            causas_dict = servicio.obtener_causas_de_cada_estrella(calificaciones_recibidas)
+            causas = list(causas_dict.values())
             print(causas)
             num_estrella_calculada = servicio.obtener_promedio_general_del_servicio()
             return render(request, 'feedback.html', {
@@ -29,7 +30,7 @@ def feedback(request):
                 'porcentajes_calculados': porcentajes_calculados,
                 'num_estrella_calculada': num_estrella_calculada,
                 'estrellas': estrellas,
-                'nombre': request.POST.get('opcion'),
+                'nombre': request.POST.get('opcion')
             })
         else:
 

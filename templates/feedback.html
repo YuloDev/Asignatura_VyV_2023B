@@ -128,12 +128,8 @@
                     </div>
                 </div>
             </div>
-            <h6 class="m-1">Causas:</h6>
-            <ol>
-                {% for causa in causas %}
-                    <li>{{ causa }}</li>
-                {% endfor %}
-            </ol>
+            <h6 class="m-2">Causas:</h6>
+            <p class="m-2">{{ causas.pop }}</p>
         </div>
     {% endfor %}
     </div>
