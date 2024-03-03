@@ -21,5 +21,5 @@ from marketplace import views
 
 urlpatterns = [
     path('', views.index),
-    path('seguimiento_entrega/', views.seguimiento_entrega)
+    path('seguimiento_entrega/<int:vendedor_id>', views.seguimiento_entrega, name='seguimiento_entrega')
 ]

@@ -6,25 +6,36 @@ Característica: : Seguimiento de entrega de compras de clientes
   Para obtener un informe de los envíos y mejorar la experiencia de los clientes
 
 Esquema del escenario: : Visualizar resumen de pedidos en diferentes etapas para los estados a tiempo y atrasado
-    Dado que un Vendedor tiene los siguientes Pedidos
-      | estado_pedido | etapa_pedido | fecha_listo_para_entregar | nombre     | apellido |
-      | a_tiempo      | E            | 2024-02-18                | Luis       | Almache  |
-      | a_tiempo      | EC           | 2024-02-18                | Luis       | Almache  |
-      | a_tiempo      | RA           | 2024-02-18                | Luis       | ALmache  |
-      | a_tiempo      | RA           | 2024-02-18                | Luis       | Almache  |
-      | a_tiempo      | LPE          | 2024-02-25                | Luis       | ALmache  |
-    Cuando el Vendedor visualice el resumen de los Pedidos en una etapa <etapa>
-    Entonces se actualizarán los estados de los Pedidos según el tiempo actual de la zona
-    Y se mostrarán el siguiente estado <estado_pedido> con la siguiente cantidad de pedidos <numero_pedidos>
+    Dado que un Vendedor tiene los siguientes Pedidos registrados
+      | estado_pedido | etapa_pedido | fecha_listo_para_entregar |
+      | a_tiempo      | E            | 2024-02-18                |
+      | a_tiempo      | RA           | 2024-02-18                |
+      | a_tiempo      | RA           | 2024-02-18                |
+      | a_tiempo      | RA           | 2024-02-18                |
+      | a_tiempo      | LPE          | 2024-02-25                |
+      | a_tiempo      | PNE          | 2024-02-25                |
+    Y ha pasado <anios> años <meses> meses <semanas> semanas <dias> dias, desde su fecha listo para entregar
+    Cuando el Vendedor visualice el resumen de los Pedidos en la etapa <etapa>
+    Entonces se actualizarán los estados de los Pedidos según el tiempo que ha pasado
+    Y se mostrara el estado <estado_pedido> con la siguiente cantidad de pedidos <numero_pedidos>
     Ejemplos:
-      | etapa | estado_pedido | numero_pedidos |
-      | LPE   | AT            | 0              |
-      | LPE   | A             | 1              |
-      | RA    | AT            | 0              |
-      | RA    | A             | 2              |
-      | EC    | AT            | 1              |
-      | EC    | A             | 0              |
-      | E     | AT            | 0              |
-      | E     | A             | 1              |
+      | anios | meses | semanas | dias | etapa | estado_pedido | numero_pedidos |
+      | 1     | 0     | 1       | 5    | LPE   | AT            | 0              |
+      | 0     | 0     | 0       | 1    | RA    | AT            | 3              |
+      | 0     | 1     | 0       | 0    | PNE   | A             | 1              |
+      | 0     | 0     | 1       | 0    | E     | AT            | 1              |
+
+Esquema del escenario: : Visualizar resumen de pedidos en los cuales los clientes no han sido encontrados
+    Dado que un Vendedor tiene los siguientes Pedidos registrados en estado PNE
+      | estado_pedido | etapa_pedido | fecha_listo_para_entregar |
+      | a_tiempo      | PNE          | 2024-02-18                |
+      | atrasado      | PNE          | 2024-02-18                |
+    Y los Pedidos estan registrados como cliente no encontrado
+    Cuando el Vendedor visualice el resumen de los Pedidos en la etapa PNE
+    Entonces se mostrara el estado <estado> con la siguiente cantidad de pedidos <numero_pedidos>
+    Ejemplos:
+      | numero_pedidos | estado |
+      | 2              | CNE    |
+
 
 

@@ -10,11 +10,11 @@ from .models import Pedido
 def index(request):
     return render(request, 'plantilla_hija_ejemplo.html')
 
-def seguimiento_entrega(request):
+def seguimiento_entrega(request, vendedor_id):
 
-    pedidos_todos_los_pedidos = Pedido.objects.all()
+    pedidos_todos_los_pedidos = Pedido.objects.filter(vendedor_id=vendedor_id)
     for pedido in pedidos_todos_los_pedidos:
-        pedido.actualizar_estado_pedido()
+        pedido.actualizar_estado_pedido(anios=0, meses=0, semanas=0, dias=0)
 
     numero_pedidos_totales = pedidos_todos_los_pedidos.count()
     numero_pedidos_totales_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO).count()
@@ -31,8 +31,8 @@ def seguimiento_entrega(request):
     numero_pedidos_repartidor_asignadio_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
                                                                                    etapa_pedido=Pedido.REPARTIDOR_ASIGNADO).count()
     numero_pedidos_embarcado_totales = pedidos_todos_los_pedidos.filter(
-        etapa_pedido=Pedido.REPARTIDOR_ASIGNADO).count()
-    numero_pedidos_embarcado_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.EMBARCADO,
+        etapa_pedido=Pedido.EMBARCADO).count()
+    numero_pedidos_embarcado_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO,
                                                                                     etapa_pedido=Pedido.EMBARCADO).count()
     numero_pedidos_embarcado_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
                                                                                     etapa_pedido=Pedido.EMBARCADO).count()

@@ -3,45 +3,42 @@
 {% block title %}Inicio - Mi Sitio Web{% endblock %}
 {% block content %}
     <style>
-    .dflex_column_center {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
+     .dflex_column_center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    /************************************************************************************************************/
-    /* Borde Cajas */
-    .bordeCajas {
-        border: 2px solid #aaa;
-        border-radius: 10px;
-        box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+        .bordeCajas {
+            border: 2px solid #aaa;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
 
-        padding: 10px;
-    }
+            padding: 10px;
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    /* Color Cajas */
-    .caja_aTiempo {
-        background-color: greenyellow;
-    }
+        .caja_aTiempo {
+            background-color: #36A2EB;
+        }
 
-    .caja_atrasado {
-        background-color: darkorchid;
-    }
+        .caja_atrasado {
+            background-color: #FF6384;
+        }
 
-    .caja_cancelado {
-        background-color: salmon;
-    }
+        .caja_noEntregado {
+            background-color: #EBE836FF;
+        }
 
-    .caja {
-        width: calc(40% - 20px);
-        /* 50% del ancho del contenedor menos el espacio entre cajas */
-        margin: 10px;
-        /* Espacio entre cajas */
-        padding: 20px;
-        /* Espacio interno */
-        border: 2px solid #aaa;
-        /* Borde */
-    }
+        .caja {
+            width: calc(40% - 20px); /* 50% del ancho del contenedor menos el espacio entre cajas */
+            margin: 10px; /* Espacio entre cajas */
+            padding: 20px; /* Espacio interno */
+            border: 2px solid #aaa; /* Borde */
+        }
 </style>
 
 <body style="padding: 40px;">
@@ -213,7 +210,7 @@
                         <p>{{ numero_pedidos_paquete_no_entregado_atrasado }}</p>
                     </div>
                     
-                    <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                    <div class="dflex_column_center bordeCajas caja_noEntregado caja">
                         <h4>Número de pedidos que no se entregaron porque no se encontro al cliente</h4>
                         <p>{{ numero_pedidos_paquete_no_entregado_cliente_no_encontrado }}</p>
                     </div>
@@ -253,7 +250,7 @@
                     <!-- Caja de pedidos atrasados -->
                     <div class="dflex_column_center bordeCajas caja_atrasado caja">
                         <h4>Número de pedidos Atrasados</h4>
-                        <p>{{ numero_pedidos_paquete_entregado_atrasad }}</p>
+                        <p>{{ numero_pedidos_paquete_entregado_atrasado }}</p>
                     </div>                   
 
                 </div>

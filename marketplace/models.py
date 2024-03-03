@@ -1,6 +1,8 @@
+from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 import datetime
+
 class Categoria(models.Model):
     nombre = models.CharField(max_length=50)
     record = models.IntegerField(default=0)
@@ -37,8 +39,8 @@ class Vendedor(models.Model):
     nombre = models.CharField(max_length=20)
     apellido = models.CharField(max_length=20)
 
-    def __str__(self):
-        return self.nombre
+    # def __str__(self):
+    #     return self.nombre
 
     def agregar_producto(self, producto):
         self.productos.add(producto)
@@ -163,9 +165,22 @@ class Pedido(models.Model):
         else:
             pass
 
-    def actualizar_estado_pedido(self):
-        hoy = timezone.now().date()
-        dias_transcurridos = calcular_dias_laborales(self.fecha_listo_para_entregar, hoy)
+    def marcar_cliente_no_encontrado(self):
+        self.cliente_no_encontrado = True
+        self.estado_pedido = self.CLIENTE_NO_ENCONTRADO  # Opcional: Actualizar también el estado del pedido
+        self.save()
+
+    def actualizar_estado_pedido(self, anios=0, meses=0, semanas=0, dias=0):
+        # Calcular la cantidad total de días (aproximación para meses)
+        días_totales = dias + semanas * 7 + meses * 30 + anios * 365
+
+        # Si no se proporcionan parámetros, usar la fecha actual; de lo contrario, agregar los días totales a 'fecha_listo_para_entregar'
+        if anios == meses == semanas == dias == 0:
+            fecha_referencia = timezone.now().date()
+        else:
+            fecha_referencia = self.fecha_listo_para_entregar + timedelta(days=días_totales)
+
+        dias_transcurridos = calcular_dias_laborales(self.fecha_listo_para_entregar, fecha_referencia)
 
         etapa_dias_maximos = {
             self.LISTO_PARA_ENTREGAR: 1,
@@ -176,9 +191,8 @@ class Pedido(models.Model):
 
         # Si el pedido ya fue entregado o no fue encontrado, conservar el estado
         if self.etapa_pedido in [self.PAQUETE_ENTREGADO, self.PAQUETE_NO_ENTREGADO]:
-            if self.cliente_no_encontrado == True :
+            if self.cliente_no_encontrado:
                 self.estado_pedido = self.CLIENTE_NO_ENCONTRADO
-            # No se actualiza el estado si es PAQUETE_ENTREGADO
         else:
             dias_maximos = etapa_dias_maximos.get(self.etapa_pedido, 0)
             if dias_transcurridos <= dias_maximos:
@@ -187,4 +201,7 @@ class Pedido(models.Model):
                 self.estado_pedido = self.ATRASADO
 
         self.save()
+
+
+
 
