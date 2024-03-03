@@ -1,4 +1,5 @@
 from behave import *
+from faker import Faker
 from marketplace.models import *
 import datetime
 
@@ -6,10 +7,13 @@ use_step_matcher("re")
 
 @step("que un Vendedor tiene los siguientes Pedidos registrados")
 def step_impl(context):
-    vendedor, _ = Vendedor.objects.get_or_create(nombre="Luis", apellido="ALmagro")  # Corregido
+    faker = Faker()
+    vendedor, _ = Vendedor.objects.get_or_create(
+        nombre=faker.name()
+    )
     context.vendedor = vendedor
     for row in context.table:
-        Pedido.objects.create(
+        Pedido.objects.get_or_create(
             estado_pedido=row['estado_pedido'],
             etapa_pedido=row['etapa_pedido'],
             fecha_listo_para_entregar=datetime.datetime.strptime(row['fecha_listo_para_entregar'], '%Y-%m-%d').date(),
@@ -44,13 +48,17 @@ def step_impl(context, estado_pedido, numero_pedidos):
 
 @step("que un Vendedor tiene los siguientes Pedidos registrados en estado PNE")
 def step_impl(context):
-    vendedor, _ = Vendedor.objects.get_or_create(nombre="Luis", apellido="Almagro")  # Corregido
+    faker = Faker()
+    vendedor, _ = Vendedor.objects.get_or_create(
+        nombre=faker.name()
+    )
     context.vendedor = vendedor
+
     # Asegurándose de que haya una lista para los pedidos en el contexto
     if not hasattr(context, 'pedidos'):
         context.pedidos = []  # Crea una nueva lista si no existe
     for row in context.table:
-        pedido = Pedido.objects.create(
+        pedido = Pedido.objects.get_or_create(
             estado_pedido=row['estado_pedido'],
             etapa_pedido=row['etapa_pedido'],
             fecha_listo_para_entregar=datetime.datetime.strptime(row['fecha_listo_para_entregar'], '%Y-%m-%d').date(),

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import Pedido
+from .models import Pedido, Vendedor
 
 
 # Create your views here.
@@ -12,46 +12,46 @@ def index(request):
 
 def seguimiento_entrega(request, vendedor_id):
 
-    pedidos_todos_los_pedidos = Pedido.objects.filter(vendedor_id=vendedor_id)
-    for pedido in pedidos_todos_los_pedidos:
+    vendedor = Vendedor.objects.get(id=vendedor_id)
+    todos_los_pedidos = vendedor.listar_pedidos()
+
+    for pedido in todos_los_pedidos:
         pedido.actualizar_estado_pedido(anios=0, meses=0, semanas=0, dias=0)
 
-    numero_pedidos_totales = pedidos_todos_los_pedidos.count()
-    numero_pedidos_totales_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO).count()
-    numero_pedidos_totales_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO).count()
-    numero_pedidos_totales_cliente_no_encotrado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.CLIENTE_NO_ENCONTRADO).count()
+    numero_pedidos_totales = vendedor.total_pedidos_vendedor()
+    numero_pedidos_totales_a_tiempo = vendedor.contar_pedidos_por_estado(Pedido.A_TIEMPO)
+    numero_pedidos_totales_atrasado = vendedor.contar_pedidos_por_estado(Pedido.ATRASADO)
+    numero_pedidos_totales_cliente_no_encotrado = vendedor.contar_pedidos_por_estado(Pedido.ATRASADO)
 
-    numero_pedidos_listo_para_entregar_totales = pedidos_todos_los_pedidos.filter(etapa_pedido=Pedido.LISTO_PARA_ENTREGAR).count()
-    numero_pedidos_listo_para_entregar_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO, etapa_pedido=Pedido.LISTO_PARA_ENTREGAR).count()
-    numero_pedidos_listo_para_entregar_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO, etapa_pedido=Pedido.LISTO_PARA_ENTREGAR).count()
+    numero_pedidos_listo_para_entregar_totales = vendedor.contar_pedidos_por_etapa(Pedido.LISTO_PARA_ENTREGAR)
+    numero_pedidos_listo_para_entregar_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.LISTO_PARA_ENTREGAR, Pedido.A_TIEMPO)
+    numero_pedidos_listo_para_entregar_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.LISTO_PARA_ENTREGAR, Pedido.ATRASADO)
 
-    numero_pedidos_repartidor_asignado_totales = pedidos_todos_los_pedidos.filter(etapa_pedido=Pedido.REPARTIDOR_ASIGNADO).count()
-    numero_pedidos_repartidor_asignadio_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO,
-                                                                                   etapa_pedido=Pedido.REPARTIDOR_ASIGNADO).count()
-    numero_pedidos_repartidor_asignadio_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
-                                                                                   etapa_pedido=Pedido.REPARTIDOR_ASIGNADO).count()
-    numero_pedidos_embarcado_totales = pedidos_todos_los_pedidos.filter(
-        etapa_pedido=Pedido.EMBARCADO).count()
-    numero_pedidos_embarcado_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO,
-                                                                                    etapa_pedido=Pedido.EMBARCADO).count()
-    numero_pedidos_embarcado_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
-                                                                                    etapa_pedido=Pedido.EMBARCADO).count()
+    numero_pedidos_repartidor_asignado_totales = vendedor.contar_pedidos_por_etapa(Pedido.REPARTIDOR_ASIGNADO)
+    numero_pedidos_repartidor_asignadio_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.REPARTIDOR_ASIGNADO, Pedido.A_TIEMPO)
+    numero_pedidos_repartidor_asignadio_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.REPARTIDOR_ASIGNADO, Pedido.ATRASADO)
 
-    numero_pedidos_paquete_no_entregado_totales = pedidos_todos_los_pedidos.filter(
-        etapa_pedido=Pedido.PAQUETE_NO_ENTREGADO).count()
-    numero_pedidos_paquete_no_entregado_a_tiempo = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.A_TIEMPO,
-                                                                         etapa_pedido=Pedido.PAQUETE_NO_ENTREGADO).count()
-    numero_pedidos_paquete_no_entregado_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
-                                                                         etapa_pedido=Pedido.PAQUETE_NO_ENTREGADO).count()
-    numero_pedidos_paquete_no_entregado_cliente_no_encontrado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.CLIENTE_NO_ENCONTRADO,
-                                                                                    etapa_pedido=Pedido.PAQUETE_NO_ENTREGADO).count()
-    numero_pedidos_paquete_entregado_totales = pedidos_todos_los_pedidos.filter(
-        etapa_pedido=Pedido.PAQUETE_ENTREGADO).count()
-    numero_pedidos_paquete_entregado_a_tiempo = pedidos_todos_los_pedidos.filter(
-        estado_pedido=Pedido.A_TIEMPO,
-        etapa_pedido=Pedido.PAQUETE_ENTREGADO).count()
-    numero_pedidos_paquete_entregado_atrasado = pedidos_todos_los_pedidos.filter(estado_pedido=Pedido.ATRASADO,
-                                                                                    etapa_pedido=Pedido.PAQUETE_ENTREGADO).count()
+    numero_pedidos_embarcado_totales = vendedor.contar_pedidos_por_etapa(Pedido.EMBARCADO)
+    numero_pedidos_embarcado_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(Pedido.EMBARCADO, Pedido.A_TIEMPO)
+    numero_pedidos_embarcado_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(Pedido.EMBARCADO, Pedido.ATRASADO)
+
+    numero_pedidos_paquete_no_entregado_totales = vendedor.contar_pedidos_por_etapa(Pedido.PAQUETE_NO_ENTREGADO)
+    numero_pedidos_paquete_no_entregado_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_NO_ENTREGADO, Pedido.A_TIEMPO)
+    numero_pedidos_paquete_no_entregado_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_NO_ENTREGADO, Pedido.ATRASADO)
+    numero_pedidos_paquete_no_entregado_cliente_no_encontrado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_NO_ENTREGADO, Pedido.CLIENTE_NO_ENCONTRADO)
+
+    numero_pedidos_paquete_entregado_totales = vendedor.contar_pedidos_por_etapa(Pedido.PAQUETE_ENTREGADO)
+    numero_pedidos_paquete_entregado_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_ENTREGADO, Pedido.A_TIEMPO)
+    numero_pedidos_paquete_entregado_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_ENTREGADO, Pedido.ATRASADO)
 
     context = {
         'numero_pedidos_totales': numero_pedidos_totales,

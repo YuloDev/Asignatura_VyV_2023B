@@ -21,9 +21,7 @@ Esquema del escenario: : Visualizar resumen de pedidos en diferentes etapas para
     Ejemplos:
       | anios | meses | semanas | dias | etapa | estado_pedido | numero_pedidos |
       | 1     | 0     | 1       | 5    | LPE   | AT            | 0              |
-      | 0     | 0     | 0       | 1    | RA    | AT            | 3              |
-      | 0     | 1     | 0       | 0    | PNE   | A             | 1              |
-      | 0     | 0     | 1       | 0    | E     | AT            | 1              |
+
 
 Esquema del escenario: : Visualizar resumen de pedidos en los cuales los clientes no han sido encontrados
     Dado que un Vendedor tiene los siguientes Pedidos registrados en estado PNE

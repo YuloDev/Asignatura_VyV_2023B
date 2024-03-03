@@ -37,7 +37,6 @@ class Promocion(models.Model):
 
 class Vendedor(models.Model):
     nombre = models.CharField(max_length=20)
-    apellido = models.CharField(max_length=20)
 
     # def __str__(self):
     #     return self.nombre
@@ -75,6 +74,18 @@ class Vendedor(models.Model):
     def contar_pedidos_por_estado(self,estado):
         # Cuenta los pedidos por estado en una etapa específica
         return self.pedido_set.filter(estado_pedido=estado).count()
+
+    def total_pedidos_vendedor(vendedor_id):
+        return Pedido.objects.filter(vendedor_id=vendedor_id).count()
+
+    def sumar_y_contar_por_etapa(etapa, vendedor_id):
+        pedidos_vendedor = Pedido.objects.filter(vendedor_id=vendedor_id)
+        pedidos_etapa = pedidos_vendedor.filter(etapa_pedido=etapa)
+        total_pedidos_etapa = pedidos_etapa.count()
+        atrasados = pedidos_etapa.filter(estado_pedido=Pedido.ATRASADO).count()
+        a_tiempo = pedidos_etapa.filter(estado_pedido=Pedido.A_TIEMPO).count()
+        cancelados = pedidos_etapa.filter(estado_pedido=Pedido.CANCELADO).count()
+        return total_pedidos_etapa, atrasados, a_tiempo, cancelados
 
 
 
@@ -193,6 +204,12 @@ class Pedido(models.Model):
         if self.etapa_pedido in [self.PAQUETE_ENTREGADO, self.PAQUETE_NO_ENTREGADO]:
             if self.cliente_no_encontrado:
                 self.estado_pedido = self.CLIENTE_NO_ENCONTRADO
+            else:
+                dias_maximos = etapa_dias_maximos.get(self.etapa_pedido, 0)
+                if dias_transcurridos <= dias_maximos:
+                    self.estado_pedido = self.A_TIEMPO
+                else:
+                    self.estado_pedido = self.ATRASADO
         else:
             dias_maximos = etapa_dias_maximos.get(self.etapa_pedido, 0)
             if dias_transcurridos <= dias_maximos:
