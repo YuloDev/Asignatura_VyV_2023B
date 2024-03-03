@@ -45,9 +45,10 @@ class Cliente(models.Model):
     correo = models.EmailField(max_length=50)
     telefono = models.CharField(max_length=10)
 
-    def calificar_producto(self, estrellas, causas, producto):
-        calificacion = Calificacion(estrellas, causas)
-        producto.agregar_calificacion(calificacion)
+    def calificar_producto(self, estrellas, causas, producto, calificaciones_recibidas):
+        calificacion = Calificacion(estrellas=estrellas, causas=causas, id_producto=producto)
+        calificacion.save()
+        producto.agregar_calificacion(calificacion, calificaciones_recibidas)
 
     def calificar_servicio(self, pedido, estrellas, causas):
         calificacion = Calificacion(estrellas, causas)
@@ -121,7 +122,6 @@ class Producto(models.Model):
                 porcentaje_calculado = (int(self.calificaciones[i]) / calificaciones_totales) * 100
                 porcentaje_calculado = round(porcentaje_calculado)
                 porcentajes_por_estrella.append(str(porcentaje_calculado))
-                print("++++++++" + str(self.calificaciones[i]))
 
         porcentajes_por_estrella.reverse()
         return porcentajes_por_estrella

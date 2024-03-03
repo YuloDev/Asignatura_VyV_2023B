@@ -1,6 +1,10 @@
-from behave import *
+import django
+from django.test import RequestFactory
 
-from modelo.ModeloFeedback import *
+django.setup()
+
+from behave import *
+from marketplace.models import *
 
 use_step_matcher("re")
 
@@ -8,14 +12,15 @@ use_step_matcher("re")
 # PRODUCTO
 @step("que el Cliente ha realizado el pago y el proceso de envío de la compra ha finalizado")
 def step_impl(context):
-    context.producto = Producto(1, "Martillo", "De madera")
+    context.producto = Producto.objects.get(nombre="Martillo")
     arreglo_productos_pedidos = [context.producto]
-    context.pedido = Pedido(1, "Entregado", 6, "direccion", arreglo_productos_pedidos)
-    context.cliente = Cliente("1752458974", "Juan", "Herrera", "juan.herrera@hotmail.com",
-                              "0984759642", context.pedido)
-    assert ((context.pedido.estado == "Entregado"
-             or context.pedido.estado == "Entregado con retraso")
-            and context.pedido.pagado), "No se entrego el pedido correctamente"
+    context.cliente = Cliente.objects.get(cedula="1752124578")
+    pedido, creado = Pedido.objects.get_or_create(estado_pedido="Entregado", cliente_id=context.cliente.cedula,
+                                                  servicio_id=1)
+    context.pedido, creado = pedido, creado
+    # Ver el estado del pago
+    assert ((context.pedido.estado_pedido == "Entregado"
+             or context.pedido.estado_pedido == "Entregado con retraso")), "No se entrego el pedido correctamente"
 
 
 @step("se tiene un Producto con las siguientes valoraciones totales")
@@ -29,13 +34,18 @@ def step_impl(context):
 
         lista_porcentajes_por_estrella.append(porcentaje_de_calificaciones)
 
-        assert context.producto.calificaciones[
-                   cantidad_de_estrellas] == total_de_calificaciones, "No se tiene el total de calificaciones correcto"
+        assert context.producto.calificaciones[str(cantidad_de_estrellas)] == total_de_calificaciones, ("No se tiene "
+                                                                                                        "el total de "
+                                                                                                        "calificaciones correcto")
 
     for i in context.producto.calificaciones:
         porcentajes_calculados = context.producto.obtener_porcentajes_de_calificaciones()
-        assert porcentajes_calculados[i - 1] == lista_porcentajes_por_estrella[
-            i - 1], "No se tiene el porcentaje de calificaciones correcto"
+        porcentajes_calculados.reverse()
+        print(porcentajes_calculados[int(i)-1]+"%" + " == " + lista_porcentajes_por_estrella[int(i) - 1])
+        assert porcentajes_calculados[int(i)-1]+"%" == lista_porcentajes_por_estrella[int(i) - 1], ("No se tiene el "
+                                                                                                     "porcentaje de "
+                                                                                                     "calificaciones "
+                                                                                                     "correcto")
 
 
 @step("el Cliente seleccione una Calificación de tres sobre cinco estrellas del Producto y seleccione la causa 2, "
@@ -53,10 +63,11 @@ def step_impl(context):
         if causa == "Concuerda con la descripción":
             causas_seleccionada.append(causa)
 
-    context.cliente.calificar_producto(3, causas_seleccionada, context.producto)
+    calificaciones_recibidas = list(Calificacion.objects.filter(id_producto_id=context.producto.id))
+    context.cliente.calificar_producto(3, causas_seleccionada, context.producto, calificaciones_recibidas)
 
-    if context.producto.calificaciones_recibidas[-1] is None:
-        for causa_buscada in context.producto.calificaciones_recibidas[-1].causas:
+    if calificaciones_recibidas[-1] is None:
+        for causa_buscada in calificaciones_recibidas[-1].causas:
             if causa_buscada == causas_seleccionada:
                 assert True, "No se ha calificado correctamente el Producto"
 
@@ -87,8 +98,9 @@ def step_impl(context):
         assert lista_causas_obtenidas[i - 1] == lista_causas_esperadas[i - 1], "No se tienen las causas correcta"
 
     assert context.producto.obtener_promedio_general_del_producto() == int(promedio_general), ("No se tiene el promedio"
-                                                                                          " general correcto del "
-                                                                                          "Producto")
+                                                                                               " general correcto del "
+                                                                                               "Producto")
+
 
 # SERVICIO
 @step("que el Cliente ha dado su feedback sobre el producto")
@@ -172,5 +184,5 @@ def step_impl(context):
         assert lista_causas_obtenidas[i - 1] == lista_causas_esperadas[i - 1], "No se tienen las causas correcta"
 
     assert context.pedido.servicio.obtener_promedio_general_del_servicio() == int(promedio_general), ("No se tiene el "
-                                                                                                 "promedio general"
-                                                                                                 " correcto")
+                                                                                                      "promedio general"
+                                                                                                      " correcto")
