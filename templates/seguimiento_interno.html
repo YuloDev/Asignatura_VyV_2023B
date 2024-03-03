@@ -1,0 +1,312 @@
+<!-- home.html -->
+{% extends 'base.html' %}
+{% block title %}Inicio - Mi Sitio Web{% endblock %}
+{% block content %}
+    <style>
+        p{
+            font-size: 20px;
+        }
+        
+        .dflex_column_center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bordeCajas {
+            border: 2px solid #aaa;
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+
+            padding: 10px;
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .caja_aTiempo {
+            background-color: #3DE195;
+        }
+
+        .caja_atrasado {
+            background-color: #9D68FD;
+        }
+
+        .caja_cancelado {
+            background-color: #e86975;
+        }
+
+        .caja {
+            width: calc(40% - 20px); /* 50% del ancho del contenedor menos el espacio entre cajas */
+            margin: 10px; /* Espacio entre cajas */
+            padding: 20px; /* Espacio interno */
+            border: 2px solid #aaa; /* Borde */
+        }
+    </style>
+
+    <div style="padding: 0px 40px;">
+
+        <h1 class="text-center">Seguimiento Interno De Pedidos</h1>
+        <!-- Barra de Navegacion -->
+        <ul class="nav nav-tabs mt-3">
+            <li class="nav-item"><a class="nav-link active" href="#Tab1" data-toggle="tab">Resumen General</a></li>
+            <li class="nav-item"><a class="nav-link" href="#Tab2" data-toggle="tab">Resumen Etapa Precompra</a></li>
+            <li class="nav-item"><a class="nav-link" href="#Tab3" data-toggle="tab">Resumen Etapa Reserva</a></li>
+            <li class="nav-item"><a class="nav-link" href="#Tab4" data-toggle="tab">Resumen Etapa Listo para
+                entregar</a>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3">
+            <!-- Pestaña General -->
+            <div id="Tab1" class="tab-pane active">
+                <h3 class="text-center mb-4">Resumen General</h3>
+                <!-- Contenedor -->
+                <div class="d-flex justify-content-around" style="align-items: center">
+                    <!-- Caja de total de pedidos -->
+                    <div class="dflex_column_center bordeCajas"
+                         style="height: 150px; padding: 20px; display: flex; justify-content: center">
+                        <h4>Total de pedidos</h4>
+                        <p style="margin: 0px">{{ total_pedidos_vendedor }}</p>
+                    </div>
+
+                    <!-- Grafica -->
+                    <div class="dflex_column_center">
+                        <h4>Etapas con mayor cantidad de pedidos atrasados</h4>
+                        <canvas id="graficaPedidosAtrasados" width="400" height="200"></canvas>
+                    </div>
+
+                </div>
+            </div>
+            <!-- Pestaña Precompra -->
+            <div id="Tab2" class="tab-pane">
+                <h3 class="text-center mb-4">Etapa Precompra</h3>
+                <!-- Contenedor -->
+                <div class="d-flex">
+                    <!-- Contenedor de cajas de totales -->
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-around; width: 50%;">
+                        <!-- Caja de total de pedidos -->
+                        <div class="dflex_column_center bordeCajas caja">
+                            <h4>Total de pedidos</h4>
+                            <p>{{ total_pedidos_precompra }}</p>
+                        </div>
+
+                        <!-- Caja de pedidos a tiempo -->
+                        <div class="dflex_column_center bordeCajas caja_aTiempo caja">
+                            <h4>Pedidos A Tiempo</h4>
+                            <p>{{ precompra_a_tiempo }}</p>
+                        </div>
+
+                        <!-- Caja de pedidos atrasados -->
+                        <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                            <h4>Pedidos Atrasados</h4>
+                            <p>{{ precompra_atrasados }}</p>
+                        </div>
+
+                        <!-- Caja de pedidos cancelados -->
+                        <div class="dflex_column_center bordeCajas caja_cancelado caja">
+                            <h4>Pedidos Cancelados</h4>
+                            <p>{{ precompra_cancelados }}</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Grafica -->
+                    <div class="dflex_column_center" style="width: 50%;">
+                        <h4>Resumen</h4>
+                        <canvas id="graficaPrecompra" width="350" height="350"></canvas>
+                    </div>
+
+                </div>
+            </div>
+            <!-- Pestaña Reserva -->
+            <div id="Tab3" class="tab-pane">
+                <h3 class="text-center mb-4">Etapa Reserva</h3>
+
+                <!-- Contenedor -->
+                <div class="d-flex">
+                    <!-- Contenedor de cajas de totales -->
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-around; width: 50%;">
+                        <!-- Caja de total de pedidos -->
+                        <div class="dflex_column_center bordeCajas caja">
+                            <h4>Total de pedidos</h4>
+                            <p>{{ total_pedidos_reserva }}</p>
+                        </div>
+
+                        <!-- Caja de pedidos a tiempo -->
+                        <div class="dflex_column_center bordeCajas caja_aTiempo caja">
+                            <h4>Pedidos A Tiempo</h4>
+                            <p>{{ reserva_a_tiempo }}</p>
+                        </div>
+
+                        <!-- Caja de pedidos atrasados -->
+                        <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                            <h4>Pedidos Atrasados</h4>
+                            <p>{{ reserva_atrasados }}</p>
+                        </div>
+
+                        <!-- Caja de pedidos cancelados -->
+                        <div class="dflex_column_center bordeCajas caja_cancelado caja">
+                            <h4>Pedidos Cancelados</h4>
+                            <p>{{ reserva_cancelados }}</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Grafica -->
+                    <div class="dflex_column_center" style="width: 50%;">
+                        <h4>Resumen</h4>
+                        <canvas id="graficaReserva" width="350" height="350"></canvas>
+                    </div>
+
+                </div>
+            </div>
+            <!-- Pestaña Listo Para Entregar -->
+            <div id="Tab4" class="tab-pane">
+                <h3 class="text-center mb-4">Etapa Listo Para Entregar</h3>
+
+                <!-- Contenedor -->
+                <div class="d-flex">
+                    <!-- Contenedor de cajas de totales -->
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-around; width: 50%;">
+                        <!-- Caja de total de pedidos -->
+                        <div class="dflex_column_center bordeCajas caja">
+                            <h4>Total de pedidos</h4>
+                            <p>{{ total_pedidos_listo_para_entregar }}</p>
+                        </div>
+
+                        <!-- Caja de pedidos a tiempo -->
+                        <div class="dflex_column_center bordeCajas caja_aTiempo caja">
+                            <h4>Pedidos A Tiempo</h4>
+                            <p>{{ listo_para_entregar_a_tiempo }}</p>
+                        </div>
+
+                        <!-- Caja de pedidos atrasados -->
+                        <div class="dflex_column_center bordeCajas caja_atrasado caja">
+                            <h4>Pedidos Atrasados</h4>
+                            <p>{{ listo_para_entregar_atrasados }}</p>
+                        </div>
+
+                        <!-- Caja de pedidos cancelados -->
+                        <div class="dflex_column_center bordeCajas caja_cancelado caja">
+                            <h4>Pedidos Cancelados</h4>
+                            <p>{{ listo_para_entregar_cancelados }}</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Grafica -->
+                    <div class="dflex_column_center" style="width: 50%;">
+                        <h4>Resumen</h4>
+                        <canvas id="graficaListoParaEntregar" width="350" height="350"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Agrega la librería Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+            // Datos para la GRAFICA2
+            var precompraDatos = {
+                labels: ['A Tiempo', 'Atrasados', 'Cancelados'],
+                datasets: [{
+                    data: [{{ precompra_a_tiempo }}, {{ precompra_atrasados }}, {{ precompra_cancelados }}],
+                    backgroundColor: ['rgba(61, 225, 149, 1)', 'rgba(157, 104, 253, 1)', 'rgba(232, 105, 117, 1)']
+                }]
+            };
+
+            // Datos para la GRAFICA3
+            var reservaDatos = {
+                labels: ['A Tiempo', 'Atrasados', 'Cancelados'],
+                datasets: [{
+                    data: [{{ reserva_a_tiempo }}, {{ reserva_atrasados }}, {{ reserva_cancelados }}],
+                    backgroundColor: ['rgba(61, 225, 149, 1)', 'rgba(157, 104, 253, 1)', 'rgba(232, 105, 117, 1)']
+                }]
+            };
+
+            // Datos para la GRAFICA4
+            var listoParaEntregarDatos = {
+                labels: ['A Tiempo', 'Atrasados', 'Cancelados'],
+                datasets: [{
+                    data: [{{ listo_para_entregar_a_tiempo }}, {{ listo_para_entregar_atrasados }}, {{ listo_para_entregar_cancelados }}],
+                    backgroundColor: ['rgba(61, 225, 149, 1)', 'rgba(157, 104, 253, 1)', 'rgba(232, 105, 117, 1)']
+                }]
+            };
+
+            // Configuración común para todas las gráficas
+            var opciones = {
+                responsive: false,
+                maintainAspectRatio: false
+            };
+
+            // Obtén el contexto del canvas para cada gráfica
+            var ctxPrecompra = document.getElementById('graficaPrecompra').getContext('2d');
+            var ctxReserva = document.getElementById('graficaReserva').getContext('2d');
+            var ctxListoParaEntregar = document.getElementById('graficaListoParaEntregar').getContext('2d');
+
+            // Crea las gráficas de pastel
+            var graficaPrecompra = new Chart(ctxPrecompra, {
+                type: 'pie',
+                data: precompraDatos,
+                options: opciones
+            });
+
+            var graficaReserva = new Chart(ctxReserva, {
+                type: 'pie',
+                data: reservaDatos,
+                options: opciones
+            });
+
+            var graficaListoParaEntregar = new Chart(ctxListoParaEntregar, {
+                type: 'pie',
+                data: listoParaEntregarDatos,
+                options: opciones
+            });
+        </script>
+
+        <script>
+            // Datos para la gráfica lineal de pedidos atrasados en la etapa Precompra, Reserva y Listo para entregar
+            const datosLineales = {
+                labels: ['Precompra', 'Reserva', 'Listo para entregar'],
+                datasets: [{
+                    label: 'Total de pedidos atrasados por etapa',
+                    backgroundColor: 'rgba(157, 104, 253, 1)',
+                    borderColor: 'rgba(157, 104, 253, 1)',
+                    borderWidth: 1,
+                    data: [{{ precompra_atrasados }}, {{ reserva_atrasados }}, {{ listo_para_entregar_atrasados }}]
+                }]
+            };
+
+            // Configuración de la gráfica
+            const configuracion = {
+                type: 'line',
+                data: datosLineales,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            stepSize: 1 // Aquí se establece el paso de la escala en el eje Y
+                        }
+                    }
+                }
+            };
+
+            // Obtén el contexto del canvas para la gráfica lineal
+            const ctx = document.getElementById('graficaPedidosAtrasados').getContext('2d');
+
+            // Crea la gráfica lineal
+            const graficaPedidosAtrasados = new Chart(ctx, configuracion);
+        </script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </div>
+
+{% endblock %}
