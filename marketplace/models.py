@@ -69,7 +69,6 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=50)
     unidades_vendidas = models.IntegerField()
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='productos')
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     promocion = models.BooleanField(default=False)
 
     def asignar_categoria(self, categoria):
