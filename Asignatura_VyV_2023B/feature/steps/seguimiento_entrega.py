@@ -27,17 +27,18 @@ def step_impl(context, anios, meses, semanas, dias):
     context.dias = dias
 
 
-@step("el Vendedor visualice el resumen de los Pedidos en la etapa (?P<etapa>.+)")
+@step("el Vendedor visualice el resumen de los Pedidos en la etapa (?P<etapa>.+) una vez se han actualizado los estados de los Pedidos segun el tiempo que ha pasado")
 def step_impl(context, etapa):
     context.etapa = etapa
     context.resumen = context.vendedor.listar_pedidos_por_etapa(etapa)
     print(context.resumen)
-
-
-@step("se actualizarán los estados de los Pedidos según el tiempo que ha pasado")
-def step_impl(context):
     for pedido in context.resumen:
-        pedido.actualizar_estado_pedido(int(context.anios), int(context.meses), int(context.semanas), int(context.dias))
+         pedido.actualizar_estado_pedido(int(context.anios), int(context.meses), int(context.semanas), int(context.dias))
+
+# @step("se actualizarán los estados de los Pedidos según el tiempo que ha pasado")
+# def step_impl(context):
+#     for pedido in context.resumen:
+#         pedido.actualizar_estado_pedido(int(context.anios), int(context.meses), int(context.semanas), int(context.dias))
 
 
 @step("se mostrara el estado (?P<estado_pedido>.+) con la siguiente cantidad de pedidos (?P<numero_pedidos>.+)")
@@ -71,4 +72,9 @@ def step_impl(context):
         pedido.marcar_cliente_no_encontrado()
 
 
+@step("el Vendedor visualice el resumen de los Pedidos en la etapa PNE")
+def step_impl(context):
+    context.etapa = "PNE"
+    context.resumen = context.vendedor.listar_pedidos_por_etapa(context.etapa)
+    print(context.resumen)
 

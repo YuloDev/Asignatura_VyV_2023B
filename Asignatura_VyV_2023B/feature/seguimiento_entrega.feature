@@ -13,9 +13,8 @@ Esquema del escenario: : Visualizar resumen de pedidos en diferentes etapas para
       | a_tiempo      | LPE          | 2024-02-25                |
       | a_tiempo      | PNE          | 2024-02-25                |
     Y ha pasado <anios> años <meses> meses <semanas> semanas <dias> dias, desde su fecha listo para entregar
-    Cuando el Vendedor visualice el resumen de los Pedidos en la etapa <etapa>
-    Entonces se actualizarán los estados de los Pedidos según el tiempo que ha pasado
-    Y se mostrara el estado <estado_pedido> con la siguiente cantidad de pedidos <numero_pedidos>
+    Cuando el Vendedor visualice el resumen de los Pedidos en la etapa <etapa> una vez se han actualizado los estados de los Pedidos segun el tiempo que ha pasado
+    Entonces se mostrara el estado <estado_pedido> con la siguiente cantidad de pedidos <numero_pedidos>
     Ejemplos:
       | anios | meses | semanas | dias | etapa | estado_pedido | numero_pedidos |
       | 1     | 0     | 1       | 5    | LPE   | AT            | 0              |
