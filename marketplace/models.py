@@ -1,12 +1,17 @@
+import json
+from enum import Enum
+
 from django.db import models
+
+from django.db.models import JSONField
 from django.template.defaultfilters import default
 from datetime import datetime
 from datetime import timedelta
 from django.utils import timezone
 import datetime
 
-
 # Create your models here.
+
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=50)
@@ -31,6 +36,25 @@ class Promocion(models.Model):
     costo = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     dias_duracion = models.IntegerField(default=0)
     fecha_inicio = models.DateField()
+
+
+class Cliente(models.Model):
+    cedula = models.CharField(max_length=10, primary_key=True, unique=True)
+    nombre = models.CharField(max_length=50)
+    apellido = models.CharField(max_length=50)
+    correo = models.EmailField(max_length=50)
+    telefono = models.CharField(max_length=10)
+
+    def calificar_producto(self, estrellas, causas, producto, calificaciones_recibidas):
+        calificacion = Calificacion(estrellas=estrellas, causas=causas, id_producto=producto)
+        calificacion.save()
+        producto.agregar_calificacion(calificacion, calificaciones_recibidas)
+
+    def calificar_servicio(self, pedido, estrellas, causas, calificaciones_recibidas):
+        calificacion = Calificacion(estrellas=estrellas, causas=causas, id_servicio=pedido.servicio)
+        print(causas)
+        pedido.servicio.agregar_calificacion(calificacion, calificaciones_recibidas)
+        calificacion.save()
 
 
 class Vendedor(models.Model):
@@ -79,12 +103,170 @@ class Producto(models.Model):
     unidades_vendidas = models.IntegerField(default=0)
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, null=True)
     promocion = models.ForeignKey(Promocion, on_delete=models.CASCADE, null=True)
+    calificaciones = JSONField(default=dict)
+
 
     def ha_superado_record(self):
         return self.categoria.supera_record(self.unidades_vendidas)
 
     def tiene_promocion(self):
         return self.promocion
+
+    def feedback_producto_esta_dado(self):
+        return True
+
+    def aumentar_estrella(self, calificacion_cliente):
+        for estrellas, calificacion_total in self.calificaciones.items():
+            if estrellas == str(calificacion_cliente):
+                self.calificaciones[str(estrellas)] += 1
+                print(self.calificaciones[str(estrellas)])
+                self.save()
+                break
+
+    def agregar_calificacion(self, calificacion, calificaciones_recibidas):
+        calificaciones_recibidas.append(calificacion)
+        self.aumentar_estrella(calificacion.estrellas)
+
+    def obtener_porcentajes_de_calificaciones(self):
+        porcentajes_por_estrella = list()
+        calificaciones_totales = 0
+        for i in self.calificaciones:
+            calificaciones_totales += int(self.calificaciones[i])
+
+        for i in self.calificaciones:
+            if i in self.calificaciones:
+                porcentaje_calculado = (int(self.calificaciones[i]) / calificaciones_totales) * 100
+                porcentaje_calculado = round(porcentaje_calculado)
+                porcentajes_por_estrella.append(str(porcentaje_calculado))
+
+        porcentajes_por_estrella.reverse()
+        return porcentajes_por_estrella
+
+    def obtener_causas_de_cada_estrella(self, calificaciones_recibidas):
+        causas = {1: "", 2: "", 3: "", 4: "", 5: ""}
+        causas_temp = {1: list(), 2: list(), 3: list(), 4: list(), 5: list()}
+
+        for calificacion in calificaciones_recibidas:
+            causas_temp[int(calificacion.estrellas)].extend(calificacion.causas)
+
+        for estrella, lista_causas in causas_temp.items():
+            contador_causas = {}
+            for causa in lista_causas:
+                if causa is not None:
+                    if causa in contador_causas:
+                        contador_causas[causa] += 1
+                    else:
+                        contador_causas[causa] = 1
+            sorted_causas = sorted(contador_causas.items(), key=lambda x: x[1], reverse=True)
+            causas[estrella] = ", ".join([f"{causa} ({cantidad})" for causa, cantidad in sorted_causas])
+        return causas
+
+    def obtener_promedio_general_del_producto(self):
+        total_calificaciones = 0
+        total_estrellas = 0
+        for clave in self.calificaciones:
+            total_calificaciones += self.calificaciones[clave]
+            total_estrellas += int(clave) * int(self.calificaciones[clave])
+
+        promedio_general = round(total_estrellas / total_calificaciones)
+        print(promedio_general)
+        return promedio_general
+
+
+class Servicio(models.Model):
+    puntuaciones_calificaciones = JSONField(default=dict)
+    vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, related_name='servicios', null=True, blank=True)
+
+    def aumentar_estrella(self, calificacion_cliente):
+        for calificacion in self.puntuaciones_calificaciones:
+            if calificacion["estrellas"] == calificacion_cliente:
+                calificacion["cantidad"] += 1
+                self.save()
+                break
+        self.calcular_porcentajes()
+
+    def agregar_calificacion(self, calificacion, calificaciones_recibidas):
+        calificaciones_recibidas.append(calificacion)
+        self.aumentar_estrella(calificacion.estrellas)
+
+    def calcular_porcentajes(self):
+        total_estrellas = sum(calificacion["cantidad"] for calificacion in self.puntuaciones_calificaciones)
+        for calificacion in self.puntuaciones_calificaciones:
+            porcentaje_calculado = (calificacion["cantidad"] / total_estrellas) * 100
+            porcentaje_calculado = round(porcentaje_calculado)
+            calificacion["porcentaje"] = str(porcentaje_calculado)
+
+    def obtener_porcentajes_de_calificaciones(self):
+        porcentajes_por_estrella = list()
+        total_estrellas = sum(calificacion["cantidad"] for calificacion in self.puntuaciones_calificaciones)
+        for calificacion in self.puntuaciones_calificaciones:
+            porcentaje_calculado = (calificacion["cantidad"] / total_estrellas) * 100
+            porcentaje_calculado = round(porcentaje_calculado)
+            porcentajes_por_estrella.append(str(porcentaje_calculado))
+
+        porcentajes_por_estrella.reverse()
+        return porcentajes_por_estrella
+
+    def obtener_causas_de_cada_estrella(self, calificaciones_recibidas):
+        causas = {1: "", 2: "", 3: "", 4: "", 5: ""}
+        causas_temp = {1: list(), 2: list(), 3: list(), 4: list(), 5: list()}
+
+        for calificacion in calificaciones_recibidas:
+            causas_temp[int(calificacion.estrellas)].extend(calificacion.causas)
+
+        for estrella, lista_causas in causas_temp.items():
+            contador_causas = {}
+            for causa in lista_causas:
+                if causa is not None:
+                    if causa in contador_causas:
+                        contador_causas[causa] += 1
+                    else:
+                        contador_causas[causa] = 1
+            sorted_causas = sorted(contador_causas.items(), key=lambda x: x[1], reverse=True)
+            causas[estrella] = ", ".join([f"{causa} ({cantidad})" for causa, cantidad in sorted_causas])
+        return causas
+
+    def obtener_promedio_general_del_servicio(self):
+        total_calificaciones = 0
+        total_estrellas = 0
+        for calificacion in self.puntuaciones_calificaciones:
+            total_calificaciones += calificacion["cantidad"]
+            total_estrellas += calificacion["estrellas"] * calificacion["cantidad"]
+
+        promedio_general = round(total_estrellas / total_calificaciones)
+        return promedio_general
+
+
+class Pedido(models.Model):
+    id_pedido = models.AutoField(primary_key=True, unique=True)
+    estado_pedido = models.CharField(max_length=50)
+    lista_de_productos = models.ManyToManyField(Producto)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='pedidos')
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='pedidos', default=None ,null=True, blank=True)
+
+
+class Calificacion(models.Model):
+    estrellas = models.IntegerField(default=1)
+    causas = models.JSONField(default=list, null=True, blank=True)
+    id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True, blank=True)
+    id_servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, null=True, blank=True)
+
+
+class Causas(Enum):
+    BUENOS_ACABADOS = "Buenos acabados"
+    CONCUERDA_DESCRIPCION = "Concuerda con la descripción"
+    BUENA_CALIDAD = "Buena calidad de materiales"
+    BUEN_FUNCIONAMIENTO = "Buen funcionamiento"
+    NO_CONCUERDA_DESC = "No concuerda con la descripción"
+    MALA_CALIDAD = "Mala calidad de materiales"
+    MALOS_ACABADOS = "Malos acabados"
+    MAL_FUNCIONAMIENTO = "Mal funcionamiento"
+    PAQUETE_DANIADO = "Paquete dañado"
+    ENTREGA_TARDIA = "Entrega tardía"
+    ENTREGA_A_TIEMPO = "Entrega a tiempo"
+    ENTREGA_RAPIDA = "Entrega rápida"
+    UBICACION_EQUIVOCADA = "Ubicación equivocada"
+    ENTREGA_SIN_PERCANCES = "Entrega sin percances"
 
 
 class Pedido(models.Model):
