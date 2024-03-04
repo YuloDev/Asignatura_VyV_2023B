@@ -8,7 +8,7 @@ from marketplace.models import *
 
 
 def index(request):
-    return render(request, 'inicio.html',
+    return render(request, 'home.html',
                   context={"products": Producto.objects.all(), "categorias": Categoria.objects.all()})
 
 

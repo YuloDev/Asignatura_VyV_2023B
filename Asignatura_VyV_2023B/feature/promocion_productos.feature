@@ -28,7 +28,7 @@ Característica: Promoción de productos
     Y al menos una de las categorías pertenece a las preferencias del cliente
     Y las unidades vendidas de algun producto superan el record de ventas de la categoría
     Cuando se muestre la pagina principal del marketplace
-    Entonces en la parte superior de la ventana principal del marketplace se muestran las categorias pertenecientes a las preferencias del cliente con el producto que superó el record de ventas
+    Entonces los productos que han superado el record de ventas y pertenecen a una categoría que está incluida en las preferencias del cliente se muestran en la seccion de productos destacados
     Y el record de ventas de la categoria se actualiza con el valor de las unidades vendidas del producto
 
 
