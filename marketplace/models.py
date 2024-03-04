@@ -124,14 +124,14 @@ class Vendedor(models.Model):
 
 class Producto(models.Model):
     id_producto = models.AutoField(primary_key=True)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True)
     nombre = models.CharField(max_length=50, default="")
-    unidades_vendidas = models.IntegerField(default=0)
+    unidades_vendidas = models.IntegerField(default=0, null=True)
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, null=True, related_name='productos')
     promocion = models.ForeignKey(Promocion, on_delete=models.CASCADE, null=True)
-    calificaciones = JSONField(default=dict)
-    precio = models.FloatField()
-    costo = models.FloatField()
+    calificaciones = JSONField(default=dict, null=True)
+    precio = models.FloatField(null=True)
+    costo = models.FloatField(null=True)
 
     def ha_superado_record(self):
         return self.categoria.supera_record(self.unidades_vendidas)
@@ -199,11 +199,11 @@ class Producto(models.Model):
         print(promedio_general)
         return promedio_general
 
-    def obtener_precio(self):  # Necesario?
-        return self.precio
+    def obtener_precio(self):
+        return self.precio * self.unidades_vendidas
 
-    def obtener_costo(self):  # Necesario?
-        return self.costo
+    def obtener_costo(self):
+        return self.costo * self.unidades_vendidas
 
 
 class Servicio(models.Model):
@@ -325,10 +325,10 @@ class Pedido(models.Model):
 
     )
 
-    etapa_pedido = models.CharField(max_length=20, choices=ETAPA, default=PRECOMPRA)
-    estado_pedido = models.CharField(max_length=20, choices=ESTADO, default=A_TIEMPO)
+    etapa_pedido = models.CharField(max_length=20, choices=ETAPA, default=PRECOMPRA, null=True)
+    estado_pedido = models.CharField(max_length=20, choices=ESTADO, default=A_TIEMPO, null=True)
     pedido_activo = models.BooleanField(default=True)
-    fecha_creacion_pedido = models.DateField()
+    fecha_creacion_pedido = models.DateField(null=True)
     fecha_etapa_precompra = models.DateField(null=True, blank=True)
     fecha_etapa_reserva = models.DateField(null=True, blank=True)
     fecha_listo_para_entregar = models.DateField(null=True, blank=True)
@@ -339,7 +339,7 @@ class Pedido(models.Model):
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, default=1, related_name='pedidos')
     id_pedido = models.AutoField(primary_key=True, unique=True)
     lista_de_productos = models.ManyToManyField(Producto)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='pedidos')
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='pedidos', null=True)
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='pedidos', default=None, null=True,
                                  blank=True)
 
@@ -493,27 +493,15 @@ class Pedido(models.Model):
         self.save()
 
     def obtener_ingreso_total(self):
-        return sum(producto.obtener_precio_total() for producto in self.detalles.all())
+        return sum(producto.obtener_precio() for producto in self.lista_de_productos.all())
 
     def obtener_costo_total(self):
-        return sum(producto.obtener_costo_total() for producto in self.detalles.all())
+        return sum(producto.obtener_costo() for producto in self.lista_de_productos.all())
 
     def obtener_beneficio_total(self):
         ingreso_total = self.obtener_ingreso_total()
         costo_total = self.obtener_costo_total()
         return ingreso_total - costo_total
-
-
-class DetalleDePedido(models.Model):
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='detalles')
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    cantidad = models.IntegerField()
-
-    def obtener_precio_total(self):
-        return self.producto.precio * self.cantidad
-
-    def obtener_costo_total(self):
-        return self.producto.costo * self.cantidad
 
 
 class TipoDeMetrica(models.TextChoices):

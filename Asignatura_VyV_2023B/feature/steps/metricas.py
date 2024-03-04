@@ -11,21 +11,24 @@ use_step_matcher("re")
 
 @step(
     "que un vendedor realizó (?P<ventas_mes_actual>.+) ventas en el mes actual, diciembre, de productos cuyo costo y precio fueron (?P<costo_mes_actual>.+) y (?P<precio_mes_actual>.+), respectivamente, y (?P<ventas_mes_anterior>.+) ventas en el mes anterior de productos cuyo costo y precio fueron (?P<costo_mes_anterior>.+) y (?P<precio_mes_anterior>.+), respectivamente")
-def step_impl(context, ventas_mes_actual, costo_mes_actual, precio_mes_actual, ventas_mes_anterior, costo_mes_anterior, precio_mes_anterior):
+def step_impl(context, ventas_mes_actual, costo_mes_actual, precio_mes_actual, ventas_mes_anterior, costo_mes_anterior,
+              precio_mes_anterior):
     faker = Faker()
     vendedor, _ = Vendedor.objects.get_or_create(
         nombre=faker.name()
     )
     context.vendedor = vendedor
 
-    context.producto_de_mes_actual, _ = Producto.objects.get_or_create(nombre_producto="Pepsi",
+    context.producto_de_mes_actual, _ = Producto.objects.get_or_create(nombre="Pepsi",
                                                                        precio=float(precio_mes_actual),
                                                                        costo=float(costo_mes_actual),
-                                                                       vendedor=context.vendedor)
-    context.producto_de_mes_anterior, _ = Producto.objects.get_or_create(nombre_producto="Pepsi",
+                                                                       vendedor=context.vendedor,
+                                                                       unidades_vendidas=1)
+    context.producto_de_mes_anterior, _ = Producto.objects.get_or_create(nombre="Coca-cola",
                                                                          precio=float(precio_mes_anterior),
                                                                          costo=float(costo_mes_anterior),
-                                                                         vendedor=context.vendedor)
+                                                                         vendedor=context.vendedor,
+                                                                         unidades_vendidas=1)
     context.anio = 2023
     context.mes_actual = 12
     context.mes_anterior = 11
@@ -33,22 +36,25 @@ def step_impl(context, ventas_mes_actual, costo_mes_actual, precio_mes_actual, v
     for _ in range(int(ventas_mes_actual)):
         context.pedido = context.vendedor.pedidos.create(
             fecha_listo_para_entregar=date(context.anio, context.mes_actual, 1))
-        context.pedido.detalles.get_or_create(producto=context.producto_de_mes_actual, cantidad=1)
+        context.pedido.lista_de_productos.add(context.producto_de_mes_actual)
     for _ in range(int(ventas_mes_anterior)):
         context.pedido = context.vendedor.pedidos.create(
             fecha_listo_para_entregar=date(context.anio, context.mes_anterior, 1))
-        context.pedido.detalles.get_or_create(producto=context.producto_de_mes_anterior,
-                                              cantidad=1)
+        context.pedido.lista_de_productos.add(context.producto_de_mes_anterior)
 
-    assert (context.vendedor.obtener_cantidad_de_ventas_por_fecha(context.anio, context.mes_actual) == int(ventas_mes_actual) and
-            context.vendedor.obtener_cantidad_de_ventas_por_fecha(context.anio, context.mes_anterior) == int(ventas_mes_anterior))
+    assert (context.vendedor.obtener_cantidad_de_ventas_por_fecha(context.anio, context.mes_actual) == int(
+        ventas_mes_actual) and
+            context.vendedor.obtener_cantidad_de_ventas_por_fecha(context.anio, context.mes_anterior) == int(
+                ventas_mes_anterior))
 
 
 @step("el vendedor estableció como meta de número de ventas para el mes actual el valor (?P<meta_ventas>.+)")
 def step_impl(context, meta_ventas):
-    context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.NUMERO_DE_VENTAS, valor=meta_ventas, anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
+    context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.NUMERO_DE_VENTAS, valor=meta_ventas,
+                                                 anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
     context.vendedor.establecer_meta(context.meta)
-    assert (context.vendedor.obtener_meta(TipoDeMetrica.NUMERO_DE_VENTAS, context.anio, context.mes_actual).obtener_valor() == float(
+    assert (context.vendedor.obtener_meta(TipoDeMetrica.NUMERO_DE_VENTAS, context.anio,
+                                          context.mes_actual).obtener_valor() == float(
         meta_ventas))
 
 
@@ -86,7 +92,8 @@ def step_impl(context, meta_ingresos):
     context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.INGRESOS, valor=meta_ingresos,
                                                  anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
     context.vendedor.establecer_meta(context.meta)
-    assert (context.vendedor.obtener_meta(TipoDeMetrica.INGRESOS, context.anio, context.mes_actual).obtener_valor() == float(
+    assert (context.vendedor.obtener_meta(TipoDeMetrica.INGRESOS, context.anio,
+                                          context.mes_actual).obtener_valor() == float(
         meta_ingresos))
 
 
@@ -112,7 +119,8 @@ def step_impl(context, meta_costos):
     context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.COSTOS, valor=meta_costos,
                                                  anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
     context.vendedor.establecer_meta(context.meta)
-    assert (context.vendedor.obtener_meta(TipoDeMetrica.COSTOS, context.anio, context.mes_actual).obtener_valor() == float(
+    assert (context.vendedor.obtener_meta(TipoDeMetrica.COSTOS, context.anio,
+                                          context.mes_actual).obtener_valor() == float(
         meta_costos))
 
 
@@ -128,7 +136,6 @@ def step_impl(context, comparacion_por_meta, porcentaje):
             and context.reporte.obtener_porcentaje_de_avance(TipoDeMetrica.COSTOS) == int(porcentaje))
 
 
-
 @step("se indicará que los costos del mes actual (?P<comparacion_por_mes>.+) a los costos del mes anterior")
 def step_impl(context, comparacion_por_mes):
     assert (context.reporte.obtener_comparacion_por_mes_anterior(TipoDeMetrica.COSTOS) == comparacion_por_mes)
@@ -137,10 +144,12 @@ def step_impl(context, comparacion_por_mes):
 @step(
     "el vendedor estableció como meta de beneficio por venta para el mes actual la cantidad de (?P<meta_beneficio>.+) dólares")
 def step_impl(context, meta_beneficio):
-    context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.BENEFICIO_POR_VENTA, valor=meta_beneficio,
+    context.meta, _ = Meta.objects.get_or_create(tipo_de_metrica=TipoDeMetrica.BENEFICIO_POR_VENTA,
+                                                 valor=meta_beneficio,
                                                  anio=context.anio, mes=context.mes_actual, vendedor=context.vendedor)
     context.vendedor.establecer_meta(context.meta)
-    assert (context.vendedor.obtener_meta(TipoDeMetrica.BENEFICIO_POR_VENTA, context.anio, context.mes_actual).obtener_valor() == float(meta_beneficio))
+    assert (context.vendedor.obtener_meta(TipoDeMetrica.BENEFICIO_POR_VENTA, context.anio,
+                                          context.mes_actual).obtener_valor() == float(meta_beneficio))
 
 
 @step("se mostrarán (?P<beneficio>.+) dólares de beneficio por venta")
@@ -158,4 +167,5 @@ def step_impl(context, comparacion_por_meta, porcentaje):
 @step(
     "se indicará que los beneficio por venta del mes actual (?P<comparacion_por_mes>.+) a los beneficios por venta del mes anterior")
 def step_impl(context, comparacion_por_mes):
-    assert (context.reporte.obtener_comparacion_por_mes_anterior(TipoDeMetrica.BENEFICIO_POR_VENTA) == comparacion_por_mes)
+    assert (context.reporte.obtener_comparacion_por_mes_anterior(
+        TipoDeMetrica.BENEFICIO_POR_VENTA) == comparacion_por_mes)
