@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block title %}Reporte de Métricas{% endblock %}
+{% block content %}
+
+    <main>
+        <h1 class="text-center display-4 mb-4">Reporte de Métricas</h1>
+        <div class="container-fluid">
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Número de ventas</div>
+                        <div class="card-body">
+                            <h1 class="card-title">{{ numero_ventas }}</h1>
+                            <p class="card-text">
+                                {% if nv_comparaion_meta == 'superan' or nv_comparaion_meta == 'igualan' %}
+                                    <span class="badge bg-success">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    Avance {{ nv_porcentaje|floatformat:"-1" }}%
+                                </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    Avance {{ nv_porcentaje|floatformat:"-1" }}%
+                                </span>
+                                {% endif %}
+
+                                {% if nv_comparacion_mes_anterior == 'superan' or nv_comparacion_mes_anterior == 'igualan' %}
+                                    <span class="badge bg-success">
+                                    <i class="fa-regular fa-calendar-days"></i>
+                                    ▲ Mes anterior: {{ nv_valor_mes_anterior }}
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                    <i class="fa-regular fa-calendar-days"></i>
+                                    ▼ Mes anterior: {{ nv_valor_mes_anterior }}
+                                {% endif %}
+                                </span>
+                            </p>
+                            <p class="recommendation">
+                                Recomendación: {{ recomendaciones.0 }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Nuevos ingresos</div>
+                        <div class="card-body">
+                            <h1 class="card-title">${{ ingresos }}</h1>
+                            <p class="card-text">
+                                {% if is_comparaion_meta == 'superan' or is_comparaion_meta == 'igualan' %}
+                                    <span class="badge bg-success">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    Avance {{ is_porcentaje|floatformat:"-1" }}%
+                                </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    Avance {{ is_porcentaje|floatformat:"-1" }}%
+                                </span>
+                                {% endif %}
+
+                                {% if is_comparacion_mes_anterior == 'superan' or is_comparacion_mes_anterior == 'igualan' %}
+                                    <span class="badge bg-success">
+                                    <i class="fa-regular fa-calendar-days"></i>
+                                    ▲ Mes anterior: {{ is_valor_mes_anterior }}
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                    <i class="fa-regular fa-calendar-days"></i>
+                                    ▼ Mes anterior: {{ is_valor_mes_anterior }}
+                                {% endif %}
+                                </span>
+                            </p>
+                            <p class="recommendation">
+                                Recomendación: {{ recomendaciones.1 }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Costo</div>
+                        <div class="card-body">
+                            <h1 class="card-title">${{ costos }}</h1>
+                            <p class="card-text">
+                                {% if cs_comparaion_meta == 'superan' or cs_comparaion_meta == 'igualan' %}
+                                    <span class="badge bg-success">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    Avance {{ cs_porcentaje|floatformat:"-1" }}%
+                                </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    Avance {{ cs_porcentaje|floatformat:"-1" }}%
+                                </span>
+                                {% endif %}
+
+                                {% if cs_comparacion_mes_anterior == 'superan' or cs_comparacion_mes_anterior == 'igualan' %}
+                                    <span class="badge bg-success">
+                                    <i class="fa-regular fa-calendar-days"></i>
+                                    ▲ Mes anterior: {{ cs_valor_mes_anterior }}
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                    <i class="fa-regular fa-calendar-days"></i>
+                                    ▼ Mes anterior: {{ cs_valor_mes_anterior }}
+                                {% endif %}
+                                </span>
+                            </p>
+                            <p class="recommendation">
+                                Recomendación: {{ recomendaciones.2 }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="card mb-4">
+                        <div class="card-header">Beneficio por venta</div>
+                        <div class="card-body">
+                            <h1 class="card-title">${{ beneficio_venta }}</h1>
+                            <p class="card-text">
+                                {% if bv_comparaion_meta == 'superan' or bv_comparaion_meta == 'igualan' %}
+                                    <span class="badge bg-success">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    Avance {{ bv_porcentaje|floatformat:"-1" }}%
+                                </span>
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                    <i class="fa-solid fa-bullseye"></i>
+                                    Avance {{ bv_porcentaje|floatformat:"-1" }}%
+                                </span>
+                                {% endif %}
+
+                                {% if bv_comparacion_mes_anterior == 'superan' or bv_comparacion_mes_anterior == 'igualan' %}
+                                    <span class="badge bg-success">
+                                    <i class="fa-regular fa-calendar-days"></i>
+                                    ▲ Mes anterior: {{ bv_valor_mes_anterior }}
+                                {% else %}
+                                    <span class="badge bg-danger">
+                                    <i class="fa-regular fa-calendar-days"></i>
+                                    ▼ Mes anterior: {{ bv_valor_mes_anterior }}
+                                {% endif %}
+                                </span>
+                            </p>
+                            <p class="recommendation">
+                                Recomendación: {{ recomendaciones.3 }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        main {
+            padding: 20px;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #f7f7f7;
+            font-weight: bold;
+        }
+
+        .card-title {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        .card-text {
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .badge-fail {
+            background-color: #f00;
+            color: #fff;
+        }
+
+        .recommendation {
+            font-style: italic;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+
+{% endblock %}
