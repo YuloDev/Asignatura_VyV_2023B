@@ -34,11 +34,15 @@ def step_impl(context):
 
 @step("el numero de pedidos totales y el tiempo estimado para cada etapa en dias es el siguiente")
 def step_impl(context):
-    # Crear una instancia del Modelo (o Etapa, dependiendo de tu diseño)
-    context.modelo = TiempoEtapa()
+    # Crear una instancia de la clase Etapa
+    context.etapa = Etapa()
+
+    # Agregar pedidos a cada una de las etapas
+    for pedido in context.vendedor.lista_pedidos:
+        context.etapa.agregar_pedido(pedido, pedido.etapa_pedido)
 
     # Calcular la información de las etapas utilizando el método en el modelo
-    info_etapas = context.modelo.calcular_info_etapas(context.vendedor.lista_pedidos)
+    info_etapas = context.etapa.calcular_info_etapas()
 
     # Iterar sobre las filas de la tabla de BDD
     for row in context.table:
@@ -53,7 +57,6 @@ def step_impl(context):
         assert total_pedidos == int(
             row["total_pedidos"]), f"El número total de pedidos para la etapa {etapa_nombre} no coincide"
         assert tiempo_etapa == int(row["tiempo_etapa"]), f"El tiempo estimado para la etapa {etapa_nombre} no coincide"
-
 
 @step("accede al resumen del seguimiento interno en la etapa de precompra")
 def step_impl(context):

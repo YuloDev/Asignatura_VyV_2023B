@@ -52,49 +52,50 @@ class Vendedor:
         return resumen_etapa
 
 
-# Creacion de la Clase TiempoEtapa
-class TiempoEtapa:
+# Creacion de la Clase Etapa
+class Etapa:
     def __init__(self):
-        self.etapas = [
-            Etapa(nombre_etapa="precompra", tiempo_etapa=2),
-            Etapa(nombre_etapa="reserva", tiempo_etapa=4),
-            Etapa(nombre_etapa="listo_para_entregar", tiempo_etapa=2),
-        ]
+        # Diccionario que mapea el nombre de la etapa a su tiempo estimado en días
+        self.nombre_etapa = {
+            "precompra": 2,
+            "reserva": 4,
+            "listo_para_entregar": 2,
+        }
+        # Diccionario que almacenará los pedidos por etapa
+        self.pedidos_por_etapa = {etapa: [] for etapa in self.nombre_etapa}
 
-    def calcular_info_etapa(self, lista_pedidos, nombre_etapa):
-        # Filtrar los pedidos por la etapa actual
-        pedidos_etapa = [pedido for pedido in lista_pedidos if pedido.etapa_pedido == nombre_etapa]
+    def agregar_pedido(self, pedido, nombre_etapa):
+        # Método para agregar un pedido a la lista de pedidos por etapa
+        self.pedidos_por_etapa[nombre_etapa].append(pedido)
 
-        # Obtener el número total de pedidos
-        total_pedidos = len(pedidos_etapa)
+    def calcular_info_etapa(self, nombre_etapa):
+        # Calcular la información de una etapa específica sin depender de la lista de pedidos
+        total_pedidos = len(self.pedidos_por_etapa[nombre_etapa])
+        tiempo_etapa = self.obtener_tiempo_etapa(nombre_etapa)
 
         # Almacenar la información en un diccionario
-        info_etapa = {"total_pedidos": total_pedidos, "tiempo_etapa": self.obtener_tiempo_etapa(nombre_etapa)}
+        info_etapa = {"total_pedidos": total_pedidos, "tiempo_etapa": tiempo_etapa}
 
-        # Imprimir información para verificar
-        print(
-            f"Etapa: {nombre_etapa}, Total Pedidos: {total_pedidos}, Tiempo Estimado: {self.obtener_tiempo_etapa(nombre_etapa)} días")
+        # Imprimir información para verificar (esto podría ser eliminado en producción)
+        print(f"Etapa: {nombre_etapa}, Total Pedidos: {total_pedidos}, Tiempo Estimado: {tiempo_etapa} días")
 
         # Devolver el diccionario con la información de la etapa
         return info_etapa
 
-    def calcular_info_etapas(self, lista_pedidos):
+    def calcular_info_etapas(self):
+        # Diccionario que almacenará la información de todas las etapas
         info_etapas = {}
 
-        for etapa in self.etapas:
-            # Convierte el nombre de la etapa a minúsculas
-            etapa_nombre = etapa.nombre_etapa.lower()
-            info_etapas[etapa_nombre] = self.calcular_info_etapa(lista_pedidos, etapa_nombre)
+        # Iterar sobre todas las etapas y calcular la información para cada una
+        for nombre_etapa in self.nombre_etapa:
+            info_etapas[nombre_etapa] = self.calcular_info_etapa(nombre_etapa)
 
         # Devolver el diccionario con la información de todas las etapas
         return info_etapas
 
     def obtener_tiempo_etapa(self, nombre_etapa):
-        # Obtener el tiempo estimado de una etapa por su nombre
-        for etapa in self.etapas:
-            if etapa.nombre_etapa.lower() == nombre_etapa:
-                return etapa.tiempo_etapa
-        return 0  # Valor por defecto si no se encuentra la etapa
+        # Obtener el tiempo estimado de una etapa por su nombre, si no está presente, devolver 0
+        return self.nombre_etapa.get(nombre_etapa, 0)
 
 
 # Definicion de la clase ResumenSeguimiento
@@ -228,19 +229,6 @@ class Pedido:
                 self.estado_pedido = EstadoPedido.Cancelado.value
         else:
             self.estado_pedido = EstadoPedido.Cancelado.value
-
-
-# Definicion de la clase Etapa
-class Etapa:
-    # Constructor
-    def __init__(self, nombre_etapa, tiempo_etapa):
-        self.nombre_etapa = nombre_etapa
-        self.pedidos = []  # Inicializa la lista de pedidos de la etapa
-        self.tiempo_etapa = tiempo_etapa
-
-    def agregar_pedido(self, pedido):
-        # Método para agregar un pedido a la lista de pedidos de la etapa
-        self.pedidos.append(pedido)
 
 
 class EtapaEncuentra(Enum):
