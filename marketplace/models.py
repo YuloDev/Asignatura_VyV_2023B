@@ -199,11 +199,11 @@ class Producto(models.Model):
         print(promedio_general)
         return promedio_general
 
-    def obtener_precio(self):  # Necesario?
-        return self.precio
+    def obtener_precio(self):
+        return self.precio * self.unidades_vendidas
 
-    def obtener_costo(self):  # Necesario?
-        return self.costo
+    def obtener_costo(self):
+        return self.costo * self.unidades_vendidas
 
 
 class Servicio(models.Model):
@@ -493,27 +493,15 @@ class Pedido(models.Model):
         self.save()
 
     def obtener_ingreso_total(self):
-        return sum(producto.obtener_precio_total() for producto in self.detalles.all())
+        return sum(producto.obtener_precio() for producto in self.lista_de_productos.all())
 
     def obtener_costo_total(self):
-        return sum(producto.obtener_costo_total() for producto in self.detalles.all())
+        return sum(producto.obtener_costo() for producto in self.lista_de_productos.all())
 
     def obtener_beneficio_total(self):
         ingreso_total = self.obtener_ingreso_total()
         costo_total = self.obtener_costo_total()
         return ingreso_total - costo_total
-
-
-class DetalleDePedido(models.Model):
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='detalles')
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    cantidad = models.IntegerField()
-
-    def obtener_precio_total(self):
-        return self.producto.precio * self.cantidad
-
-    def obtener_costo_total(self):
-        return self.producto.costo * self.cantidad
 
 
 class TipoDeMetrica(models.TextChoices):
