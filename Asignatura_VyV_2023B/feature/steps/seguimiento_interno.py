@@ -62,7 +62,7 @@ def step_impl(context):
 def step_impl(context):
     # Llamamos al método para obtener el resumen del vendedor
     context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("precompra")
-    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
+    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado."
 
 
 
@@ -70,14 +70,14 @@ def step_impl(context):
 def step_impl(context):
     # Llamamos al método para obtener el resumen del vendedor
     context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("reserva")
-    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
+    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado."
 
 
 @step("accede al resumen del seguimiento interno en la etapa de listo_para_entregar")
 def step_impl(context):
     # Llamamos al método para obtener el resumen del vendedor
     context.resumen_PreCompra = context.vendedor.obtener_resumen_etapa("listo_para_entregar")
-    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado"
+    assert (context.resumen_PreCompra is not None), "El resumen no se ha generado."
 
 
 @step(
