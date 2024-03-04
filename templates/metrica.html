@@ -12,7 +12,7 @@
                         <div class="card-body">
                             <h1 class="card-title">{{ numero_ventas }}</h1>
                             <p class="card-text">
-                                {% if nv_comparaion_meta == 'superan' or nv_comparaion_meta == 'igualan' %}
+                                {% if nv_comparacion_meta == 'superan' or nv_comparacion_meta == 'igualan' %}
                                     <span class="badge bg-success">
                                     <i class="fa-solid fa-bullseye"></i>
                                     Avance {{ nv_porcentaje|floatformat:"-1" }}%
@@ -47,7 +47,7 @@
                         <div class="card-body">
                             <h1 class="card-title">${{ ingresos }}</h1>
                             <p class="card-text">
-                                {% if is_comparaion_meta == 'superan' or is_comparaion_meta == 'igualan' %}
+                                {% if is_comparacion_meta == 'superan' or is_comparacion_meta == 'igualan' %}
                                     <span class="badge bg-success">
                                     <i class="fa-solid fa-bullseye"></i>
                                     Avance {{ is_porcentaje|floatformat:"-1" }}%
@@ -84,7 +84,7 @@
                         <div class="card-body">
                             <h1 class="card-title">${{ costos }}</h1>
                             <p class="card-text">
-                                {% if cs_comparaion_meta == 'superan' or cs_comparaion_meta == 'igualan' %}
+                                {% if cs_comparacion_meta == 'superan' or cs_comparacion_meta == 'igualan' %}
                                     <span class="badge bg-success">
                                     <i class="fa-solid fa-bullseye"></i>
                                     Avance {{ cs_porcentaje|floatformat:"-1" }}%
@@ -119,7 +119,7 @@
                         <div class="card-body">
                             <h1 class="card-title">${{ beneficio_venta }}</h1>
                             <p class="card-text">
-                                {% if bv_comparaion_meta == 'superan' or bv_comparaion_meta == 'igualan' %}
+                                {% if bv_comparacion_meta == 'superan' or bv_comparacion_meta == 'igualan' %}
                                     <span class="badge bg-success">
                                     <i class="fa-solid fa-bullseye"></i>
                                     Avance {{ bv_porcentaje|floatformat:"-1" }}%

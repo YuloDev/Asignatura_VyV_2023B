@@ -124,14 +124,14 @@ class Vendedor(models.Model):
 
 class Producto(models.Model):
     id_producto = models.AutoField(primary_key=True)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True)
     nombre = models.CharField(max_length=50, default="")
-    unidades_vendidas = models.IntegerField(default=0)
+    unidades_vendidas = models.IntegerField(default=0, null=True)
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, null=True, related_name='productos')
     promocion = models.ForeignKey(Promocion, on_delete=models.CASCADE, null=True)
-    calificaciones = JSONField(default=dict)
-    precio = models.FloatField()
-    costo = models.FloatField()
+    calificaciones = JSONField(default=dict, null=True)
+    precio = models.FloatField(null=True)
+    costo = models.FloatField(null=True)
 
     def ha_superado_record(self):
         return self.categoria.supera_record(self.unidades_vendidas)
@@ -325,10 +325,10 @@ class Pedido(models.Model):
 
     )
 
-    etapa_pedido = models.CharField(max_length=20, choices=ETAPA, default=PRECOMPRA)
-    estado_pedido = models.CharField(max_length=20, choices=ESTADO, default=A_TIEMPO)
+    etapa_pedido = models.CharField(max_length=20, choices=ETAPA, default=PRECOMPRA, null=True)
+    estado_pedido = models.CharField(max_length=20, choices=ESTADO, default=A_TIEMPO, null=True)
     pedido_activo = models.BooleanField(default=True)
-    fecha_creacion_pedido = models.DateField()
+    fecha_creacion_pedido = models.DateField(null=True)
     fecha_etapa_precompra = models.DateField(null=True, blank=True)
     fecha_etapa_reserva = models.DateField(null=True, blank=True)
     fecha_listo_para_entregar = models.DateField(null=True, blank=True)
@@ -339,7 +339,7 @@ class Pedido(models.Model):
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, default=1, related_name='pedidos')
     id_pedido = models.AutoField(primary_key=True, unique=True)
     lista_de_productos = models.ManyToManyField(Producto)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='pedidos')
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='pedidos', null=True)
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='pedidos', default=None, null=True,
                                  blank=True)
 

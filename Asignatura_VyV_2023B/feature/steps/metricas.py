@@ -18,11 +18,11 @@ def step_impl(context, ventas_mes_actual, costo_mes_actual, precio_mes_actual, v
     )
     context.vendedor = vendedor
 
-    context.producto_de_mes_actual, _ = Producto.objects.get_or_create(nombre_producto="Pepsi",
+    context.producto_de_mes_actual, _ = Producto.objects.get_or_create(nombre="Pepsi",
                                                                        precio=float(precio_mes_actual),
                                                                        costo=float(costo_mes_actual),
                                                                        vendedor=context.vendedor)
-    context.producto_de_mes_anterior, _ = Producto.objects.get_or_create(nombre_producto="Pepsi",
+    context.producto_de_mes_anterior, _ = Producto.objects.get_or_create(nombre="Pepsi",
                                                                          precio=float(precio_mes_anterior),
                                                                          costo=float(costo_mes_anterior),
                                                                          vendedor=context.vendedor)
