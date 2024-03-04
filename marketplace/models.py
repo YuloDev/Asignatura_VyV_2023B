@@ -12,9 +12,6 @@ import datetime
 
 
 # Create your models here.
-class Cliente(models.Model):
-    nombre = models.CharField(max_length=50)
-    preferencias = models.CharField(max_length=200, blank=True)
 
 
 class Categoria(models.Model):
@@ -43,7 +40,7 @@ class Cliente(models.Model):
     apellido = models.CharField(max_length=50)
     correo = models.EmailField(max_length=50)
     telefono = models.CharField(max_length=10)
-
+    preferencias = models.CharField(max_length=200, blank=True)
     def calificar_producto(self, estrellas, causas, producto, calificaciones_recibidas):
         calificacion = Calificacion(estrellas=estrellas, causas=causas, id_producto=producto)
         calificacion.save()
