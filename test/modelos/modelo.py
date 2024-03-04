@@ -2,6 +2,7 @@ from enum import Enum
 from datetime import datetime
 from datetime import timedelta
 
+
 # Definición de la clase UtilidadesFecha
 class UtilidadesFecha:
     @staticmethod
@@ -19,7 +20,6 @@ class Vendedor:
     def __init__(self, nombre_vendedor, lista_pedidos=None):
         self.nombre_vendedor = nombre_vendedor
         self.lista_pedidos = []  # Inicializa la lista de pedidos del vendedor
-        self.resumenes = []  # Inicializa la lista de resúmenes del vendedor
 
     def agregar_pedido(self, pedido, nombre_etapa):
         # Método para agregar un pedido a la lista de pedidos del vendedor
@@ -33,7 +33,6 @@ class Vendedor:
 
     def obtener_resumen_etapa(self, nombre_etapa):
         # Limpiamos los resúmenes existentes
-        self.resumenes = []
         resumen_etapa = ResumenSeguimiento(nombre_etapa, 0, 0, 0, 0)
         resultados = resumen_etapa.obtener_detalles_resumen(self.lista_pedidos, nombre_etapa)
         # Almacenamos los resultados devueltos en la variable 'resultados'
@@ -48,7 +47,6 @@ class Vendedor:
               resumen_etapa.num_pedido_cancelados,
               "cancelados,", resumen_etapa.num_pedidos_atrasados, "atrasados,", resumen_etapa.num_pedidos_a_tiempo,
               "a tiempo\n")
-        self.resumenes.append(resumen_etapa)
         return resumen_etapa
 
 
@@ -114,39 +112,22 @@ class ResumenSeguimiento:
         self.total_pedidos = self.num_pedidos_atrasados + self.num_pedidos_a_tiempo + self.num_pedido_cancelados
         return self.total_pedidos
 
-    def obtener_detalles_resumen(self, pedidos, etapa):
-        pedidos_etapa = [pedido for pedido in pedidos if pedido.etapa_pedido == etapa.lower()]
+    def obtener_detalles_resumen(self, pedidos, nombre_etapa):
+        pedidos_etapa = [pedido for pedido in pedidos if pedido.etapa_pedido == nombre_etapa]
 
         # Inicializamos las variables
         total_pedidos = len(pedidos_etapa)
         pedidos_cancelados = sum(1 for pedido in pedidos_etapa if pedido.pedido_activo == False)
-        if etapa == EtapaEncuentra.precompra.value:
-            pedidos_atrasados = sum(
-                1 for pedido in pedidos_etapa if pedido.estado_pedido_precompra == EstadoPedido.Atrasado.value.lower())
-            pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if
-                                   pedido.estado_pedido_precompra == EstadoPedido.A_tiempo.value.lower().replace(" ",
-                                                                                                                 "_"))
-        elif etapa == EtapaEncuentra.reserva.value:
-            pedidos_atrasados = sum(
-                1 for pedido in pedidos_etapa if pedido.estado_pedido_reserva == EstadoPedido.Atrasado.value.lower())
-            pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if
-                                   pedido.estado_pedido_reserva== EstadoPedido.A_tiempo.value.lower().replace(" ",
-                                                                                                                 "_"))
-        elif etapa == EtapaEncuentra.listo_para_entregar.value:
-            pedidos_atrasados = sum(
-                1 for pedido in pedidos_etapa if pedido.estado_pedido_listo_para_entregar == EstadoPedido.Atrasado.value.lower())
-            pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if
-                                   pedido.estado_pedido_listo_para_entregar == EstadoPedido.A_tiempo.value.lower().replace(" ",
-                                                                                                                 "_"))
-        else:
-            pedidos_atrasados = 0
-            pedidos_a_tiempo = 0
+        pedidos_atrasados = sum(
+            1 for pedido in pedidos_etapa if pedido.cambiar_estado(pedido.pedido_activo, pedido.etapa_pedido) == "atrasado")
+        pedidos_a_tiempo = sum(1 for pedido in pedidos_etapa if pedido.cambiar_estado(pedido.pedido_activo, pedido.etapa_pedido) == "a_tiempo")
 
         # Almacenamos los resultados en el atributo 'resultados'
         self.resultados = (total_pedidos, pedidos_cancelados, pedidos_atrasados, pedidos_a_tiempo)
 
         # Devolvemos los resultados
         return self.resultados
+
 
 class Pedido:
     def __init__(self, numero_pedido, etapa_pedido, pedido_activo, fecha_creacion_pedido,
@@ -176,7 +157,6 @@ class Pedido:
         self.tiempo_pedidoAT = UtilidadesFecha.calcular_tiempo_entre_fechas(fecha_maxima_etapa_listo_para_entregar,
                                                                             fecha_real_etapa_listo_para_entregar)
 
-
     @classmethod
     def from_row(cls, row):
         numero_pedido = row["numero_pedido"]
@@ -201,7 +181,6 @@ class Pedido:
             "fecha_real_etapa_listo_para_entregar"] else None
         estado_pedido_listo_para_entregar = row["estado_pedido_listo_para_entregar"]
 
-
         return cls(numero_pedido, etapa_pedido, pedido_activo, fecha_creacion_pedido, fecha_maxima_etapa_precompra,
                    fecha_real_etapa_precompra, estado_pedido_precompra, fecha_maxima_etapa_reserva,
                    fecha_real_etapa_reserva, estado_pedido_reserva, fecha_maxima_etapa_listo_para_entregar,
@@ -210,33 +189,32 @@ class Pedido:
     # Método para cambiar el estado de un pedido
     def cambiar_estado(self, pedido_activo, nombre_etapa):
         if pedido_activo == True:
-            if nombre_etapa == "PreCompra":
+            if nombre_etapa == "precompra":
                 if self.tiempo_pedidoPC <= 0:
-                    self.estado_pedido = EstadoPedido.A_tiempo.value
+                    self.estado_pedido = "a_tiempo"
                 else:
-                    self.estado_pedido = EstadoPedido.Atrasado.value
-            elif nombre_etapa == "Reserva":
+                    self.estado_pedido = "atrasado"
+            elif nombre_etapa == "reserva":
                 if self.tiempo_pedidoR <= 0:
-                    self.estado_pedido = EstadoPedido.A_tiempo.value
+                    self.estado_pedido = "a_tiempo"
                 else:
-                    self.estado_pedido = EstadoPedido.Atrasado.value
-            elif nombre_etapa == "ListoDespacho":
+                    self.estado_pedido = "atrasado"
+            elif nombre_etapa == "listo_para_entregar":
                 if self.tiempo_pedidoAT <= 0:
-                    self.estado_pedido = EstadoPedido.A_tiempo.value
+                    self.estado_pedido = "a_tiempo"
                 else:
-                    self.estado_pedido = EstadoPedido.Atrasado.value
+                    self.estado_pedido = "atrasado"
             else:
-                self.estado_pedido = EstadoPedido.Cancelado.value
+                self.estado_pedido = "cancelado"
         else:
-            self.estado_pedido = EstadoPedido.Cancelado.value
+            self.estado_pedido = "cancelado"
+        return self.estado_pedido
 
 
 class EtapaEncuentra(Enum):
     precompra = "PreCompra"
     reserva = "Reserva"
     listo_para_entregar = "listo_para_entregar"
-
-
 class EstadoPedido(Enum):
     Atrasado = "Atrasado"
     A_tiempo = "A tiempo"
