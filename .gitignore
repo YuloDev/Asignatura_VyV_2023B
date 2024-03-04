@@ -43,3 +43,6 @@ __pycache__/
 # Directorio de entorno de desarrollo
 .env
 .envrc
+
+#db
+db.sqlite3
