@@ -333,13 +333,10 @@ class Pedido(models.Model):
     fecha_etapa_reserva = models.DateField(null=True, blank=True)
     fecha_listo_para_entregar = models.DateField(null=True, blank=True)
     cliente_no_encontrado = models.BooleanField(default=False)
-    fecha_real_etapa_precompra = models.DateField(null=True, blank=True)
-    fecha_real_etapa_reserva = models.DateField(null=True, blank=True)
-    fecha_real_etapa_listo_para_entregar = models.DateField(null=True, blank=True)
     vendedor = models.ForeignKey(Vendedor, on_delete=models.CASCADE, default=1, related_name='pedidos')
     id_pedido = models.AutoField(primary_key=True, unique=True)
     lista_de_productos = models.ManyToManyField(Producto)
-    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='pedidos')
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, related_name='pedidos', null=True)
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='pedidos', default=None, null=True,
                                  blank=True)
 
@@ -352,12 +349,11 @@ class Pedido(models.Model):
 
         return dias_laborales
 
-    def total_pedidos_vendedor(vendedor_id):
-        return Pedido.objects.filter(vendedor_id=vendedor_id).count()
+    def total_pedidos_vendedor(self):
+        return Pedido.objects.all()
 
-    def sumar_y_contar_por_etapa(etapa, vendedor_id):
-        pedidos_vendedor = Pedido.objects.filter(vendedor_id=vendedor_id)
-        pedidos_etapa = pedidos_vendedor.filter(etapa_pedido=etapa)
+    def sumar_y_contar_por_etapa(etapa):
+        pedidos_etapa = Pedido.objects.filter(etapa_pedido=etapa)
         total_pedidos_etapa = pedidos_etapa.count()
         atrasados = pedidos_etapa.filter(estado_pedido=Pedido.ATRASADO).count()
         a_tiempo = pedidos_etapa.filter(estado_pedido=Pedido.A_TIEMPO).count()
@@ -403,23 +399,32 @@ class Pedido(models.Model):
                                                             self.fecha_listo_para_entregar)
 
         if self.pedido_activo:
-            if self.etapa_pedido == "PC":
+            if self.etapa_pedido == "precompra":
+                self.etapa_pedido = self.PRECOMPRA
                 if tiempo_pedidoPC > 0:
                     self.estado_pedido = self.ATRASADO
                 else:
                     self.estado_pedido = self.A_TIEMPO
-            elif self.etapa_pedido == "R":
+            elif self.etapa_pedido == "reserva":
+                self.etapa_pedido = self.RESERVA
                 if tiempo_pedidoR > 0:
                     self.estado_pedido = self.ATRASADO
                 else:
                     self.estado_pedido = self.A_TIEMPO
-            elif self.etapa_pedido == "LE":
+            elif self.etapa_pedido == "listo_para_entregar":
+                self.etapa_pedido = self.LISTO_PARA_ENTREGAR
                 if tiempo_pedidoAT > 0:
                     self.estado_pedido = self.ATRASADO
                 else:
                     self.estado_pedido = self.A_TIEMPO
         else:
             self.estado_pedido = self.CANCELADO
+            if self.etapa_pedido == "precompra":
+                self.etapa_pedido = self.PRECOMPRA
+            elif self.etapa_pedido == "reserva":
+                self.etapa_pedido = self.RESERVA
+            elif self.etapa_pedido == "listo_para_entregar":
+                self.etapa_pedido = self.LISTO_PARA_ENTREGAR
 
         self.save()
 

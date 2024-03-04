@@ -134,15 +134,15 @@ def seguimiento_interno(request):
         pedido.cambiar_estado()
 
     # Total pedidos del vendedor 1
-    total_pedidos_vendedor = Pedido.total_pedidos_vendedor(1)
+    total_pedidos_vendedor = len(pedidos)
 
     # Obtener los totales y conteos por etapa
     total_pedidos_precompra, precompra_atrasados, precompra_a_tiempo, precompra_cancelados = Pedido.sumar_y_contar_por_etapa(
-        Pedido.PRECOMPRA, 1)
+        Pedido.PRECOMPRA)
     total_pedidos_reserva, reserva_atrasados, reserva_a_tiempo, reserva_cancelados = Pedido.sumar_y_contar_por_etapa(
-        Pedido.RESERVA, 1)
+        Pedido.RESERVA)
     total_pedidos_listo_para_entregar, listo_para_entregar_atrasados, listo_para_entregar_a_tiempo, listo_para_entregar_cancelados = Pedido.sumar_y_contar_por_etapa(
-        Pedido.LISTO_PARA_ENTREGAR, 1)
+        Pedido.LISTO_PARA_ENTREGAR)
 
     context = {
         'total_pedidos_vendedor': total_pedidos_vendedor,
