@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Feedback{% endblock %}
+{% block content %}
+    <style>
+        * {
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .rating label:before {
+            content: "\f005";
+            font-family: "Font Awesome 5 Free", serif;
+            font-weight: 900;
+        }
+
+        .rating input:checked ~ label {
+            color: #FFBF00;
+        }
+
+        .rating label {
+            color: #ddd;
+            font-size: 30px;
+            justify-content: center;
+            align-items: center;
+            margin: 0px 15px 0px 0px;
+            pointer-events: none;
+        }
+
+        .rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .rating input {
+            display: none;
+        }
+
+        .progress {
+            height: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border: 1px solid #aaa;
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            align-items: center;
+        }
+
+        .porcentaje {
+            position: absolute;
+            top: 50%;
+            left: 48%;
+        }
+
+        .container_causas {
+            background: #e9e9e9;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+
+        h3, h4, h5, .text {
+            font-weight: bold;
+        }
+        .input-group {
+            margin: 20px 10px 0px 28px;
+            width: 95%;
+            display: none;
+        }
+        .icon{
+            margin: 0px 10px 0px 35px;
+        }
+        .icon_p{
+            margin: 0px 10px 0px 40px;
+        }
+    </style>
+    <div class="form-check mb-3 mt-3">
+        <input class="form-check-input mx-2" type="radio" name="radio_producto" id="radio_producto">
+        <i class="fa-solid fa-cube icon_p"></i>
+        <label class="form-check-label text" for="flexRadioDefault1">
+            Producto
+        </label>
+    </div>
+        <form class="input-group mb-4" id="formulario_busqueda" method="POST" action="{% url 'feedback' %}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <input type="text" class="form-control" placeholder="Ingrese el nombre del producto"
+                   id="input_producto" name="nombre_producto" aria-label="Ingrese el nombre del producto" aria-describedby="button-addon2">
+            <input class="btn btn-outline-secondary" type="submit" value="Buscar" id="btn_buscar">
+        </form>
+    <form class="form-check" id="servicio" method="POST" action="{% url 'feedback' %}">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <input class="form-check-input m-2" type="radio" value="Servicio" name="opcion" id="radio_servicio">
+        <i class="fa-solid fa-truck-fast icon"></i>
+        <label class="form-check-label text" for="flexRadioDefault1">
+            Servicio
+        </label>
+    </form>
+
+    <h3 class="text-center">Reporte</h3>
+    <h4 class="m-3">{{ nombre }}</h4>
+    <div class="rating m-4">
+        <input type="radio" id="star5" name="rating" value="5">
+        <label for="star5"></label>
+        <input type="radio" id="star4" name="rating" value="4">
+        <label for="star4"></label>
+        <input type="radio" id="star3" name="rating" value="3">
+        <label for="star3"></label>
+        <input type="radio" id="star2" name="rating" value="2">
+        <label for="star2"></label>
+        <input type="radio" id="star1" name="rating" value="1">
+        <label for="star1"></label>
+    </div>
+    {% for porcentaje_calculado in porcentajes_calculados %}
+        <div class="container_causas">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <label>{{ estrellas.pop }} estrellas</label>
+                </div>
+                <div class="col">
+                    <div class="progress position-relative" role="progressbar" aria-label="Success example"
+                         aria-valuenow="{{ porcentaje_calculado }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-success " style="width: {{ porcentaje_calculado }}%"></div>
+                        <div class="porcentaje">
+                            <span>{{ porcentaje_calculado }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h6 class="m-2">Causas:</h6>
+            <p class="m-2">{{ causas.pop }}</p>
+        </div>
+    {% endfor %}
+    </div>
+
+    <script>
+        function seleccionarEstrellas(numEstrellas) {
+            var estrellas = document.querySelectorAll('.rating input[type="radio"]');
+            for (var i = 0; i < estrellas.length; i++) {
+                if (parseInt(estrellas[i].value) === numEstrellas) {
+                    estrellas[i].checked = true;
+                    break;
+                }
+            }
+        }
+
+        seleccionarEstrellas({{ num_estrella_calculada }});
+
+        let opcion_producto = document.getElementById('radio_producto');
+        let opcion_servicio = document.getElementById('radio_servicio');
+        let input_producto = document.getElementById('input_producto');
+        let btn_buscar = document.getElementById('btn_buscar');
+        let formulario_busqueda = document.getElementById('formulario_busqueda');
+
+        opcion_producto.addEventListener('click', function () {
+            opcion_servicio.checked = false;
+            formulario_busqueda.style.display = 'flex';
+        });
+
+        opcion_servicio.addEventListener('click', function () {
+            opcion_producto.checked = false;
+            formulario_busqueda.style.display = 'none';
+
+        });
+
+        let radioServicio = document.getElementById('radio_servicio');
+        let formulario = document.getElementById('servicio');
+        radioServicio.addEventListener('change', function() {
+            this.closest('form').submit();
+            console.log("Formulario enviado con valor:", this.value);
+        });
+
+
+
+
+    </script>
+    <script src="https://kit.fontawesome.com/85e6f64c7f.js" crossorigin="anonymous"></script>
+{% endblock %}

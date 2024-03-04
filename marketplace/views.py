@@ -1,16 +1,18 @@
 from django.shortcuts import render, get_object_or_404
 from .models import *
 
+from django.http import HttpResponse
+from django.shortcuts import render
 
-# Create your views here.
+from marketplace.models import *
 
 
 def index(request):
-    return render(request, 'plantilla_hija_ejemplo.html')
+    return render(request, 'home.html',
+                  context={"products": Producto.objects.all(), "categorias": Categoria.objects.all()})
 
 
 def metricas(request, vendedor_id):
-    
     anio = 2023
     mes = 12
 
@@ -70,3 +72,160 @@ def metricas(request, vendedor_id):
     }
 
     return render(request, 'metrica.html', context)
+
+
+def feedback(request):
+    causas = dict()
+    porcentajes_calculados = list()
+    calificaciones_recibidas = list()
+    estrellas = [1, 2, 3, 4, 5]
+    num_estrella_calculada = 0
+    if request.method == 'POST':
+        if request.POST.get('opcion') == 'Servicio':
+            servicio = Servicio.objects.filter(vendedor_id=1).first()
+            calificaciones_recibidas = Calificacion.objects.filter(id_servicio_id=servicio.id)
+            porcentajes_calculados = servicio.obtener_porcentajes_de_calificaciones()
+            causas_dict = servicio.obtener_causas_de_cada_estrella(calificaciones_recibidas)
+            causas = list(causas_dict.values())
+            print(causas)
+            num_estrella_calculada = servicio.obtener_promedio_general_del_servicio()
+            return render(request, 'feedback.html', {
+                'causas': causas,
+                'porcentajes_calculados': porcentajes_calculados,
+                'num_estrella_calculada': num_estrella_calculada,
+                'estrellas': estrellas,
+                'nombre': request.POST.get('opcion')
+            })
+        else:
+            productos = Producto.objects.filter(vendedor_id=1).all()
+            for producto in productos:
+                if request.POST.get('nombre_producto') is not None and request.POST.get(
+                        'nombre_producto') == producto.nombre:
+                    producto = Producto.objects.filter(nombre=request.POST.get('nombre_producto')).first()
+                    calificaciones_recibidas = Calificacion.objects.filter(id_producto_id=producto.id)
+                    porcentajes_calculados = producto.obtener_porcentajes_de_calificaciones()
+                    causas_dict = producto.obtener_causas_de_cada_estrella(calificaciones_recibidas)
+                    causas = list(causas_dict.values())
+                    print(causas)
+                    num_estrella_calculada = producto.obtener_promedio_general_del_producto()
+                    return render(request, 'feedback.html', {
+                        'causas': causas,
+                        'porcentajes_calculados': porcentajes_calculados,
+                        'num_estrella_calculada': num_estrella_calculada,
+                        'estrellas': estrellas,
+                        'nombre': request.POST.get('nombre_producto')
+                    })
+    else:
+        return render(request, 'feedback.html')
+
+
+def buscar_producto(request):
+    query = request.GET.get('q', '')
+    productos = Producto.objects.filter(nombre__icontains=query).order_by('-promocion')
+    return render(request, 'home.html', {'productos': productos, 'query': query})
+
+
+def seguimiento_interno(request):
+    # Obtener todos los pedidos de la base de datos
+    pedidos = Pedido.objects.all()
+
+    # Iterar sobre cada pedido y llamar al método cambiar_estado
+    for pedido in pedidos:
+        pedido.cambiar_estado()
+
+    # Total pedidos del vendedor 1
+    total_pedidos_vendedor = Pedido.total_pedidos_vendedor(1)
+
+    # Obtener los totales y conteos por etapa
+    total_pedidos_precompra, precompra_atrasados, precompra_a_tiempo, precompra_cancelados = Pedido.sumar_y_contar_por_etapa(
+        Pedido.PRECOMPRA, 1)
+    total_pedidos_reserva, reserva_atrasados, reserva_a_tiempo, reserva_cancelados = Pedido.sumar_y_contar_por_etapa(
+        Pedido.RESERVA, 1)
+    total_pedidos_listo_para_entregar, listo_para_entregar_atrasados, listo_para_entregar_a_tiempo, listo_para_entregar_cancelados = Pedido.sumar_y_contar_por_etapa(
+        Pedido.LISTO_PARA_ENTREGAR, 1)
+
+    context = {
+        'total_pedidos_vendedor': total_pedidos_vendedor,
+        'total_pedidos_precompra': total_pedidos_precompra,
+        'total_pedidos_reserva': total_pedidos_reserva,
+        'total_pedidos_listo_para_entregar': total_pedidos_listo_para_entregar,
+        'precompra_a_tiempo': precompra_a_tiempo,
+        'precompra_atrasados': precompra_atrasados,
+        'precompra_cancelados': precompra_cancelados,
+        'reserva_a_tiempo': reserva_a_tiempo,
+        'reserva_atrasados': reserva_atrasados,
+        'reserva_cancelados': reserva_cancelados,
+        'listo_para_entregar_a_tiempo': listo_para_entregar_a_tiempo,
+        'listo_para_entregar_atrasados': listo_para_entregar_atrasados,
+        'listo_para_entregar_cancelados': listo_para_entregar_cancelados
+    }
+
+    return render(request, 'seguimiento_interno.html', context)
+
+
+def seguimiento_entrega(request, vendedor_id):
+    vendedor = Vendedor.objects.get(id=vendedor_id)
+    todos_los_pedidos = vendedor.listar_pedidos()
+
+    for pedido in todos_los_pedidos:
+        pedido.actualizar_estado_pedido(anios=0, meses=0, semanas=0, dias=0)
+
+    numero_pedidos_totales = vendedor.total_pedidos_vendedor()
+    numero_pedidos_totales_a_tiempo = vendedor.contar_pedidos_por_estado(Pedido.A_TIEMPO)
+    numero_pedidos_totales_atrasado = vendedor.contar_pedidos_por_estado(Pedido.ATRASADO)
+    numero_pedidos_totales_cliente_no_encotrado = vendedor.contar_pedidos_por_estado(Pedido.ATRASADO)
+
+    numero_pedidos_listo_para_entregar_totales = vendedor.contar_pedidos_por_etapa(Pedido.LISTO_PARA_ENTREGAR)
+    numero_pedidos_listo_para_entregar_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.LISTO_PARA_ENTREGAR, Pedido.A_TIEMPO)
+    numero_pedidos_listo_para_entregar_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.LISTO_PARA_ENTREGAR, Pedido.ATRASADO)
+
+    numero_pedidos_repartidor_asignado_totales = vendedor.contar_pedidos_por_etapa(Pedido.REPARTIDOR_ASIGNADO)
+    numero_pedidos_repartidor_asignadio_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.REPARTIDOR_ASIGNADO, Pedido.A_TIEMPO)
+    numero_pedidos_repartidor_asignadio_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.REPARTIDOR_ASIGNADO, Pedido.ATRASADO)
+
+    numero_pedidos_embarcado_totales = vendedor.contar_pedidos_por_etapa(Pedido.EMBARCADO)
+    numero_pedidos_embarcado_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(Pedido.EMBARCADO, Pedido.A_TIEMPO)
+    numero_pedidos_embarcado_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(Pedido.EMBARCADO, Pedido.ATRASADO)
+
+    numero_pedidos_paquete_no_entregado_totales = vendedor.contar_pedidos_por_etapa(Pedido.PAQUETE_NO_ENTREGADO)
+    numero_pedidos_paquete_no_entregado_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_NO_ENTREGADO, Pedido.A_TIEMPO)
+    numero_pedidos_paquete_no_entregado_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_NO_ENTREGADO, Pedido.ATRASADO)
+    numero_pedidos_paquete_no_entregado_cliente_no_encontrado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_NO_ENTREGADO, Pedido.CLIENTE_NO_ENCONTRADO)
+
+    numero_pedidos_paquete_entregado_totales = vendedor.contar_pedidos_por_etapa(Pedido.PAQUETE_ENTREGADO)
+    numero_pedidos_paquete_entregado_a_tiempo = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_ENTREGADO, Pedido.A_TIEMPO)
+    numero_pedidos_paquete_entregado_atrasado = vendedor.contar_pedidos_por_estado_en_etapa(
+        Pedido.PAQUETE_ENTREGADO, Pedido.ATRASADO)
+
+    context = {
+        'numero_pedidos_totales': numero_pedidos_totales,
+        'numero_pedidos_totales_a_tiempo': numero_pedidos_totales_a_tiempo,
+        'numero_pedidos_totales_atrasado': numero_pedidos_totales_atrasado,
+        'numero_pedidos_totales_cliente_no_encotrado': numero_pedidos_totales_cliente_no_encotrado,
+        'numero_pedidos_listo_para_entregar_a_tiempo': numero_pedidos_listo_para_entregar_a_tiempo,
+        'numero_pedidos_listo_para_entregar_atrasado': numero_pedidos_listo_para_entregar_atrasado,
+        'numero_pedidos_listo_para_entregar_totales': numero_pedidos_listo_para_entregar_totales,
+        'numero_pedidos_repartidor_asignado_totales': numero_pedidos_repartidor_asignado_totales,
+        'numero_pedidos_repartidor_asignadio_a_tiempo': numero_pedidos_repartidor_asignadio_a_tiempo,
+        'numero_pedidos_repartidor_asignadio_atrasado': numero_pedidos_repartidor_asignadio_atrasado,
+        'numero_pedidos_embarcado_totales': numero_pedidos_embarcado_totales,
+        'numero_pedidos_embarcado_a_tiempo': numero_pedidos_embarcado_a_tiempo,
+        'numero_pedidos_embarcado_atrasado': numero_pedidos_embarcado_atrasado,
+        'numero_pedidos_paquete_no_entregado_totales': numero_pedidos_paquete_no_entregado_totales,
+        'numero_pedidos_paquete_no_entregado_a_tiempo': numero_pedidos_paquete_no_entregado_a_tiempo,
+        'numero_pedidos_paquete_no_entregado_atrasado': numero_pedidos_paquete_no_entregado_atrasado,
+        'numero_pedidos_paquete_no_entregado_cliente_no_encontrado': numero_pedidos_paquete_no_entregado_cliente_no_encontrado,
+        'numero_pedidos_paquete_entregado_totales': numero_pedidos_paquete_entregado_totales,
+        'numero_pedidos_paquete_entregado_a_tiempo': numero_pedidos_paquete_entregado_a_tiempo,
+        'numero_pedidos_paquete_entregado_atrasado': numero_pedidos_paquete_entregado_atrasado
+    }
+
+    return render(request, 'seguimiento_entrega.html', context)

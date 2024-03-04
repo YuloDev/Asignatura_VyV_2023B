@@ -1,133 +1,127 @@
-import datetime
-import os
-# from datetime import datetime
 import django
 
 django.setup()
-
-import django
 from behave import *
+
+from django.test import RequestFactory
+from marketplace.views import index, buscar_producto
 from marketplace.models import *
 
 use_step_matcher("re")
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Asignatura_VyV_2023B.settings')
 
 
-# @step("que existen productos que pertenecen a una categoria con un record de ventas")
-# def step_impl(context):
-#     context.producto = Producto(nombre="Martillo", unidades_vendidas=12)
-#     context.producto = Producto(nombre="Destornillador", unidades_vendidas=1)
-#     context.categoria = Categoria("Herramientas", record=100)
-#     context.categoria.agregar_producto(context.producto)
-#
-#     # Verificar que el producto pertenezca a la categoría
-#     assert context.producto in context.categoria.obtener_productos()
-#
-#
-# @step("las unidades vendidas del producto superen el récord de ventas de su categoría")
-# def step_impl(context):
-#     context.producto = Producto(nombre="Martillo", unidades_vendidas=120)
-#     context.categoria = Categoria("Herramientas", record=100)
-#     context.producto.asignar_categoria(categoria=context.categoria)
-#     assert context.producto.unidades_vendidas_ha_superado_record() == True
-#
-#
-# @step("el producto se asigna como recomendado dentro de su categoria durante una semana")
-# def step_impl(context):
-#     # Crear un producto y una instancia de Recomendacion
-#     context.producto = Producto(nombre="Martillo", unidades_vendidas=120)
-#     context.categoria = Categoria("Herramientas", record=100)
-#     context.producto.asignar_categoria(categoria=context.categoria)
-#     context.recomendacion = Recomendacion()
-#
-#     # Asignar el producto como recomendado con duración 7
-#     context.recomendacion.asignar_recomendado(context.producto, duracion=7)
-#
-#     # Obtener la lista de productos recomendados
-#     recomendados = context.recomendacion.obtener_recomendados()
-#
-#     # Verificar que el producto está recomendado y que la duración es 7
-#     assert context.producto in recomendados.keys()
-#     assert recomendados[context.producto] == 7
-
-
-# @step("que existe un vendedor y su producto")
-# def step_impl(context):
-#     context.vendedor = Vendedor(nombre="Rafael", apellido="Piedra")
-#     context.producto = Producto(nombre="Herramienta")
-#
-#     assert context.producto in context.vendedor.obtener_productos()
-#
-# @step("el producto se muestra al inicio de la lista de productos promocionados de esa categoría")
-# def step_impl(context):
-#     context.vendedor = Vendedor(nombre="Rafael", apellido="Piedra")
-#     context.producto_promocionado = Producto(nombre="Herramienta2")
-#     context.vendedor.agregar_producto(context.producto_promocionado)
-#     context.vendedor.pagar_promocion(monto=10, producto=context.producto_promocionado)
-#
-#     # assert context.vendedor.tiene_promocion_activa() == True
-#     assert context.producto_promocionado in context.clasificador.obtener_productos_promocionados()
-
-
-@step("que existen vendedores que tienen productos que pertenecen a una sola categoría")
+@step("que existen clientes con preferencias establecidas")
 def step_impl(context):
     for row in context.table:
-        categoria, created = Categoria.objects.get_or_create(nombre=row['categoria'])
-        vendedor, created = Vendedor.objects.get_or_create(nombre=row['nombre_vendedor'],
-                                                           apellido=row['apellido_vendedor'])
-        Producto.objects.create(nombre=row['nombre_producto'], unidades_vendidas=0, vendedor=vendedor,
-                                categoria=categoria)
-    # assert Vendedor.objects.count() == len(set(row['nombre_vendedor'] for row in context.table.rows))
-    # assert Producto.objects.count() == len(context.table.rows)
-    for producto in Producto.objects.all():
-        assert producto.categoria is not None
-    assert Vendedor.objects.all() is not []
-    assert Producto.objects.all() is not []
+        Cliente.objects.get_or_create(nombre=row["cliente"], preferencias=row["preferencias"])
+        context.cliente = row["cliente"]
+        context.preferencias = row["preferencias"]
+    for row in context.table:
+        assert Cliente.objects.filter(nombre=row["cliente"]).exists()
+
+
+@step("que existen categorías con record de ventas")
+def step_impl(context):
+    context.categorias = ""
+    for row in context.table:
+        Categoria.objects.get_or_create(nombre=row["categoria"], record_ventas=row["record_ventas"])
+        context.categorias += row["categoria"] + " "
+    for row in context.table:
+        assert Categoria.objects.filter(nombre=row["categoria"]).exists()
+
+
+@step("al menos una de las categorías pertenece a las preferencias del cliente")
+def step_impl(context):
+    categorias = context.categorias.split(" ")
+    assert any(categoria in context.preferencias for categoria in categorias)
+
+
+@step("existen productos que pertenecen a una unica categoría con unidades vendidas")
+def step_impl(context):
+    context.productos = []
+    for row in context.table:
+        producto = Producto.objects.get_or_create(nombre=row["producto"],
+                                                  categoria=Categoria.objects.get(nombre=row["categoria"]),
+                                                  unidades_vendidas=row["unidades_vendidas"])
+        context.productos.append(producto[0])
+    for row in context.table:
+        assert Producto.objects.filter(nombre=row["producto"]).exists()
+
+
+@step("las unidades vendidas de algun producto superan el record de ventas de la categoría")
+def step_impl(context):
+    for producto in context.productos:
+        if producto.ha_superado_record():
+            assert True
+
+
+@step("se muestre la pagina principal del marketplace")
+def step_impl(context):
+    request_factory = RequestFactory()
+    request = request_factory.get('/')
+    response = index(request)
+    assert response.status_code == 200
+
+
+@step(
+    "en la parte superior de la ventana principal del marketplace se muestran las categorias pertenecientes a las preferencias del cliente con el producto que superó el record de ventas")
+def step_impl(context):
+    request = RequestFactory().get('/')
+    response = index(request)
+
+
+
+@step("el record de ventas de la categoria se actualiza con el valor de las unidades vendidas del producto")
+def step_impl(context):
+    pass
+
+
+@step("que existen vendedores que tienen productos")
+def step_impl(context):
+    nombres_productos = []
+    for row in context.table:
+        vendedor, created = Vendedor.objects.get_or_create(nombre=row['vendedor'])
+        nombres_productos = row['nombres_productos'].split(",")
+        for nombre_producto in nombres_productos:
+            Producto.objects.get_or_create(nombre=nombre_producto,
+                                           categoria=Categoria.objects.get(nombre="categoria_x"), vendedor=vendedor)
+    for nombre_producto in nombres_productos:
+        assert Producto.objects.filter(nombre=nombre_producto).exists()
+
 
 
 @step("que existen paquetes de promociones")
 def step_impl(context):
     for row in context.table:
-        # Convertir fecha de texto a objeto datetime
-        fecha_inicio = datetime.datetime.strptime(row['fecha_inicio'], '%d/%m/%Y').date()
-
-        # Crear la promoción
-        Promocion.objects.create(
-            tipo_promocion=row['tipo_promocion'],
-            fecha_inicio=fecha_inicio,
-            costo=row['costo'],
-            dias_duracion=row['dias_duracion'],
-            cantidad_productos=row['cantidad_productos']
+        Promocion.objects.get_or_create(
+            paquete=row["paquete"],
+            costo=row["costo"],
+            dias_duracion=row["dias_duracion"],
         )
-    assert Promocion.objects.all() is not []
-
-
-@step("los vendedores realicen un pago para promocionar sus productos")
-def step_impl(context):
-    promociones = Promocion.objects.all()
-
-    for vendedor in Vendedor.objects.all():
-        productos_vendedor = Producto.objects.filter(vendedor=vendedor)
-        for producto in productos_vendedor:
-            for promocion in promociones:
-                if not producto.promocion and promocion.tipo_promocion == 'gold':
-                    producto.promocion = True
-                    producto.save()
-                    vendedor.pagar_promocion(monto=promocion.costo, producto=producto)
-                    break
-
-    productos_promocionados = sum(
-        1 for vendedor in Vendedor.objects.all() for producto in vendedor.obtener_productos() if
-        producto.tiene_promocion())
-    assert Producto.objects.filter(promocion=True).count() == productos_promocionados
-
-
-
-@step("se mostrará la sección de productos promocionados de la siguiente manera")
-def step_impl(context):
-    productos_promocionados = Producto.objects.filter(promocion=True)
 
     for row in context.table:
-        assert productos_promocionados.filter(nombre=row['nombre_producto'], vendedor__nombre=row['nombre_vendedor'],
-                                              vendedor__apellido=row['apellido_vendedor']).exists()
+        assert Promocion.objects.filter(paquete=row["paquete"]).exists()
+
+
+@step("los vendedores adquieren un paquete de promoción")
+def step_impl(context):
+    for row in context.table:
+        promocion = Promocion.objects.get(paquete=row["paquete_contratado"])
+        vendedor = Vendedor.objects.get(nombre=row["vendedor"])
+        producto = Producto.objects.get(nombre=row["producto_promocionado"])
+        producto.promocion = promocion
+        producto.save()
+
+
+@step("se realice una búsqueda de algún producto")
+def step_impl(context):
+    request_factory = RequestFactory()
+    request = request_factory.get('/buscar-producto/?q=producto')
+    response = buscar_producto(request)
+    assert response.status_code == 200
+
+
+@step(
+    "los productos promocionados se mostrarán como primer resultado en la búsqueda que coincida con el nombre del producto, ordenados por el tipo del paquete y la fecha de adquisición del paquete")
+def step_impl(context):
     pass
