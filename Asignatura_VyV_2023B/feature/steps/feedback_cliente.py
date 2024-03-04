@@ -14,13 +14,11 @@ use_step_matcher("re")
 def step_impl(context):
     context.producto = Producto.objects.get(nombre="Martillo")
     arreglo_productos_pedidos = [context.producto]
-    context.cliente = Cliente.objects.get(cedula="1752124578")
-    pedido, creado = Pedido.objects.get_or_create(estado_pedido="Entregado", cliente_id=context.cliente.cedula,
-                                                  servicio_id=1)
-    context.pedido, creado = pedido, creado
-    # Ver el estado del pago
-    assert ((context.pedido.estado_pedido == "Entregado"
-             or context.pedido.estado_pedido == "Entregado con retraso")), "No se entrego el pedido correctamente"
+    context.cliente = Cliente.objects.get(cedula="200101200018")
+    context.pedido = Pedido.objects.get(cliente_id=context.cliente.cedula)
+
+    assert ((context.pedido.estado_pedido == "A"
+             or context.pedido.estado_pedido == "AT")), "No se entrego el pedido correctamente"
 
 
 @step("se tiene un Producto con las siguientes valoraciones totales")
@@ -63,7 +61,7 @@ def step_impl(context):
         if causa == "Concuerda con la descripcion":
             causas_seleccionada.append(causa)
 
-    calificaciones_recibidas = list(Calificacion.objects.filter(id_producto_id=context.producto.id))
+    calificaciones_recibidas = list(Calificacion.objects.filter(id_producto_id=context.producto.id_producto))
     context.cliente.calificar_producto(3, causas_seleccionada, context.producto, calificaciones_recibidas)
 
     if calificaciones_recibidas[-1] is None:
@@ -110,10 +108,8 @@ def step_impl(context):
 def step_impl(context):
     context.producto = Producto.objects.get(nombre="Martillo")
     arreglo_productos_pedidos = [context.producto]
-    context.cliente = Cliente.objects.get(cedula="1752124578")
-    pedido, creado = Pedido.objects.get_or_create(estado_pedido="Entregado", cliente_id=context.cliente.cedula,
-                                                  servicio_id=1)
-    context.pedido, creado = pedido, creado
+    context.cliente = Cliente.objects.get(cedula="200101200018")
+    context.pedido = Pedido.objects.get(cliente_id=context.cliente.cedula)
     producto_con_feedback = context.producto.feedback_producto_esta_dado()
     assert producto_con_feedback == True, "No se ha calificado el producto"
 

@@ -102,7 +102,7 @@ def feedback(request):
                 if request.POST.get('nombre_producto') is not None and request.POST.get(
                         'nombre_producto') == producto.nombre:
                     producto = Producto.objects.filter(nombre=request.POST.get('nombre_producto')).first()
-                    calificaciones_recibidas = Calificacion.objects.filter(id_producto_id=producto.id)
+                    calificaciones_recibidas = Calificacion.objects.filter(id_producto_id=producto.id_producto)
                     porcentajes_calculados = producto.obtener_porcentajes_de_calificaciones()
                     causas_dict = producto.obtener_causas_de_cada_estrella(calificaciones_recibidas)
                     causas = list(causas_dict.values())
