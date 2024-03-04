@@ -53,31 +53,15 @@ def step_impl(context):
 
 @step("el numero de pedidos totales y el tiempo estimado para cada etapa en dias es el siguiente")
 def step_impl(context):
-    # # Crear una instancia de la clase Etapa
-    # context.etapa = Etapa()
-    #
-    # # Agregar pedidos a cada una de las etapas
-    # for pedido in context.vendedor.lista_pedidos:
-    #     context.etapa.agregar_pedido(pedido, pedido.etapa_pedido)
-    #
-    # # Calcular la información de las etapas utilizando el método en el modelo
-    # info_etapas = context.etapa.calcular_info_etapas()
-    #
-    # # Iterar sobre las filas de la tabla de BDD
-    # for row in context.table:
-    #     # Obtener el nombre de la etapa de la fila y convertirlo a minúsculas
-    #     etapa_nombre = row["etapa_pedido"].lower()
-    #
-    #     # Obtener el número total de pedidos y el tiempo estimado para la etapa actual
-    #     total_pedidos = info_etapas[etapa_nombre]["total_pedidos"]
-    #     tiempo_etapa = info_etapas[etapa_nombre]["tiempo_etapa"]
-    #
-    #     # Comparar con los valores proporcionados en la tabla de BDD
-    #     assert total_pedidos == int(
-    #         row["total_pedidos"]), f"El número total de pedidos para la etapa {etapa_nombre} no coincide"
-    #     assert tiempo_etapa == int(row["tiempo_etapa"]), f"El tiempo estimado para la etapa {etapa_nombre} no coincide"
+    # Calcular el número total de pedidos en cada etapa
+    total_pedidos_precompra = Pedido.objects.filter(etapa_pedido="precompra").count()
+    total_pedidos_reserva = Pedido.objects.filter(etapa_pedido="reserva").count()
+    total_pedidos_listo_para_entregar = Pedido.objects.filter(etapa_pedido="listo_para_entregar").count()
 
-    pass
+    # Verificar si los resultados son los esperados
+    assert total_pedidos_precompra == 2, "El número de pedidos en la etapa de precompra no es el esperado"
+    assert total_pedidos_reserva == 2, "El número de pedidos en la etapa de reserva no es el esperado"
+    assert total_pedidos_listo_para_entregar == 2, "El número de pedidos en la etapa de listo para entregar no es el esperado"
 
 
 @step("accede al resumen del seguimiento interno en la etapa de precompra")
@@ -107,42 +91,49 @@ def step_impl(context):
 @step(
     "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de precompra")
 def step_impl(context):
-    # # Validar los datos con la tabla de características
-    # for row in context.table:
-    #     estado_pedido = row["estado_pedido"]
-    #     numero_pedidos_esperados = int(row["numero_pedidos"])
-    #
-    #     if estado_pedido == "a_tiempo":
-    #         assert context.resumen_PreCompra.num_pedidos_a_tiempo == numero_pedidos_esperados, f"El número de pedidos a tiempo no coincide"
-    #     elif estado_pedido == "atrasado":
-    #         assert context.resumen_PreCompra.num_pedidos_atrasados == numero_pedidos_esperados, f"El número de pedidos atrasados no coincide"
-    #     elif estado_pedido == "cancelado":
-    #         assert context.resumen_PreCompra.num_pedido_cancelados == numero_pedidos_esperados, f"El número de pedidos cancelados no coincide"
-    #     else:
-    #         raise ValueError(f"Estado de pedido no reconocido: {estado_pedido}")
-    pass
+    # Filtrar pedidos en la etapa de precompra
+    pedidos_precompra = Pedido.objects.filter(etapa_pedido="PC")
+
+    # Contar pedidos a tiempo, atrasados y cancelados en la etapa de precompra
+    p_a_tiempo = pedidos_precompra.filter(estado_pedido="AT").count()
+    p_atrasados = pedidos_precompra.filter(estado_pedido="A").count()
+    p_cancelados = pedidos_precompra.filter(estado_pedido="C").count()
+
+    # Verificar si los resultados son los esperados
+    assert p_a_tiempo == 1, "El número de pedidos a tiempo en la etapa de precompra no es el esperado"
+    assert p_atrasados == 0, "El número de pedidos atrasados en la etapa de precompra no es el esperado"
+    assert p_cancelados == 1, "El número de pedidos cancelados en la etapa de precompra no es el esperado"
 
 
 @step(
     "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de reserva")
 def step_impl(context):
-    # # Validar los datos con la tabla de características
-    # for row in context.table:
-    #     estado_pedido = row["estado_pedido"]
-    #     numero_pedidos_esperados = int(row["numero_pedidos"])
-    #
-    #     if estado_pedido == "a_tiempo":
-    #         assert context.resumen_PreCompra.num_pedidos_a_tiempo == numero_pedidos_esperados, f"El número de pedidos a tiempo no coincide"
-    #     elif estado_pedido == "atrasado":
-    #         assert context.resumen_PreCompra.num_pedidos_atrasados == numero_pedidos_esperados, f"El número de pedidos atrasados no coincide"
-    #     elif estado_pedido == "cancelado":
-    #         assert context.resumen_PreCompra.num_pedido_cancelados == numero_pedidos_esperados, f"El número de pedidos cancelados no coincide"
-    #     else:
-    #         raise ValueError(f"Estado de pedido no reconocido: {estado_pedido}")
-    pass
+    # Filtrar pedidos en la etapa de precompra
+    pedidos_reserva = Pedido.objects.filter(etapa_pedido="R")
+
+    # Contar pedidos a tiempo, atrasados y cancelados en la etapa de precompra
+    p_a_tiempo = pedidos_reserva.filter(estado_pedido="AT").count()
+    p_atrasados = pedidos_reserva.filter(estado_pedido="A").count()
+    p_cancelados = pedidos_reserva.filter(estado_pedido="C").count()
+
+    # Verificar si los resultados son los esperados
+    assert p_a_tiempo == 1, "El número de pedidos a tiempo en la etapa de reserva no es el esperado"
+    assert p_atrasados == 1, "El número de pedidos atrasados en la etapa de reserva no es el esperado"
+    assert p_cancelados == 0, "El número de pedidos cancelados en la etapa de reserva no es el esperado"
 
 
 @step(
     "puede visualizar gráficas que proporcionen información sobre el numero de pedidos totales, el numero de pedidos cancelados, el numero de pedidos a tiempo y el numero de pedidos atrasados cuando sobrepasan el tiempo estimado para la etapa de listo_para_entregar")
 def step_impl(context):
-    pass
+    # Filtrar pedidos en la etapa de precompra
+    pedidos_listo_para_entregar = Pedido.objects.filter(etapa_pedido="LE")
+
+    # Contar pedidos a tiempo, atrasados y cancelados en la etapa de precompra
+    p_a_tiempo = pedidos_listo_para_entregar.filter(estado_pedido="AT").count()
+    p_atrasados = pedidos_listo_para_entregar.filter(estado_pedido="A").count()
+    p_cancelados = pedidos_listo_para_entregar.filter(estado_pedido="C").count()
+
+    # Verificar si los resultados son los esperados
+    assert p_a_tiempo == 0, "El número de pedidos a tiempo en la etapa de listo para entregar no es el esperado"
+    assert p_atrasados == 1, "El número de pedidos atrasados en la etapa de listo para entregar no es el esperado"
+    assert p_cancelados == 1, "El número de pedidos cancelados en la etapa de listo para entregar no es el esperado"
