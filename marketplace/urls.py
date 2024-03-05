@@ -24,5 +24,6 @@ urlpatterns = [
     path('seguimiento_entrega/<int:vendedor_id>', views.seguimiento_entrega, name='seguimiento_entrega'),
     path('seguimientoInterno', views.seguimiento_interno),
     path('feedback/', views.feedback, name='feedback'),
-    path('metrica/<int:vendedor_id>/', views.metricas)
+    path('metrica/<int:vendedor_id>/', views.metricas),
+    path('buscar_producto/', views.buscar_producto,name='buscar_producto'),
 ]

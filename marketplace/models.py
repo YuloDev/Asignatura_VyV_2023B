@@ -25,13 +25,15 @@ class Categoria(models.Model):
     def supera_record(self, cantidad):
         return cantidad > self.record_ventas
 
+    def actualizar_record(self, nuevo_record):
+        self.record_ventas = nuevo_record
+
 
 class Promocion(models.Model):
     id_promocion = models.AutoField(primary_key=True)
     paquete = models.CharField(max_length=30)
     costo = models.DecimalField(decimal_places=2, max_digits=10, default=0)
     dias_duracion = models.IntegerField(default=0)
-    fecha_inicio = models.DateField()
 
 
 class Cliente(models.Model):
@@ -41,6 +43,7 @@ class Cliente(models.Model):
     correo = models.EmailField(max_length=50)
     telefono = models.CharField(max_length=10)
     preferencias = models.CharField(max_length=200, blank=True)
+
     def calificar_producto(self, estrellas, causas, producto, calificaciones_recibidas):
         calificacion = Calificacion(estrellas=estrellas, causas=causas, id_producto=producto)
         calificacion.save()
@@ -51,6 +54,14 @@ class Cliente(models.Model):
         print(causas)
         pedido.servicio.agregar_calificacion(calificacion, calificaciones_recibidas)
         calificacion.save()
+
+    def obtener_productos_destacados_de_cliente(self):
+        productos_destacados = []
+        productos = Producto.obtener_productos_destacados()
+        for producto in productos:
+            if str(producto.categoria) in self.preferencias:
+                productos_destacados.append(producto)
+        return productos_destacados
 
 
 class Vendedor(models.Model):
@@ -123,6 +134,9 @@ class Vendedor(models.Model):
 
 
 class Producto(models.Model):
+    def __str__(self):
+        return self.nombre
+
     id_producto = models.AutoField(primary_key=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=50, default="")
@@ -132,6 +146,7 @@ class Producto(models.Model):
     calificaciones = JSONField(default=dict)
     precio = models.FloatField()
     costo = models.FloatField()
+    supera_record = models.BooleanField(default=False)
 
     def ha_superado_record(self):
         return self.categoria.supera_record(self.unidades_vendidas)
@@ -204,6 +219,30 @@ class Producto(models.Model):
 
     def obtener_costo(self):  # Necesario?
         return self.costo
+
+    @staticmethod
+    def obtener_productos_destacados():
+        for producto in Producto.objects.all():
+            if producto.ha_superado_record():
+                producto.supera_record = True
+                producto.save()
+        return Producto.objects.filter(supera_record=True)
+
+    @staticmethod
+    def actualizar_record_categorias():
+        for producto in Producto.obtener_productos_destacados():
+            categoria = Categoria.objects.get(nombre=producto.categoria)
+            categoria.record_ventas = producto.unidades_vendidas
+            categoria.save()
+
+    @staticmethod
+    def buscar_productos(busqueda):
+        productos = Producto.objects.filter(nombre__icontains=busqueda)
+        productos = productos.order_by('promocion__producto')
+        if productos:
+            return productos
+        else:
+            return ["No se han encontrado coincidencias"]
 
 
 class Servicio(models.Model):
