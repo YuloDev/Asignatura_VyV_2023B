@@ -75,6 +75,17 @@
         .icon_p{
             margin: 0px 10px 0px 40px;
         }
+        .hidden {
+            display: none;
+        }
+        ul {
+            max-height: 200px;
+            overflow-y: auto;
+            width: 90%;
+        }
+        ul li:hover {
+            cursor: pointer;
+        }
     </style>
     <div class="form-check mb-3 mt-3">
         <input class="form-check-input mx-2" type="radio" name="radio_producto" id="radio_producto">
@@ -83,12 +94,15 @@
             Producto
         </label>
     </div>
-        <form class="input-group mb-4" id="formulario_busqueda" method="POST" action="{% url 'feedback' %}">
+        <form class="input-group mb-2" id="formulario_busqueda" method="POST" action="{% url 'feedback' %}">
             <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <input type="hidden" name="list_prod" value="Producto">
             <input type="text" class="form-control" placeholder="Ingrese el nombre del producto"
                    id="input_producto" name="nombre_producto" aria-label="Ingrese el nombre del producto" aria-describedby="button-addon2">
             <input class="btn btn-outline-secondary" type="submit" value="Buscar" id="btn_buscar">
         </form>
+        <ul id="lista_productos" class="hidden list-group ms-4 mb-3"></ul>
+
     <form class="form-check" id="servicio" method="POST" action="{% url 'feedback' %}">
         <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
         <input class="form-check-input m-2" type="radio" value="Servicio" name="opcion" id="radio_servicio">
@@ -135,6 +149,7 @@
     </div>
 
     <script>
+
         function seleccionarEstrellas(numEstrellas) {
             var estrellas = document.querySelectorAll('.rating input[type="radio"]');
             for (var i = 0; i < estrellas.length; i++) {
@@ -171,8 +186,64 @@
             console.log("Formulario enviado con valor:", this.value);
         });
 
+        document.addEventListener('DOMContentLoaded', function() {
+            var inputProducto = document.getElementById('input_producto');
+            var listaProductos = document.getElementById('lista_productos');
 
+            inputProducto.addEventListener('click', function() {
+                let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
+                let otroValor = document.querySelector('input[name="list_prod"]').value;
+
+                let xhr = new XMLHttpRequest();
+                xhr.open('POST', '{% url "feedback" %}', true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('X-CSRFToken', csrfToken); // Incluir el token CSRF como encabezado
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === XMLHttpRequest.DONE) {
+                        if (xhr.status === 200) {
+                            let response = JSON.parse(xhr.responseText);
+                            mostrarResultados(response.productos);
+                        } else {
+                            console.error('Error al obtener la lista de productos: ' + xhr.status);
+                        }
+                    }
+                };
+
+                let data = JSON.stringify({
+                    'list_prod': otroValor
+                });
+
+                xhr.send(data);
+            });
+
+            function mostrarResultados(productos) {
+                listaProductos.innerHTML = '';
+                productos.forEach(function(producto) {
+                    let listItem = document.createElement('li');
+                    listItem.textContent = producto.nombre;
+                    listItem.classList.add('list-group-item');
+                    listaProductos.appendChild(listItem);
+                });
+                listaProductos.classList.remove('hidden');
+            }
+        });
+
+        let inputBusqueda = document.getElementById('input_producto');
+        let listaProductos = document.getElementById('lista_productos');
+        document.addEventListener('click', function(event) {
+            if (event.target !== inputBusqueda) {
+              listaProductos.classList.add('hidden');
+            }
+        });
+        
+        listaProductos.addEventListener('click', function(event) {
+            let elementoLista = event.target;
+            if (elementoLista.tagName === 'LI') {
+                inputBusqueda.value = elementoLista.textContent;
+                listaProductos.classList.add('hidden');
+            }
+        });
 
     </script>
     <script src="https://kit.fontawesome.com/85e6f64c7f.js" crossorigin="anonymous"></script>

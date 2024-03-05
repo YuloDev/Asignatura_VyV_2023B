@@ -3,6 +3,8 @@ from .models import *
 
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.core.serializers import serialize
 
 from marketplace.models import *
 
@@ -80,8 +82,10 @@ def feedback(request):
     calificaciones_recibidas = list()
     estrellas = [1, 2, 3, 4, 5]
     num_estrella_calculada = 0
+    request_list_prod = 0
     if request.method == 'POST':
         if request.POST.get('opcion') == 'Servicio':
+            request_list_prod = 1
             servicio = Servicio.objects.filter(vendedor_id=1).first()
             calificaciones_recibidas = Calificacion.objects.filter(id_servicio_id=servicio.id)
             porcentajes_calculados = servicio.obtener_porcentajes_de_calificaciones()
@@ -115,6 +119,21 @@ def feedback(request):
                         'estrellas': estrellas,
                         'nombre': request.POST.get('nombre_producto')
                     })
+
+        if request_list_prod == 0:
+            try:
+                data = json.loads(request.body.decode('utf-8'))  # Analizar el cuerpo de la solicitud JSON
+                nombre_producto = data.get('list_prod')
+                if nombre_producto == 'Producto':
+                    productos = list(Producto.objects.filter(vendedor_id=1).all())
+                    productos_serializados = serialize('json', productos)
+                    productos_data = json.loads(productos_serializados)
+
+                    productos_list = [{'nombre': producto['fields']['nombre']} for producto in productos_data]
+
+                    return JsonResponse({'productos': productos_list})
+            except json.JSONDecodeError:
+                return HttpResponseBadRequest('Formato de solicitud JSON inválido')
     else:
         return render(request, 'feedback.html')
 
