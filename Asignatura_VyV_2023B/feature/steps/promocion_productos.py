@@ -123,7 +123,6 @@ def step_impl(context):
 def step_impl(context):
     for row in context.table:
         promocion = Promocion.objects.get(paquete=row["paquete_contratado"])
-        vendedor = Vendedor.objects.get(nombre=row["vendedor"])
         producto = Producto.objects.get(nombre=row["producto_promocionado"])
         producto.promocion = promocion
         producto.save()

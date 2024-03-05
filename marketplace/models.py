@@ -238,11 +238,11 @@ class Producto(models.Model):
     @staticmethod
     def buscar_productos(busqueda):
         productos = Producto.objects.filter(nombre__icontains=busqueda)
-        productos = productos.order_by('categoria__nombre')
+        productos = productos.order_by('promocion__producto')
         if productos:
             return productos
         else:
-            return "No se han encontrado coincidencias"
+            return ["No se han encontrado coincidencias"]
 
 
 class Servicio(models.Model):

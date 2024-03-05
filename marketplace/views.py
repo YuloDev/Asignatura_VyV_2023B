@@ -8,8 +8,11 @@ from marketplace.models import *
 
 
 def index(request):
+    cliente = Cliente.objects.get(nombre='Rafael Piedra')
+
     return render(request, 'home.html',
-                  context={"products": Producto.objects.all(), "categorias": Categoria.objects.all()})
+                  context={"productos": Producto.objects.all(), "categorias": Categoria.objects.all(),
+                           "productos_destacados": cliente.obtener_productos_destacados_de_cliente()})
 
 
 def metricas(request, vendedor_id):
@@ -120,9 +123,11 @@ def feedback(request):
 
 
 def buscar_producto(request):
-    query = request.GET.get('q', '')
-    productos = Producto.objects.filter(nombre__icontains=query).order_by('-promocion')
-    return render(request, 'home.html', {'productos': productos, 'query': query})
+    productos = []
+    if request.method == 'POST':
+        producto_nombre = request.POST.get('producto', '')
+        productos = Producto.objects.filter(nombre__icontains=producto_nombre).order_by('-promocion')
+    return render(request, 'producto.html', {'productos': productos})
 
 
 def seguimiento_interno(request):
